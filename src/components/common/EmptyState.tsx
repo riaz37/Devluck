@@ -9,7 +9,7 @@ type EmptyStateProps = {
   icon?: ReactNode;
   action?: ReactNode; // Added slot for a CTA button
   className?: string;
-};
+};   
 
 export function EmptyState({
   title,

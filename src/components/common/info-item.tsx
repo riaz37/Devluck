@@ -9,7 +9,7 @@ type InfoItemProps = {
   icon?: ReactNode;
   highlight?: boolean;
 };
-
+    
 export function InfoItem({
   label,
   value,

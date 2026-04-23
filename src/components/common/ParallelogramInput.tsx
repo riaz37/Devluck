@@ -10,8 +10,8 @@ type Props = {
   value: string|number;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   type?: "text" | "email" | "password" | "number" | "textarea";
-};
-
+};  
+   
 export const ParallelogramInput = ({
   label,
   placeholder,

@@ -13,7 +13,7 @@ export function LoadingState({
   className 
 }: LoadingStateProps) {
   return (
-    <div
+    <div  
       className={cn(
         "flex min-h-[400px] w-full flex-col items-center justify-center rounded-3xl  backdrop-blur-[2px] p-8 animate-in fade-in duration-700",
         className

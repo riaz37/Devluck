@@ -12,7 +12,7 @@ type ErrorStateProps = {
   onRetry?: () => void;
   className?: string;
 };
-
+   
 export function ErrorState({
   title = "Something went wrong",
   description = "We encountered an error while fetching your data.",

@@ -13,7 +13,7 @@ interface SelectionBarProps {
   isVisible: boolean;
   className?: string;
 }
-
+   
 export function SelectionBar({
   selectedCount,
   onClearSelection,

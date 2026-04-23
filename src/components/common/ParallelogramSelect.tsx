@@ -15,7 +15,7 @@ type ParallelogramSelectProps = {
   options: string[];
   onChange: (value: string) => void;
 };
-
+   
 export const ParallelogramSelect = ({
   label,
   placeholder,
