@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { DataTable } from "@/components/common/DataTable";
 import { ContractCard } from "@/components/Student/ContractCard";
 import DisputeModal from "@/components/Student/Modal/DisputeModal";
+import { ContractCardSkeleton } from "@/components/Student/Skeleton/ContractCardSkeleton";
 
 
 export default function ContractListPage() {
@@ -277,7 +278,11 @@ return (
     
 
            {contractsLoading ? (
-            <LoadingState label="Fetching contracts ..." />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ContractCardSkeleton key={i} />
+              ))}
+            </div>
         ) : contractsError ? (
                     <ErrorState 
                       icon={<FileSearch className="h-10 w-10text-red-500" />}
@@ -293,7 +298,7 @@ return (
         ) : (
           <>
             {showApplicants && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {paginatedApplicants.map((contract, index) => (
                   <ContractCard
                     key={contract.id || index}

@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { DataTable } from "@/components/common/DataTable";
 import { ContractCardTempletate } from "@/components/Company/ContractCardTemplet";
 import ContractModal from "@/components/Company/Modal/ContractTemplateModal";
+import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
+import { ContractCardTemplateSkeleton } from "@/components/Company/Skeleton/ContractCardTemplateSkeleton";
 
 
 
@@ -319,30 +321,23 @@ export default function ContractTemplatePage() {
   /* ───────── STATS UI ───────── */
 
     const templateStats = useMemo(() => {
-      const formatValue = (val: number) =>
-        statsLoading ? (
-          <SyncLoader size={8} color="#D4AF37" />
-        ) : (
-          <span style={{ color: val === 0 ? "gray" : "inherit" }}>
-            {val.toString()}
-          </span>
-        );
 
       return [
   {
     title: "Total Templates",
-    value: formatValue(stats.total),
+    value: stats.total,
     subtitle: statsLoading
       ? "Loading..."
       : stats.latest
       ? `Last: ${formatDate(stats.latest)}`
       : "No templates yet",
-    icon: <FileText className="w-5 h-5 text-primary" />,
+    icon: <FileText className="w-5 h-5 text-primary " />,
+    color: "text-primary",
   },
 
   {
     title: "Active",
-    value: formatValue(stats.active),
+    value: stats.active,
     subtitle: statsLoading
       ? "Loading..."
       : stats.latestActive
@@ -350,12 +345,13 @@ export default function ContractTemplatePage() {
       : stats.active > 0
       ? "No date available"
       : "No active templates",
-    icon: <PlayCircle className="w-5 h-5 text-emerald-500" />,
+    icon: <PlayCircle className="w-5 h-5 text-emerald-500 " />,
+    color: "text-emerald-500",
   },
 
   {
     title: "Inactive",
-    value: formatValue(stats.inactive),
+    value: stats.inactive,
     subtitle: statsLoading
       ? "Loading..."
       : stats.latestInactive
@@ -363,12 +359,13 @@ export default function ContractTemplatePage() {
       : stats.inactive > 0
       ? "No date available"
       : "No inactive templates",
-    icon: <PauseCircle className="w-5 h-5 text-red-500" />,
+    icon: <PauseCircle className="w-5 h-5 text-red-500 " />,
+    color: "text-red-500",
   },
 
   {
     title: "Draft (Pending)",
-    value: formatValue(stats.draft),
+    value: stats.draft,
     subtitle: statsLoading
       ? "Loading..."
       : stats.latestDraft
@@ -376,7 +373,8 @@ export default function ContractTemplatePage() {
       : stats.draft > 0
       ? "No date available"
       : "No draft templates",
-    icon: <Clock className="w-5 h-5 text-amber-500" />,
+    icon: <Clock className="w-5 h-5 text-amber-500 " />,
+    color: "text-amber-500",
   },
 ];
     }, [stats, statsLoading]);
@@ -436,21 +434,26 @@ export default function ContractTemplatePage() {
         {/* Top row: 4 cards */}
         {/* STATS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {templateStats.map((stat, i) => (
-              <motion.div
-                key={stat.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <StatsCard
-                  title={stat.title}
-                  value={stat.value}
-                  subtitle={stat.subtitle}
-                  icon={stat.icon}
-                />
-              </motion.div>
-            ))}
+            {loading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                <StatsCardSkeleton key={i} />
+                ))
+              : templateStats.map((stat, i) => (
+                  <motion.div
+                    key={stat.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <StatsCard
+                      title={stat.title}
+                      value={stat.value}
+                      subtitle={stat.subtitle}
+                      icon={stat.icon}
+                      iconColor={stat.color}
+                    />
+                  </motion.div>
+                ))}
           </section>
 
           {/* Main column */}
@@ -483,7 +486,11 @@ export default function ContractTemplatePage() {
            {/* Contracts Grid: Card view */}
             {showApplicants && (
               loading ? (
-                <LoadingState label="Fetching contract templates..." />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <ContractCardTemplateSkeleton key={i} />
+                    ))}
+                  </div>
               ) : error ? (
                 <ErrorState
                   title="Failed to load"
@@ -506,7 +513,7 @@ export default function ContractTemplatePage() {
                   }
                 />
               ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
                   {filteredTemplates.map((contract, index) => (
                     <ContractCardTempletate
                       key={contract.id || index}

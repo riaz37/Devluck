@@ -20,6 +20,7 @@ import { CardContent, CardDescription, CardHeader, CardTitle,Card } from "@/comp
 import { Badge } from "@/components/ui/badge";
 import { StatsCard } from "@/components/common/stats-card";
 import ReviewModal from "@/components/Company/Modal/ReviewModal";
+import { motion } from "framer-motion";
 interface Payment {
   id: string;
   applicantName: string;
@@ -353,15 +354,33 @@ export default function ApplicantPage() {
     <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 -mt-8">
       {/* LEFT SIDE: AVATAR & BASIC INFO */}
       <div className="flex items-end gap-4">
-        <div className="relative">
-          <Avatar className="h-24 w-24 ring-4 ring-background shadow-xl">
-            <AvatarImage src={student?.image || ""} className="object-cover" />
-            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
-              {student?.name?.charAt(0) || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className={`absolute bottom-2 right-2 h-4 w-4 rounded-full border-2 border-background ${isActive ? "bg-emerald-500" : "bg-slate-400"}`} />
-        </div>
+              {/* AVATAR */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="relative w-30 h-30 cursor-pointer"
+              >
+                {/* Avatar circle */}
+                <div className="relative w-full h-full rounded-full border-2 border-background bg-white shadow-md overflow-hidden flex items-center justify-center group">
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={student?.image || ""} className="object-cover w-full h-full" />
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl w-full h-full flex items-center justify-center">
+                      {student?.name?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  {/* HOVER OVERLAY */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    {student?.name}
+                  </div>
+                </div>
+
+                {/* STATUS DOT (OUTSIDE CLIP → FIXED) */}
+                <div
+                  className={`absolute bottom-1.5 right-3 z-20 h-4 w-4 rounded-full border-2 border-background ${
+                    isActive ? "bg-emerald-500" : "bg-slate-400"
+                  }`}
+                />
+              </motion.div>
 
         <div className="pb-2 space-y-1">
           <div className="flex items-center gap-3">

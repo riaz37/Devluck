@@ -1,5 +1,5 @@
 "use client";
-import { FileText, FileImage, File, Users, Phone, MapPin } from "lucide-react";
+import { FileText, FileImage, File, Users, Phone, MapPin, Camera, CameraIcon, CameraOff, LucideCamera } from "lucide-react";
 import DashboardLayout from "@/components/Company/DashboardLayout";
 import { useEffect, useRef, useState } from "react";
 import { useCompanyProfileHandler } from "@/hooks/companyapihandler/useCompanyProfileHandler";
@@ -446,41 +446,48 @@ const handleFiles = (incoming: File[]) => {
     </div>
 
     {/* ================= AVATAR (WITH HOVER ANIMATION) ================= */}
-    <div className="absolute -bottom-12 left-6">
+        <div className="absolute -bottom-12 left-6">
+        <div
+            onClick={() => fileInputRef.current?.click()}
+            className="relative w-28 h-28 rounded-full border-4 border-white bg-white shadow-md overflow-hidden cursor-pointer group"
+        >
+            <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+            className="hidden"
+            />
 
-      <div
-        onClick={() => fileInputRef.current?.click()}
-        className="relative w-28 h-28 rounded-full border-4 border-white bg-white shadow-md overflow-hidden cursor-pointer group"
-      >
+            {/* AVATAR */}
+            <Avatar className="w-full h-full">
+            <AvatarImage
+                src={imagePreview || undefined}
+                className="object-cover w-full h-full"
+            />
 
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleImageUpload}
-          className="hidden"
-        />
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl w-full h-full flex items-center justify-center">
+                {company?.name?.charAt(0) || "U"}
+            </AvatarFallback>
+            </Avatar>
 
-        {imagePreview ? (
-          <img
-            src={imagePreview}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <img
-            src="/default-avatar.svg"
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        )}
+            {/* FIRST TIME EMPTY STATE OVERLAY */}
+            {!imagePreview && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 text-primary">
+                <Camera className="w-6 h-6 mb-1" />
+                <span className="text-[10px] font-medium">Add Image</span>
+            </div>
+            )}
 
-        {/* HOVER OVERLAY */}
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-          Change
+            {/* HOVER OVERLAY */}
+            {imagePreview && (
+            <div className="absolute inset-0 gap-2 flex items-center justify-center bg-black/40 text-primary text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                <LucideCamera className="w-6 h-6 mb-1" />
+                Change
+            </div>
+            )}
         </div>
-
-      </div>
-
-    </div>
+        </div>
 
   </div>
 

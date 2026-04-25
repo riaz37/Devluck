@@ -13,6 +13,7 @@ import {
   Fingerprint,
   Eye,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 type ApplicantCardProps = {
   studentName: string;
@@ -46,14 +47,17 @@ export function ApplicantCard({
         </div>
 
         {/* AVATAR */}
-        <div className="flex flex-col items-center text-center space-y-1 mt-2">
-          <div className="h-30 w-30 rounded-full overflow-hidden border shadow-sm">
-            <img
-              src={imageUrl || "https://avatar.vercel.sh/student"}
-              alt={studentName}
-              className="h-full w-full object-cover"
+        <div className="flex flex-col items-center text-center space-y-1 mt-6 mb-2">
+          <Avatar className="h-30 w-30 ring-2 ring-background shadow-sm mb-2">
+            <AvatarImage
+              src={imageUrl || undefined}
+              className="object-cover"
             />
-          </div>
+
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
+              {studentName?.charAt(0)?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
 
           {/* NAME */}
           <div className="flex items-center gap-2 text-sm font-medium">

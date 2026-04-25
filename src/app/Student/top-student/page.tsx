@@ -6,12 +6,14 @@ import DashboardLayout from "@/components/Student/DashboardLayout";
 import { useTopStudentsHandler } from "@/hooks/studentapihandler/useTopStudentsHandler";
 import { motion } from "framer-motion";
 import DecryptedText from "@/components/ui/DecryptedText";
-import { TopApplicantCard } from "@/components/common/TopApplicantCard";
+
 import { FileSearch, User } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
 import { EmptyState } from "@/components/common/EmptyState";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
+import { ApplicantCardSkeleton } from "@/components/Company/Skeleton/ApplicantCardSkeleton";
+import { TopApplicantCard } from "@/components/Student/TopApplicantCard";
 
 export default function ApplicantPage() {
   const router = useRouter();
@@ -109,7 +111,11 @@ export default function ApplicantPage() {
         <div className="flex flex-col gap-6">
               {/* Loading State */}
               {loading && (
-                <LoadingState label="Fetching applicants ..." />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <ApplicantCardSkeleton key={i} />
+              ))}
+            </div>
               )}
 
               {/* Error State */}

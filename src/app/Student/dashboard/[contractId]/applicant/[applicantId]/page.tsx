@@ -4,9 +4,9 @@ import {useParams, useRouter } from "next/navigation";
 import DashboardLayout from "@/components/Student/DashboardLayout";
 import { useTopStudentsHandler } from "@/hooks/studentapihandler/useTopStudentsHandler";
 import {ArrowLeft, Calendar,DollarSign, FileText, Layers, Mail, Plus,Star, Trophy } from "lucide-react";
-
 import { useStudentProfileReview } from "@/hooks/common/useStudentProfileReview";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -123,7 +123,7 @@ export default function ApplicantPage() {
             <div className="flex items-end gap-4">
 
               {/* AVATAR */}
-              <div className="relative">
+              <div className="relative bg-white h-24 w-24 rounded-full ">
                 <Avatar className="h-24 w-24 ring-4 ring-background shadow-xl">
                   <AvatarImage src={applicant?.image || ""} className="object-cover" />
                   <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">

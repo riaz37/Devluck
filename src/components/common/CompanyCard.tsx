@@ -31,6 +31,7 @@ import {
 
 import { InfoItem } from "./info-item";
 import { TopCompany } from "@/types/company";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 type CompanyCardProps = {
   company: TopCompany;
@@ -63,9 +64,9 @@ export function CompanyCard({
 
           {/* LEFT TOP (ID + STATUS) */}
           <div className="absolute left-3 top-3 z-10 flex flex-col gap-1">
-            <div className="flex items-center gap-1 bg-black/40 text-white px-2 py-0.5 rounded-md text-[10px] backdrop-blur">
-              <Fingerprint className="h-2.5 w-2.5" />
-              {(company.id || "").slice(0, 6)}
+            <div className="flex items-center gap-1 bg-black/40 text-white px-2 py-0.5 rounded-md text-[12px] backdrop-blur">
+              <Fingerprint className="h-3 w-3" />
+              {(company.id || "").slice(0, 8)}
             </div>
 
           </div>
@@ -109,13 +110,15 @@ export function CompanyCard({
           </div>
 
           {/* AVATAR */}
-          <div className="h-50 w-50 rounded-full mt-6 overflow-hidden border shadow-md bg-background">
-            <img
-               src={company.image || company.logo || "https://avatar.vercel.sh/company"}
-              alt={company.name}
-              className="h-full w-full object-cover"
+          <Avatar className="h-50 w-50 ring-2 ring-background shadow-sm mt-6">
+            <AvatarImage
+              src={company.image ||company.logo|| undefined}
+              className="object-cover"
             />
-          </div>
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
+              {company.name?.charAt(0)?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
 
         </div>
           {/* HEADER */}
@@ -130,7 +133,7 @@ export function CompanyCard({
             <div className="space-y-2">
               
               <InfoItem
-                label="Applied"
+                label="Location"
                 value=                {
                   company.location ||
                   (company.addresses?.length
@@ -142,7 +145,7 @@ export function CompanyCard({
               />
 
               <InfoItem
-                label="Score"
+                label="Phone number"
                 value={company.phoneNumber|| "No Phonenumber"}
                 icon={<Phone className="h-3.5 w-3.5" />}
                 highlight

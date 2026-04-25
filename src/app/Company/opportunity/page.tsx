@@ -23,6 +23,9 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { cn } from "@/lib/utils";
 import { DataTable } from "@/components/common/DataTable";
 import { OpportunityCard } from "@/components/Company/OpportunityCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { OpportunityCardSkeleton } from "@/components/Company/Skeleton/OpportunityCardSkeleton";
+import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
 
 
 
@@ -265,40 +268,32 @@ const handleActionDelete = async () => {
   }).length;
 
   const opportunityStats = useMemo(() => {
-    const formatValue = (val: number) =>
-      loading ? (
-        <SyncLoader size={8} color="#D4AF37" />
-      ) : (
-        <span style={{ color: val === 0 ? "gray" : "inherit" }}>
-          {val.toString()}
-        </span>
-      );
 
    return [
   {
     title: "Total Opportunities",
-    value: formatValue(totalOpportunities),
+    value: totalOpportunities,
     subtitle: "All created opportunities",
     icon: <Briefcase className="w-5 h-5" />,
     iconColor: "#6366F1", // indigo (system / core)
   },
   {
     title: "Total Applicants",
-    value: formatValue(totalApplicants),
+    value: totalApplicants,
     subtitle: "Across all opportunities",
     icon: <Users className="w-5 h-5" />,
     iconColor: "#0EA5E9", // blue (users / info)
   },
   {
     title: "Internships",
-    value: formatValue(internshipCount),
+    value: internshipCount,
     subtitle: "Internship positions",
     icon: <GraduationCap className="w-5 h-5" />,
     iconColor: "#A855F7", // purple (education / learning)
   },
   {
     title: "New This Week",
-    value: formatValue(recentOpportunities),
+    value: recentOpportunities,
     subtitle: "Created in last 7 days",
     icon: <Sparkles className="w-5 h-5" />,
     iconColor: "#F59E0B", // amber (new / activity)
@@ -309,7 +304,6 @@ const handleActionDelete = async () => {
     totalApplicants,
     internshipCount,
     recentOpportunities,
-      loading
   ]);
 
 
@@ -367,22 +361,26 @@ const handleActionDelete = async () => {
 
         {/* STATS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {opportunityStats.map((stat, i) => (
-              <motion.div
-                key={stat.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <StatsCard
-                  title={stat.title}
-                  value={stat.value}
-                  subtitle={stat.subtitle}
-                  icon={stat.icon}
-                  iconColor={stat.iconColor}
-                />
-              </motion.div>
-            ))}
+            {loading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                <StatsCardSkeleton key={i} />
+                ))
+              : opportunityStats.map((stat, i) => (
+                  <motion.div
+                    key={stat.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <StatsCard
+                      title={stat.title}
+                      value={stat.value}
+                      subtitle={stat.subtitle}
+                      icon={stat.icon}
+                      iconColor={stat.iconColor}
+                    />
+                  </motion.div>
+                ))}
           </section>
 
         {/* Jobs Section */}
@@ -416,7 +414,11 @@ const handleActionDelete = async () => {
             {showApplicants && (
               <>
                 {loading ? (
-                  <LoadingState label="Fetching opportunities..." />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <OpportunityCardSkeleton key={i} />
+                    ))}
+                  </div>
                 ) : error ? (
                     <ErrorState 
                       title="Failed to load" 

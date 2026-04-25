@@ -32,6 +32,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { MappedOpportunity } from "@/types/opportunity-s";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 
 
@@ -41,7 +42,7 @@ interface AppliedOpportunityCardProps {
   onClick?: () => void;
   onWithdraw?: () => void;
   isWithdrawing?: boolean;
-  onReport?: (applicant: MappedOpportunity) => void;
+
   
 }
 
@@ -50,7 +51,7 @@ export const AppliedOpportunityCard = ({
   onClick,
   onWithdraw,
   isWithdrawing,
-  onReport
+
 }: AppliedOpportunityCardProps) => {
   const truncate = (text?: string, max = 22) =>
     text ? (text.length > max ? text.slice(0, max) + "…" : text) : "N/A";
@@ -75,14 +76,25 @@ export const AppliedOpportunityCard = ({
       
       {/* HEADER */}
       <CardHeader className="flex flex-row items-start justify-between pb-2">
-        <div className="space-y-1">
-          <CardTitle className="text-base font-semibold">
-            {truncate(applicant.contractTitle, 20)}
-          </CardTitle>
+        <div className="flex items-center gap-3">
+          {/* IMAGE */}
+          <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm bg-primary/10 flex-shrink-0">
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
+              {applicant.company?.charAt(0)?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
 
-          <CardDescription>
-            {truncate(applicant.company, 20)}
-          </CardDescription>
+          {/* TEXT */}
+          <div className="space-y-1 min-w-0">
+            <CardTitle className="text-base font-semibold truncate">
+              {truncate(applicant.contractTitle, 20)}
+            </CardTitle>
+
+            <CardDescription className="truncate">
+              {truncate(applicant.company, 20)}
+            </CardDescription>
+          </div>
+
         </div>
 
         {/* MENU */}

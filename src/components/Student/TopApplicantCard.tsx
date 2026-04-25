@@ -30,7 +30,9 @@ import {
   Trophy,
   HomeIcon,
 } from "lucide-react";
-import { InfoItem } from "./info-item";
+import { InfoItem } from "../common/info-item";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+
 
 export interface TopApplicant {
   id: string;
@@ -74,14 +76,16 @@ export function TopApplicantCard({ applicant, onClick }: Props) {
 
             </div>
 
-            {/* AVATAR */}
-            <div className="h-50 w-50 rounded-full mt-6 overflow-hidden border shadow-md bg-background">
-              <img
-                src={applicant.image || "https://avatar.vercel.sh/applicant"}
-                alt={applicant.name}
-                className="h-full w-full object-cover"
-              />
-            </div>
+          {/* AVATAR */}
+          <Avatar className="h-50 w-50 ring-2 ring-background shadow-sm mt-6">
+            <AvatarImage
+              src={applicant.image || undefined}
+              className="object-cover"
+            />
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
+              {applicant.name?.charAt(0)?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
 
           </div>
 
@@ -101,12 +105,12 @@ export function TopApplicantCard({ applicant, onClick }: Props) {
           {/* META ROW */}
             <div className="flex items-center justify-between pt-2">
               <InfoItem
-                label="Applied"
+                label="Availability"
                 value={applicant.availability ?? "N/A"}
                 icon={<HomeIcon className="h-3.5 w-3.5" />}
               />
               <InfoItem
-                label="Score"
+                label="Rank"
                 value={`${applicant.profileRanking || "N/A"}`}
                 icon={<Trophy className="h-3.5 w-3.5" />}
                 highlight

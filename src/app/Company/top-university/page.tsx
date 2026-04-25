@@ -21,6 +21,7 @@ import { UniversityCard } from "@/components/common/UniversityCard";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTable } from "@/components/common/DataTable";
 import UniversityModal from "@/components/Company/Modal/UniversityModal";
+import { UniversityCardSkeleton } from "@/components/common/Skeleton/UniversityCardSkeleton";
 
 
 export default function TopUniversityPage() {
@@ -223,7 +224,11 @@ export default function TopUniversityPage() {
           ====================== */}
             {/* Loading State */}
             {loading && (
-              <LoadingState label="Fetching Universities..." />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3  gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <UniversityCardSkeleton key={i} />
+                    ))}
+                  </div>
             )}
             {/* Error State */}
             {!loading && error && (

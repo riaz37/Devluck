@@ -12,8 +12,9 @@ import { Pagination } from "@/components/common/Pagination";
 import { EmptyState } from "@/components/common/EmptyState";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
-import { TopStudentCard } from "@/components/common/TopStudentCard";
+import { TopStudentCard } from "@/components/Company/TopStudentCard";
 import { ApplicantStatus } from "@/types/applicant";
+import { ApplicantCardSkeleton } from "@/components/Company/Skeleton/ApplicantCardSkeleton";
    
 
  
@@ -155,7 +156,11 @@ export default function TopApplicantPage() {
         ======================== */}
             {/* Loading State */}
             {loading && (
-              <LoadingState label="Fetching Top Applicants..." />
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 ">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <ApplicantCardSkeleton key={i} />
+                ))}
+              </div>
             )}
 
             {/* Error State */}
@@ -176,7 +181,7 @@ export default function TopApplicantPage() {
                
               />
             )}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 justify-items-center ">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 ">
           {!loading && !error && paginatedApplicants.map((applicant) => (
             <TopStudentCard
               key={applicant.applicantId}

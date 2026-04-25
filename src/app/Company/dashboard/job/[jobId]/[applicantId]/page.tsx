@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import DashboardLayout from "@/components/Company/DashboardLayout";
 import { useCompanyApplicationHandler } from "@/hooks/companyapihandler/useCompanyApplicationHandler";
 import {Activity, ArrowLeft, Calendar, DollarSign, FileText, Layers, Mail, Plus, Star, Trophy } from "lucide-react";
+
 import { useStudentProfileReview } from "@/hooks/common/useStudentProfileReview";
 import EmptyStateFeedback from "@/components/common/EmptyStateFeedback";
 import { LoadingState } from "@/components/common/LoadingState";
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import ReviewModal from "@/components/Company/Modal/ReviewModal";
+import { motion } from "framer-motion";
 
 export default function ApplicantPage() {
 
@@ -171,20 +173,32 @@ if (error || !student) {
             <div className="flex items-end gap-4 ">
 
               {/* AVATAR */}
-              <div className="relative">
-                <Avatar className="h-24 w-24 ring-4 ring-background shadow-xl">
-                  <AvatarImage src={s?.image || ""} className="object-cover" />
-                  <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
-                    {s?.name?.charAt(0) || "U"}
-                  </AvatarFallback>
-                </Avatar>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="relative w-30 h-30 cursor-pointer"
+              >
+                {/* Avatar circle */}
+                <div className="relative w-full h-full rounded-full border-2 border-background bg-white shadow-md overflow-hidden flex items-center justify-center group">
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={s?.image || ""} className="object-cover w-full h-full" />
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl w-full h-full flex items-center justify-center">
+                      {s?.name?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
 
+                  {/* HOVER OVERLAY */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    {s?.name}
+                  </div>
+                </div>
+
+                {/* STATUS DOT (OUTSIDE CLIP → FIXED) */}
                 <div
-                  className={`absolute bottom-2 right-2 h-4 w-4 rounded-full border-2 border-background ${
+                  className={`absolute bottom-1.5 right-3 z-20 h-4 w-4 rounded-full border-2 border-background ${
                     isActive ? "bg-emerald-500" : "bg-slate-400"
                   }`}
                 />
-              </div>
+              </motion.div>
 
               {/* NAME + INFO */}
               <div className="pb-2 space-y-1 ">

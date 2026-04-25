@@ -54,7 +54,7 @@ const ParallelogramFileInput = ({
   image?: string;
   onChange: (file: File | null) => void;
 }) => {
-  const defaultImage = "/images/U2.jpeg";
+  const defaultImage = "/University.jpeg";
   const [preview, setPreview] = useState<string | null>(image || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -146,8 +146,35 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  const emptyForm: UniversityData = {
+    name: "",
+    description: "",
+    address: "",
+    website: "",
+    email: "",
+    phoneNumber: "",
+    corporate: "",
+    image: "",
+    totalStudents: 0,
+    ugStudents: 0,
+    pgStudents: 0,
+    staff: 0,
+    totalDoctors: 0,
+    qsWorldRanking: undefined,
+    qsRankingBySubject: undefined,
+    qsSustainabilityRanking: undefined,
+    programs: [],
+  };
+
   useEffect(() => {
-    if (university) setFormData(university);
+    if (isOpen) {
+      if (university) {
+        setFormData(university); // EDIT MODE
+      } else {
+        setFormData(emptyForm); // CREATE MODE (RESET FIX)
+        setSelectedFile(null);
+      }
+    }
   }, [university, isOpen]);
 
   const handleInputChange = <K extends keyof UniversityData>(
@@ -260,13 +287,6 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
               placeholder="Full address"
               value={formData.address || ""}
               onChange={(e) => handleInputChange("address", e.target.value)}
-            />
-
-            <ParallelogramInput
-              label="Corporate"
-              placeholder="e.g., N.I.U is a research-driven public university"
-              value={formData.corporate || ""}
-              onChange={(e) => handleInputChange("corporate", e.target.value)}
             />
 
             <ParallelogramInput

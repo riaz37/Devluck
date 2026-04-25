@@ -27,6 +27,8 @@ import { AppliedOpportunityCard } from "@/components/Student/AppliedOpportunityC
 import { SelectionBar } from "@/components/Student/SelectionBar-w";
 import { ConfirmWithdrawDialog } from "@/components/Student/ConfirmWithdrawDialog";
 import ReportModal from "@/components/Company/Modal/ReportModal";
+import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
+import { AppliedOpportunityCardSkeleton } from "@/components/Student/Skeleton/AppliedOpportunityCardSkeleton";
 
 const STATUS_MAP: Record<BackendApplicationStatus, OpportunityStatus> = {
   pending: "Applied",
@@ -355,64 +357,7 @@ export default function ContractListPage() {
       }, [applicationsLoading, allCount, appliedCount, upcomingCount, rejectedCount]);
   
 
-    const mockReport: AssessmentReport = {
-      session_id: 'mock-session-123',
-      company_style: 'startup',
-      completed_at: new Date().toISOString(),
-      total_questions: 10,
-      total_answered: 8,
-      total_evaluated: 7,
-      overall_score: 6.8,
-      dimensions: {
-        technical_execution: {
-          score: 7.2,
-          questions_count: 2,
-          top_signal: 'Vague explanation',
-          concern: 'Needs improvement',
-          evaluations: [],
-        },
-        communication: {
-          score: 6.5,
-          questions_count: 2,
-          top_signal: 'Inconsistent clarity',
-          concern: 'Moderate',
-          evaluations: [],
-        },
-        personality: {
-          score: 8.1,
-          questions_count: 1,
-          top_signal: 'Strong collaboration',
-          concern: 'Low',
-          evaluations: [],
-        },
-        work_ethic: {
-          score: 5.9,
-          questions_count: 2,
-          top_signal: 'Incomplete tasks',
-          concern: 'High',
-          evaluations: [],
-        },
-        motivation: {
-          score: 7.0,
-          questions_count: 1,
-          top_signal: 'Shows interest',
-          concern: 'Low',
-          evaluations: [],
-        },
-      },
-      ai_signals: {
-        likely_used_ai: true,
-        surface_level_answers: 2,
-        strong_answers: 3,
-      },
-      red_flags: [
-        "Vague technical explanations",
-        "Lack of depth in problem solving",
-        "Inconsistent communication clarity",
-      ],
-    };
 
-      const [showReportModal, setShowReportModal] = useState(false);
 return (
   <DashboardLayout>
   <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
@@ -446,24 +391,28 @@ return (
 
      {/* Top row: 4 cards */}
         {/* STATS */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <StatsCard
-                title={stat.title}
-                value={stat.value}
-                subtitle={stat.subtitle}
-                icon={stat.icon}
-                iconColor={stat.color}
-              />
-            </motion.div>
-          ))}
-        </section>
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {applicationsLoading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                <StatsCardSkeleton key={i} />
+                ))
+              : stats.map((stat, i) => (
+                  <motion.div
+                    key={stat.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <StatsCard
+                      title={stat.title}
+                      value={stat.value}
+                      subtitle={stat.subtitle}
+                      icon={stat.icon}
+                      iconColor={stat.color}
+                    />
+                  </motion.div>
+                ))}
+          </section>
 
 
  
@@ -497,7 +446,11 @@ return (
         />
 
             {applicationsLoading ? (
-        <LoadingState label="Fetching opportunities ..." />
+              <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4 mb-8 place-items-stretch">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <AppliedOpportunityCardSkeleton key={i} />
+                ))}
+              </div>
         ) : applicationsError ? (
                     <ErrorState
                       icon={<FileSearch className="h-10 w-10text-red-500" />}
@@ -520,9 +473,6 @@ return (
                   if (contract.opportunityId) {
                     router.push(`/Student/applied-Opportunity/${contract.opportunityId}?from=applied`);
                   }
-                }}
-                onReport={(applicant) => {
-                  setShowReportModal(true);
                 }}
                 onWithdraw={() => {
                   setSelectedIds(prev => prev.filter(id => id !== contract.originalId));
@@ -656,16 +606,7 @@ return (
       onConfirm={handleConfirmAction}
     />
 
-    <ReportModal
-      isOpen={showReportModal}
-      report={mockReport}
-      sessionId="test-session"
-      onClose={() => setShowReportModal(false)}
-      onFullReport={() => {
-        setShowReportModal(false);
-        router.push(`/Student/applied-Opportunity/assessment/${mockReport.session_id}`)
-      }}
-    />
+
 
   </DashboardLayout>
 );

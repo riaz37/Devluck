@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion } from "framer-motion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 
 export default function TopUniversityPage() {
@@ -101,22 +102,22 @@ const COLORS = ["#3b82f6", "#a855f7"];
                 <div className="absolute -bottom-12 left-6">
                     <motion.div
                     whileHover={{ scale: 1.05 }}
-                    className="relative w-28 h-28 rounded-full border-4 border-white bg-white shadow-md overflow-hidden cursor-pointer group"
+                    className="relative w-30 h-30 rounded-full border-2 border-background bg-white shadow-md overflow-hidden cursor-pointer group flex items-center justify-center"
                     >
-                    {university?.image ? (
-                        <img
-                        src={university.image}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    <Avatar className="w-full h-full">
+                        <AvatarImage
+                        src={university.image || ""}
+                        className="object-cover w-full h-full"
                         />
-                    ) : (
-                        <img
-                        src="/default-avatar.svg"
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                    )}
+
+                        <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl w-full h-full flex items-center justify-center">
+                        {university.name?.charAt(0) || "U"}
+                        </AvatarFallback>
+                    </Avatar>
+
                     {/* HOVER OVERLAY */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    {university?.name||"Unknown"}
+                        {university.name}
                     </div>
                     </motion.div>
                 </div>

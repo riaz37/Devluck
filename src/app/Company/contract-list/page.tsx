@@ -26,6 +26,8 @@ import { DataTable } from "@/components/common/DataTable";
 import { Button } from "@/components/ui/button";
 import { ContractCard } from "@/components/Company/ContractCard";
 import ContractModal from "@/components/Company/Modal/ContractModal";
+import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
+import { ContractCardSkeleton } from "@/components/Company/Skeleton/ContractCardSkeleton";
 
 export default function ContractListPage() {
   // =========================
@@ -355,19 +357,11 @@ export default function ContractListPage() {
   // Stats UI
   // =========================
   const contractStats = useMemo(() => {
-    const formatValue = (val: number) =>
-      statsLoading ? (
-        <SyncLoader size={8} color="#D4AF37" />
-      ) : (
-        <span style={{ color: val === 0 ? "gray" : "inherit" }}>
-          {val.toString()}
-        </span>
-      );
 
 return [
   {
     title: "Total Contracts",
-    value: formatValue(contractStatsData.total),
+    value: contractStatsData.total,
     subtitle: "All contracts in the system",
     color: "text-zinc-500",
     bg: "bg-zinc-500/10",
@@ -375,7 +369,7 @@ return [
   },
   {
     title: "Running",
-    value: formatValue(contractStatsData.running),
+    value: contractStatsData.running,
     subtitle: "Currently active contracts",
     color: "text-blue-500",
     bg: "bg-blue-500/10",
@@ -383,7 +377,7 @@ return [
   },
   {
     title: "Completed",
-    value: formatValue(contractStatsData.completed),
+    value: contractStatsData.completed,
     subtitle: "Finished contracts",
     color: "text-emerald-500",
     bg: "bg-emerald-500/10",
@@ -391,14 +385,14 @@ return [
   },
   {
     title: "Other",
-    value: formatValue(contractStatsData.other),
+    value: contractStatsData.other,
     subtitle: "Contracts with other status",
     color: "text-amber-500",
     bg: "bg-amber-500/10",
     icon: <MoreHorizontal className="w-5 h-5 text-amber-500" />,
   },
 ];
-  }, [contractStatsData, statsLoading]);
+  }, [contractStatsData]);
 
   // =========================
   // JSX
@@ -458,22 +452,26 @@ return [
         </header>
         {/* STATS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {contractStats.map((stat, i) => (
-              <motion.div
-                key={stat.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <StatsCard
-                  title={stat.title}
-                  value={stat.value}
-                  subtitle={stat.subtitle}
-                  icon={stat.icon}
-                  iconColor={stat.color}
-                />
-              </motion.div>
-            ))}
+            {loading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                <StatsCardSkeleton key={i} />
+                ))
+              : contractStats.map((stat, i) => (
+                  <motion.div
+                    key={stat.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <StatsCard
+                      title={stat.title}
+                      value={stat.value}
+                      subtitle={stat.subtitle}
+                      icon={stat.icon}
+                      iconColor={stat.color}
+                    />
+                  </motion.div>
+                ))}
           </section>
 
       {/* Main Column */}
@@ -503,7 +501,11 @@ return [
           {showApplicants && (
             <>
               {loading ? (
-                <LoadingState label="Fetching contracts..." />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <ContractCardSkeleton key={i} />
+                    ))}
+                  </div>
               ) : error ? (
                     <ErrorState 
                       title="Failed to load" 

@@ -25,6 +25,11 @@ import SyncLoader from "react-spinners/SyncLoader";
 import { OpportunityUI } from "@/types/opportunity";
 import { OpportunityCard } from "@/components/Company/OpportunityCard";
 import { ApplicantCard } from "@/components/Company/DashboardApplicantCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ApplicantCardSkeleton } from "@/components/Company/Skeleton/ApplicantCardSkeleton";
+import { OpportunityCardSkeleton } from "@/components/Company/Skeleton/OpportunityCardSkeleton";
+import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
+import { DashboardApplicantCardSkeleton } from "@/components/Company/Skeleton/DashboardApplicantCardSkeleton";
 
 
 export default function DashboardPage() {
@@ -97,56 +102,81 @@ export default function DashboardPage() {
 
   const dashboardLoading = opportunitiesLoading || applicationsLoading;
 
-  const dashboardStats = useMemo(() => {
-  const formatValue = (val: number) =>
-    dashboardLoading ? (
-      <SyncLoader size={8} color="#D4AF37" />
-    ) : (
-      <span style={{ color: val === 0 ? "gray" : "inherit" }}>
-        {val}
-      </span>
-    );
 
-return [
-  {
-    title: "Opportunities",
-    value: formatValue(opportunities.length),
-    icon: <Briefcase className="w-5 h-5" />,
-    iconColor: "#6366F1", // indigo
-    subtitle: "Recently created",
-  },
-  {
-    title: "Applications",
-    value: formatValue(applications.length),
-    icon: <Users className="w-5 h-5" />,
-    iconColor: "#0EA5E9", // sky blue
-    subtitle: "Total entries",
-  },
-  {
-    title: "Pending",
-    value: formatValue(
-      applications.filter((a) => a.status === "pending").length
-    ),
-    icon: <Clock className="w-5 h-5" />,
-    iconColor: "#F59E0B", // amber
-    subtitle: "Needs review",
-  },
-  {
-    title: "Accepted",
-    value: formatValue(
-      applications.filter((a) => a.status === "accepted").length
-    ),
-    icon: <CheckCircle className="w-5 h-5" />,
-    iconColor: "#22C55E", // green
-    subtitle: "Approved",
-  },
-];
-}, [
-  opportunities.length,
-  applications.length,
-  applications,
-  dashboardLoading
-]);
+
+  const LoadingState = () => {
+    return (
+      <div className="space-y-10">
+
+
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
+
+          {/* OPPORTUNITIES */}
+          <div className="xl:col-span-8 space-y-6">
+            <Skeleton className="h-6 w-48" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <OpportunityCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+
+          {/* APPLICANTS */}
+          <div className="xl:col-span-4 space-y-6">
+            <div className="flex justify-between items-center">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-6 w-10 rounded-full" />
+            </div>
+
+            <div className="rounded-3xl border p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <DashboardApplicantCardSkeleton key={i} />
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    )
+  }
+
+  const dashboardStats = useMemo(() => {
+    return [
+      {
+        title: "Opportunities",
+        value: opportunities.length,
+        icon: <Briefcase className="w-5 h-5" />,
+        iconColor: "#6366F1",
+        subtitle: "Recently created",
+      },
+      {
+        title: "Applications",
+        value: applications.length,
+        icon: <Users className="w-5 h-5" />,
+        iconColor: "#0EA5E9",
+        subtitle: "Total entries",
+      },
+      {
+        title: "Pending",
+        value: applications.filter((a) => a.status === "pending").length,
+        icon: <Clock className="w-5 h-5" />,
+        iconColor: "#F59E0B",
+        subtitle: "Needs review",
+      },
+      {
+        title: "Accepted",
+        value: applications.filter((a) => a.status === "accepted").length,
+        icon: <CheckCircle className="w-5 h-5" />,
+        iconColor: "#22C55E",
+        subtitle: "Approved",
+      },
+    ];
+  }, [opportunities, applications]);
+
+
 
   return (
     <DashboardLayout>
@@ -163,8 +193,12 @@ return [
         </header>
 
         {/* STATS */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {dashboardStats.map((stat, i) => (
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {dashboardLoading
+          ? Array.from({ length: 4 }).map((_, i) => (
+            <StatsCardSkeleton key={i} />
+            ))
+          : dashboardStats.map((stat, i) => (
               <motion.div
                 key={stat.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -180,7 +214,7 @@ return [
                 />
               </motion.div>
             ))}
-          </section>
+      </section>
 
 
 

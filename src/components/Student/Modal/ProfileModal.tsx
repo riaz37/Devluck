@@ -43,7 +43,7 @@ const ParallelogramFileInput = ({
   image?: string;
   onChange: (file: File | null) => void;
 }) => {
-  const defaultImage = "/avatars/nina.jpeg";
+  const defaultImage = "/default-avatar.svg";
   const [preview, setPreview] = useState<string | null>(image || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -105,6 +105,7 @@ const ParallelogramFileInput = ({
   );
 };  
 
+// Main payment Modal Component
 const ProfileModal: React.FC<ProfileModalProps> = ({
   profile,
   isOpen,
@@ -122,40 +123,92 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   const availabilityOptions = ["Hybrid", "Remote", "Onsite"];
 
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  useEffect(() => {
+   useEffect(() => {
     if (profile) {
       setFormData({
         name: profile.name || "",
-        email: profile.email || "",
+        email: (profile as any).email || "",
         description: profile.description || "",
         availability: profile.availability || "",
-        salaryExpectation: profile.salaryExpectation || "",
+        salaryExpectation: (profile as any).salaryExpectation ? String((profile as any).salaryExpectation) : ""
       });
     } else {
-      setFormData({
-        name: "",
-        email: "",
-        description: "",
-        availability: "",
-        salaryExpectation: "",
-      });
+      setFormData({ name: "", email: "", description: "", availability: "", salaryExpectation: "" });
     }
   }, [profile, isOpen]);
+
 
   const handleInputChange = (field: keyof ProfileData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async () => {
+  const uploadImageToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const token = localStorage.getItem('devluck_token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/upload/image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to upload image');
+    }
+
+    const data = await response.json();
+    return data.data.url;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.email || formData.email.trim() === '') {
+      alert('Email is required');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email.trim())) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
     setLoading(true);
     try {
-      await onSave(formData);
+      let imageUrl = formData.image || profile?.image;
+
+      if (selectedFile) {
+        setUploadingImage(true);
+        try {
+          imageUrl = await uploadImageToCloudinary(selectedFile);
+        } catch (error: any) {
+          console.error("Error uploading image:", error);
+          alert(`Failed to upload image: ${error.message}`);
+          setUploadingImage(false);
+          setLoading(false);
+          return;
+        } finally {
+          setUploadingImage(false);
+        }
+      }
+
+      await onSave({ ...formData, image: imageUrl });
       onClose();
+    } catch (error) {
+      console.error("Error saving profile:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -175,8 +228,18 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
             <div className="flex justify-center">
               <ParallelogramFileInput
                 label="Profile Photo"
-                image={profile?.image}
-                onChange={() => {}}
+                image={profile?.image || formData.image}
+                onChange={(file) => {
+                  if (file) {
+                    setSelectedFile(file);
+                    setFormData((prev) => ({
+                      ...prev,
+                      image: URL.createObjectURL(file),
+                    }));
+                  } else {
+                    setSelectedFile(null);
+                  }
+                }}
               />
             </div>
 

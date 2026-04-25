@@ -17,6 +17,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { LoadingState } from "@/components/common/LoadingState";
 import EmptyStateFeedback from "@/components/common/EmptyStateFeedback";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type UploadItem = {
     id: string;
@@ -185,22 +186,22 @@ export default function TopCompanyPage() {
       <div className="absolute -bottom-12 left-6">
         <motion.div
           whileHover={{ scale: 1.05 }}
-          className="relative w-28 h-28 rounded-full border-4 border-white bg-white shadow-md overflow-hidden cursor-pointer group"
+          className="relative w-30 h-30 rounded-full border-2 border-background bg-white shadow-md overflow-hidden cursor-pointer group flex items-center justify-center"
         >
-          {company?.image ? (
-            <img
-              src={company.image}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          <Avatar className="w-full h-full">
+            <AvatarImage
+              src={company.image || company.logo || ""}
+              className="object-cover w-full h-full"
             />
-          ) : (
-            <img
-              src="/default-avatar.png"
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-          )}
+
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl w-full h-full flex items-center justify-center">
+              {company.name?.charAt(0) || "U"}
+            </AvatarFallback>
+          </Avatar>
+
           {/* HOVER OVERLAY */}
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-           {company.name}
+            {company.name}
           </div>
         </motion.div>
       </div>

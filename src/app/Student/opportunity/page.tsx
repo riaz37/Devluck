@@ -22,6 +22,7 @@ import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Pagination } from "@/components/common/Pagination";
 import { OpportunityCard } from "@/components/Student/OpportunityCard";
+import { OpportunityCardSkeleton } from "@/components/Student/Skeleton/OpportunityCardSkeleton";
 
 
  
@@ -490,8 +491,10 @@ return (
         {/* ================= RIGHT COLUMN — GRID (3/4) ================= */}
         <div className="w-full lg:w-2/3 " >
           {opportunitiesLoading ? (
-            <div className="flex h-screen items-center justify-center">
-              <LoadingState label="Fetching opportunities ..." />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <OpportunityCardSkeleton key={i} />
+              ))}
             </div>
           ) : opportunitiesError ? (
             <div className="flex h-screen items-center justify-center">

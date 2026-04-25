@@ -19,6 +19,8 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/common/DataTable";
 import { PaymnetCard } from "@/components/Company/PaymnetCard";
+import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
+import { PaymentCardSkeleton } from "@/components/Company/Skeleton/PaymentCardSkeleton";
 
 
 
@@ -311,22 +313,26 @@ return (
       
         {/* STATS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, i) => (
-              <motion.div
-                key={stat.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <StatsCard
-                  title={stat.title}
-                  value={stat.value}
-                  subtitle={stat.subtitle}
-                  icon={stat.icon}
-                  iconColor={stat.iconColor}
-                />
-              </motion.div>
-            ))}
+            {loading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                <StatsCardSkeleton key={i} />
+                ))
+              : stats.map((stat, i) => (
+                  <motion.div
+                    key={stat.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <StatsCard
+                      title={stat.title}
+                      value={stat.value}
+                      subtitle={stat.subtitle}
+                      icon={stat.icon}
+                      iconColor={stat.iconColor}
+                    />
+                  </motion.div>
+                ))}
           </section>
 
       {/* Main Column */}
@@ -358,7 +364,11 @@ return (
 
       {/* Loading State */}
       {loading && (
-        <LoadingState label="Fetching opportunities..." />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4  ">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <PaymentCardSkeleton key={i} />
+          ))}
+        </div>
       )}
 
       {/* Error State */}

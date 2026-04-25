@@ -24,6 +24,7 @@ import {
   TrendingUp,
   Fingerprint,
 } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
 interface CardContract {
   id: string | number
@@ -60,9 +61,12 @@ export function OpportunityDashbordCard({
           {/* LEFT */}
           <div className="flex items-center gap-3">
 
-            <div className="w-10 h-10 rounded-full bg-muted border flex items-center justify-center text-xs font-semibold">
-              {contract.company?.[0] || "C"}
-            </div>
+          {/* COMPANY AVATAR */}
+          <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm flex-shrink-0">
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
+              {contract.company?.charAt(0)?.toUpperCase() || "C"}
+            </AvatarFallback>
+          </Avatar>
 
             <div>
               <CardTitle className="text-base font-semibold">

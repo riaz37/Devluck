@@ -298,8 +298,129 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex h-screen items-center justify-center">
-          <CircleLoader size={50} color="#D4AF37" />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+
+          {/* TOP SECTION */}
+          <div className="flex flex-col lg:flex-row gap-6 w-full">
+
+            {/* LEFT PROFILE (WIDER) */}
+            <Card className="flex-[2] p-6 space-y-6">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-20 w-20 rounded-full" />
+
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-40" />
+                  <Skeleton className="h-4 w-60" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-5 w-28" />
+                  </div>
+                ))}
+              </div>
+
+              <Skeleton className="h-1.5 w-full" />
+            </Card>
+
+            {/* RIGHT STATS (SMALLER) */}
+            <div className="flex-[1] grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Card key={i} className="p-5 space-y-3">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-3 w-32" />
+                </Card>
+              ))}
+            </div>
+
+          </div>
+
+          {/* ================= MID SECTION ================= */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            {/* LEFT SIDE (HUGE AREA → 8/12) */}
+            <div className="lg:col-span-8">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Card key={i} className="p-4 space-y-3">
+
+                    <Skeleton className="h-5 w-40" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-4 w-2/3" />
+
+                  </Card>
+                ))}
+
+              </div>
+
+            </div>
+
+            {/* RIGHT SIDE (SMALL SIDEBAR → 4/12) */}
+            <div className="lg:col-span-4 space-y-4">
+
+              <Skeleton className="h-6 w-40" />
+
+              <div className="space-y-4">
+
+                {Array.from({ length: 2 }).map((_, i) => (
+                  <Card key={i} className="p-4 space-y-4 rounded-2xl">
+
+                    {/* HEADER */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-24" />
+                        </div>
+                      </div>
+
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                    </div>
+
+                    {/* BADGES */}
+                    <div className="flex gap-2">
+                      <Skeleton className="h-5 w-16" />
+                      <Skeleton className="h-5 w-20" />
+                      <Skeleton className="h-5 w-14" />
+                    </div>
+
+                    {/* PROGRESS */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <Skeleton className="h-3 w-12" />
+                        <Skeleton className="h-3 w-10" />
+                      </div>
+                      <Skeleton className="h-2 w-full" />
+                    </div>
+
+                    {/* FOOTER */}
+                    <div className="flex justify-between">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+
+                    {/* BUTTON */}
+                    <Skeleton className="h-9 w-full rounded-lg" />
+
+                  </Card>
+                ))}
+
+              </div>
+
+            </div>
+
+          </div>
+
+
         </div>
       </DashboardLayout>
     );

@@ -21,6 +21,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from '@/components/ui/dialog';
 import Image from "next/image"
+import { ErrorState } from '@/components/common/ErrorState';
+import { EmptyState } from '@/components/common/EmptyState';
 
 
 // ─── Helper: format seconds as M:SS ──────────────────────────────
@@ -641,81 +643,57 @@ export default function AssessmentPage() {
 
 if (!sessionId) {
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-md p-6">
-        <Alert variant="destructive" className="flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 mt-0.5" />
-
-          <div className="flex-1">
-            <AlertTitle>Assessment session not found</AlertTitle>
-            <AlertDescription>
-              The session ID is missing or invalid. Please go back and try again.
-            </AlertDescription>
-
-            <div className="mt-4">
-              <Button variant="outline" onClick={() => router.back()}>
-                ← Back
-              </Button>
-            </div>
-          </div>
-        </Alert>
-      </Card>
-    </div>
-  )
+    <EmptyState
+      title="Assessment session not found"
+      description="The session ID is missing or invalid. Please go back and try again."
+      icon={<AlertTriangle className="h-10 w-10 text-destructive" />}
+      action={
+        <Button variant="outline" onClick={() => router.back()}>
+          ← Back
+        </Button>
+      }
+      className="min-h-screen"
+    />
+  );
 }
 
 if (error || !session) {
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-md p-6">
-        <Alert variant="destructive" className="flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 mt-0.5" />
-
-          <div className="flex-1">
-            <AlertTitle>Something went wrong</AlertTitle>
-
-            <AlertDescription>
-              {error || "Session not found"}
-            </AlertDescription>
-
-            <div className="mt-4">
-              <Button variant="outline" onClick={() => router.back()}>
-                ← Back
-              </Button>
-            </div>
-          </div>
-        </Alert>
-      </Card>
-    </div>
-  )
+    <ErrorState
+      title="Something went wrong"
+      description={error || "Session not found"}
+      onRetry={() => router.back()}
+      icon={<AlertTriangle className="h-10 w-10" />}
+      className="min-h-screen"
+    />
+  );
 }
 
   // ─── Gate: Duplicate tab ───────────────────────────────────
   if (duplicateTab) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        <Card className="w-full max-w-md p-6">
-          <Alert variant="destructive" className="flex items-start gap-3">
-            <Tabs className="h-5 w-5 mt-0.5" />
-
-            <div className="flex-1">
-              <AlertTitle>Duplicate Tab Detected</AlertTitle>
-
-              <AlertDescription className="space-y-2">
-                <p>This assessment is already open in another tab.</p>
-                <p>Please close this tab and continue in the original one.</p>
-              </AlertDescription>
-
-              <div className="mt-4">
-                <Button variant="outline" onClick={() => window.close()}>
-                  Close Tab
-                </Button>
-              </div>
+        <EmptyState
+          title="Assessment already open"
+          description="This assessment is already active in another tab. Please continue there to avoid conflicts."
+          icon={<Tabs className="h-10 w-10 text-amber-500" />}
+          action={
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button variant="outline" onClick={() => window.close()}>
+                Close Tab
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => window.focus()}
+              >
+                Go to Original Tab
+              </Button>
             </div>
-          </Alert>
-        </Card>
+          }
+          className="min-h-screen"
+        />
       </div>
-    )
+    );
   }
 
   if (
@@ -905,13 +883,6 @@ if (error || !session) {
         </div>
       )}
 
-      {/* Tab violations */}
-      {tabSwitchCount > 0 && (
-        <div className="fixed top-12 inset-x-0 z-40 bg-red-500/10 border-b border-red-500/20 p-2 text-center text-sm">
-          ⚠️ {tabSwitchCount} tab switch violation{tabSwitchCount > 1 ? "s" : ""} detected
-        </div>
-      )}
-
       {/* ─── Header ─────────────────────────────────────────── */}
       <header className="border-b px-6 py-4 flex items-center justify-between">
   
@@ -937,6 +908,13 @@ if (error || !session) {
           </span>
 
           <Badge variant="secondary">{session.company_style}</Badge>
+
+          {tabSwitchCount > 0 && (
+          <Badge variant="destructive" className="gap-1">
+            ⚠️ {tabSwitchCount} tab switch violation {tabSwitchCount > 1 ? "s" : ""} detected
+          </Badge>
+          )}
+
         </div>
 
         <div className="flex items-center gap-4">
@@ -1252,14 +1230,6 @@ if (error || !session) {
         </div>
       )}
 
-      {/* ─── Watermark overlay (always visible, identifies candidate) ── */}
-      <div className="anticheat-watermark" aria-hidden="true">
-        {Array.from({ length: 40 }, (_, i) => (
-          <span key={i} className="watermark-text">
-            {watermarkText}
-          </span>
-        ))}
-      </div>
 
       {/* ─── Confirm Submit Modal ────────────────────────────── */}
           {showConfirmModal && (

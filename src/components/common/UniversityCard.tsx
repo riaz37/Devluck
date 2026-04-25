@@ -34,6 +34,7 @@ import { useRouter } from "next/navigation";
 import { University } from "@/hooks/companyapihandler/useUniversityHandler";
 import { Badge } from "@/components/ui/badge";
 import { InfoItem } from "./info-item";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 type UniversityCardProps = {
   university: University;
@@ -54,65 +55,74 @@ export function UniversityCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -3 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
-      className="w-full h-full" // Ensure motion div fills grid cell
+      className="w-full max-w-sm mx-auto"
     >
-      <Card className="relative h-full flex flex-col overflow-hidden rounded-xl p-2 shadow-sm hover:shadow-md transition-all">
-        {/* TOP ACTION BAR */}
-        <div className="flex items-center justify-between ">
-          <div className="flex items-center gap-1 bg-black/40 text-white px-2 py-0.5 rounded-md text-[10px] backdrop-blur">
-            <Fingerprint className="h-3 w-3" />
-            {(university.id || "").slice(0, 6).toUpperCase()}
+      <Card className="relative p-2 overflow-hidden rounded-xl border  shadow-sm hover:shadow-md transition-all">
+        <div className="relative  flex flex-col items-center justify-center">
+          
+            {/* LEFT TOP (ID + STATUS) */}
+            <div className="absolute left-1 top-1 z-10 flex flex-col gap-1">
+              <div className="flex items-center gap-1 bg-black/40 text-white px-2 py-0.5 rounded-md text-[12px] backdrop-blur">
+                <Fingerprint className="h-3 w-3" />
+                {(university.id || "").slice(0, 8).toUpperCase()}
+              </div>
+            </div>
+            {/* RIGHT TOP (MENU) */}
+            <div className="absolute right-1 top-1 z-10">
+              {showMenu && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-12 w-12 rounded-full  backdrop-blur flex items-center justify-center transition"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent align="end">
+
+                    <DropdownMenuItem onClick={onClick} className="cursor-pointer">
+                      <Eye className="h-4 w-4 mr-2" />
+                      View
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      className="text-red-500 cursor-pointer "
+                      onClick={onDelete}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+
+            {/* AVATAR */}
+            <Avatar className="h-50 w-50 ring-2 ring-background shadow-sm mt-6">
+              <AvatarImage
+                src={university.image || undefined}
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
+                {university.name?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            
           </div>
 
-          {showMenu && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 rounded-full  backdrop-blur flex items-center justify-center transition"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-              </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end">
-
-                <DropdownMenuItem onClick={onClick} className="cursor-pointer">
-                  <Eye className="h-4 w-4 mr-2" />
-                  View
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  className="text-red-500 cursor-pointer "
-                  onClick={onDelete}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-
-        {/* IMAGE / AVATAR - Using a Pro square style */}
-        <div className="flex flex-col items-center justify-center">
-          <div className="h-60 w-60 rounded-full overflow-hidden border shadow-md">
-            <img
-              src={university.image || "https://avatar.vercel.sh/university"}
-              alt={university.name}
-              className="h-full w-full object-cover"
-            />
-          </div>
-        </div>
+    
 
         {/* HEADER */}
         <CardHeader className="text-center">
@@ -122,19 +132,19 @@ export function UniversityCard({
         </CardHeader>
 
         {/* CONTENT - flex-1 pushes the footer down */}
-        <CardContent className="p-0 flex-1 flex flex-col">
-          <CardDescription className="text-sm leading-relaxed line-clamp-4 text-center px-2 min-h-[60px] mb-4">
+        <CardContent className="space-y-2">
+          <CardDescription className="text-sm leading-relaxed line-clamp-2  px-2 ">
             {university.description || "No description available"}
           </CardDescription>
 
           <div className="space-y-2 ">
             <InfoItem
-              label="Applied"
+              label="Location"
               value={university.address || "No address"}
               icon={<MapPin className="h-4 w-4" />}
             />
             <InfoItem
-              label="Phone"
+              label="Phone number"
               value={university.phoneNumber || "No phone"}
               icon={<Phone className="h-4 w-4" />}
             />

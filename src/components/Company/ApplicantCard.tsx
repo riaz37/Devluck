@@ -36,6 +36,7 @@ import {
 
 import type { Applicant, ApplicantStatus } from "@/types/applicant";
 import { InfoItem } from "../common/info-item";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 type ApplicantCardProps = {
   applicant: Applicant;
@@ -175,13 +176,15 @@ return (
           </div>
 
           {/* AVATAR */}
-          <div className="h-50 w-50 rounded-full mt-6 overflow-hidden border shadow-md bg-background">
-            <img
-              src={applicant.image || "https://avatar.vercel.sh/applicant"}
-              alt={applicant.name}
-              className="h-full w-full object-cover"
+          <Avatar className="h-50 w-50 ring-2 ring-background shadow-sm mt-6">
+            <AvatarImage
+              src={applicant.image || undefined}
+              className="object-cover"
             />
-          </div>
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
+              {applicant.name?.charAt(0)?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
 
         </div>
 

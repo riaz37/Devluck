@@ -18,6 +18,8 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
 import { toast } from "sonner";
 import { DataTable } from "@/components/common/DataTable";
+import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
+import { CompanyCardSkeleton } from "@/components/common/Skeleton/CompanyCardSkeleton";
 
 
 export default function TopCompanyPage() {
@@ -46,7 +48,7 @@ export default function TopCompanyPage() {
       if (window.innerWidth < 640) {
         setItemsPerPage(4);
       } else {
-        setItemsPerPage(8);
+        setItemsPerPage(6);
       }
     };
     updateItemsPerPage();
@@ -111,20 +113,12 @@ export default function TopCompanyPage() {
     0
   );
 
-    const templateStats = useMemo(() => {
-      const formatValue = (val: number) =>
-        loading ? (
-          <SyncLoader size={8} color="#D4AF37" />
-        ) : (
-          <span style={{ color: val === 0 ? "gray" : "inherit" }}>
-            {val.toString()}
-          </span>
-        );
+    const companyStats = useMemo(() => {
 
       return [
         {
           title: "Total Companies",
-          value: formatValue(totalCompanies),
+          value: totalCompanies,
           subtitle: "All registered companies",
           icon: <FileText className="w-5 h-5 text-primary" />,
           color: "primary",
@@ -132,7 +126,7 @@ export default function TopCompanyPage() {
 
         {
           title: "Verified Companies",
-          value: formatValue(verifiedCompanies),
+          value: verifiedCompanies,
           subtitle: "Approved profiles",
           icon: <PlayCircle className="w-5 h-5 text-emerald-500" />,
           color: "emerald",
@@ -140,7 +134,7 @@ export default function TopCompanyPage() {
 
         {
           title: "Pending Companies",
-          value: formatValue(pendingCompanies),
+          value: pendingCompanies,
           subtitle: "Awaiting review",
           icon: <PauseCircle className="w-5 h-5 text-amber-500" />,
           color: "amber",
@@ -148,7 +142,7 @@ export default function TopCompanyPage() {
 
         {
           title: "Total Employees",
-          value: formatValue(totalEmployees),
+          value: totalEmployees,
           subtitle: "All available contracts",
           icon: <Clock className="w-5 h-5 text-blue-500" />,
           color: "blue",
@@ -260,24 +254,28 @@ export default function TopCompanyPage() {
           
         {/* Top row: 4 cards */}
         {/* STATS */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {templateStats.map((stat, i) => (
-            <motion.div
-              key={stat.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <StatsCard
-                title={stat.title}
-                value={stat.value}
-                subtitle={stat.subtitle}
-                icon={stat.icon}
-                iconColor={stat.color}
-              />
-            </motion.div>
-          ))}
-        </section>
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {loading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                <StatsCardSkeleton key={i} />
+                ))
+              : companyStats.map((stat, i) => (
+                  <motion.div
+                    key={stat.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <StatsCard
+                      title={stat.title}
+                      value={stat.value}
+                      subtitle={stat.subtitle}
+                      icon={stat.icon}
+                      iconColor={stat.color}
+                    />
+                  </motion.div>
+                ))}
+          </section>
 
  
          {/* =====================
@@ -304,7 +302,11 @@ export default function TopCompanyPage() {
            ====================== */}
             {/* Loading State */}
             {loading && (
-              <LoadingState label="Fetching Companies..." />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <CompanyCardSkeleton key={i} />
+                    ))}
+                  </div>
             )}
 
             {/* Error State */}
@@ -327,7 +329,7 @@ export default function TopCompanyPage() {
 
             {/* Company Grid */}
             {!loading && !error && paginatedCompanies.length > 0 && showCompanies && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                {paginatedCompanies.map((company, index) => (
                  <CompanyCard
                    key={index}

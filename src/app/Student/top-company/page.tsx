@@ -19,6 +19,8 @@ import { TopCompany } from "@/types/company";
 import { DataTable } from "@/components/common/DataTable";
 import { cn } from "@/lib/utils";
 import { Pagination } from "@/components/common/Pagination";
+import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
+import { CompanyCardSkeleton } from "@/components/common/Skeleton/CompanyCardSkeleton";
 
 
 export default function TopCompanyPage() {
@@ -119,7 +121,7 @@ const [itemsPerPage, setItemsPerPage] = useState(10); // default 10 for desktop
           0
         );
 
-      const templateStats = useMemo(() => {
+      const companyStats = useMemo(() => {
       const formatValue = (val: number) =>
         loading ? (
           <SyncLoader size={8} color="#D4AF37" />
@@ -195,24 +197,28 @@ const [itemsPerPage, setItemsPerPage] = useState(10); // default 10 for desktop
                 
               {/* Top row: 4 cards */}
               {/* STATS */}
-              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {templateStats.map((stat, i) => (
-                  <motion.div
-                    key={stat.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                  >
-                    <StatsCard
-                      title={stat.title}
-                      value={stat.value}
-                      subtitle={stat.subtitle}
-                      icon={stat.icon}
-                      iconColor={stat.color}
-                    />
-                  </motion.div>
-                ))}
-              </section>
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {loading
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                      <StatsCardSkeleton key={i} />
+                      ))
+                    : companyStats.map((stat, i) => (
+                        <motion.div
+                          key={stat.title}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                        >
+                          <StatsCard
+                            title={stat.title}
+                            value={stat.value}
+                            subtitle={stat.subtitle}
+                            icon={stat.icon}
+                            iconColor={stat.color}
+                          />
+                        </motion.div>
+                      ))}
+                </section>
 
  
          {/* =====================
@@ -239,7 +245,11 @@ const [itemsPerPage, setItemsPerPage] = useState(10); // default 10 for desktop
            ====================== */}
             {/* Loading State */}
             {loading && (
-              <LoadingState label="Fetching Companies..." />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <CompanyCardSkeleton key={i} />
+                    ))}
+                  </div>
             )}
 
             {/* Error State */}
@@ -261,7 +271,7 @@ const [itemsPerPage, setItemsPerPage] = useState(10); // default 10 for desktop
             )}
 
            {!loading && !error && paginatedCompanies.length > 0 && showCompanies && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                {paginatedCompanies.map((company, index) => (
                  <CompanyCard
                    key={index}
