@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ParallelogramInput } from "@/components/common/ParallelogramInput";
@@ -217,8 +218,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
         {/* Header */}
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>
-            {profile ? "Profile" : "Add Profile"}
+            {profile ? "Edit Profile" : "Create Profile"}
           </DialogTitle>
+
+          <DialogDescription>
+            {profile
+              ? "Update your profile information such as name, bio, and details."
+              : "Create a new profile with your basic information."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Content */}

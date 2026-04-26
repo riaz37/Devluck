@@ -373,24 +373,20 @@ return (
 
       {/* Error State */}
       {!loading && error && (
-        <div className="flex justify-center py-12 mt-25">
           <ErrorState
             icon={<DollarSign size={40} className="text-red-500" />}
             title="Failed to load paymnets"
             description={error || "Something went wrong. Please try again."}
           />
-        </div>
       )}
 
       {/* Empty State */}
       {!loading && !error && paginatedContracts.length === 0 && (
-        <div className="flex items-center justify-center py-10 mt-25">
           <EmptyState
             icon={<DollarSign size={40} />}
             title="No paymnets found"
             description="Create your first paymnets to get started"
           />
-        </div>
       )}
 
       {/* Contracts Grid */}

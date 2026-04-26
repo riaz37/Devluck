@@ -29,6 +29,8 @@ import {
   Eye,
   Trophy,
   HomeIcon,
+  MapIcon,
+  MapPin,
 } from "lucide-react";
 import { InfoItem } from "../common/info-item";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -107,10 +109,10 @@ export function TopApplicantCard({ applicant, onClick }: Props) {
               <InfoItem
                 label="Availability"
                 value={applicant.availability ?? "N/A"}
-                icon={<HomeIcon className="h-3.5 w-3.5" />}
+                icon={<MapPin className="h-3.5 w-3.5" />}
               />
               <InfoItem
-                label="Rank"
+                label="Ranking"
                 value={`${applicant.profileRanking || "N/A"}`}
                 icon={<Trophy className="h-3.5 w-3.5" />}
                 highlight

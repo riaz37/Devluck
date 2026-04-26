@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -92,6 +93,10 @@ const DisputeModal: React.FC<ContractDisputeModalProps> = ({
         {/* Header */}
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>Send Contract Dispute</DialogTitle>
+
+          <DialogDescription>
+            Report an issue with this contract. The dispute will be reviewed by the company or system admin.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Content */}

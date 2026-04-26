@@ -10,6 +10,8 @@ import {
   Briefcase,
   Edit2,
   Target,
+  CalendarClock,
+  DollarSign,
 } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -148,7 +150,7 @@ export function ContractCardTempletate({
               <InfoItem
                 label="Duration"
                 value={contract.duration || "N/A"}
-                icon={<Briefcase className="h-4 w-4" />}
+                icon={<CalendarClock className="h-4 w-4" />}
               />
 
               <InfoItem

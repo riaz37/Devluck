@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AssessmentReport, Dimension } from "@/hooks/companyapihandler/questions-mock-api";
@@ -59,6 +60,10 @@ export default function ReportModal({
         {/* Header */}
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>Assessment Report</DialogTitle>
+
+          <DialogDescription>
+            View detailed performance results, scores, and AI-generated insights for this assessment.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Content */}

@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { motion } from "framer-motion";
-import { Mail,Fingerprint, Eye, Trophy, Calendar, HomeIcon } from "lucide-react";
+import { Mail,Fingerprint, Eye, Trophy, Calendar, HomeIcon, MapPin } from "lucide-react";
 import { InfoItem } from "../common/info-item";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
@@ -101,11 +101,11 @@ return (
               <InfoItem
                 label="Applied"
                 value={applicant.availability ?? "N/A"}
-                icon={<HomeIcon className="h-3.5 w-3.5" />}
+                icon={<MapPin className="h-4 w-4" />}
               />
 
               <InfoItem
-                label="Score"
+                label="Ranking"
                 value={`${applicant.profileRanking || "N/A"}`}
                 icon={<Trophy className="h-3.5 w-3.5" />}
                 highlight

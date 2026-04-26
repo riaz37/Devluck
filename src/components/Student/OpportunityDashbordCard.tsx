@@ -23,6 +23,7 @@ import {
   Eye,
   TrendingUp,
   Fingerprint,
+  Activity,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
@@ -129,12 +130,12 @@ export function OpportunityDashbordCard({
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
 
             <div className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
+              <Calendar className="w-3.5 h-3.5" />
               {contract.deadline || "No deadline"}
             </div>
 
             <div className="flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" />
+              <Activity className="h-3.5 w-3.5" />
               {contract.opportunityStatus || "Active"}
             </div>
 

@@ -515,17 +515,31 @@ return [
                     ))}
                   </div>
               ) : error ? (
-                    <ErrorState 
-                      title="Failed to load" 
-                      description={error} 
-                      onRetry={() => listContracts(1, 1000)}
-                    />
+                <ErrorState
+                  title="Unable to load contracts"
+                  description={
+                    error || "We couldn’t fetch contract data right now. Please try again."
+                  }
+                  onRetry={() => listContracts(1, 1000)}
+                />
               ) : paginatedApplicants.length === 0 ? (
-                    <EmptyState
-                      icon={<File size={40} />}
-                      title="No contracts found"
-                      description="No one has applied to any contract yet"
-                    />
+                  <EmptyState
+                    icon={<File size={40} />}
+                    title="No contracts found"
+                    description="No contracts have been created or assigned yet."
+                    action={
+                      <Button
+                        onClick={() => {
+                          setEditingContract(null);
+                          setIsModalOpen(true);
+                        }}
+                        variant="outline"
+                        className="rounded-xl"
+                      >
+                        Create Contract
+                      </Button>
+                    }
+                  />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-4">
                   {paginatedApplicants.map((applicant, index) => (
@@ -560,22 +574,36 @@ return [
 
 {/* Contracts Grid */}
 {!showApplicants && (
-  <div className="flex flex-col gap-2 mt-4">
+  <>
 
     {loading ? (
       <LoadingState label="Fetching contracts..." />
     ) : error ? (
-      <ErrorState 
-        title="Failed to load" 
-        description={error} 
-        onRetry={() => listContracts(1, 1000)}
-      />
+                <ErrorState
+                  title="Unable to load contracts"
+                  description={
+                    error || "We couldn’t fetch contract data right now. Please try again."
+                  }
+                  onRetry={() => listContracts(1, 1000)}
+                />
     ) : paginatedApplicants.length === 0 ? (
-      <EmptyState
-        icon={<File size={40} />}
-        title="No contracts found"
-        description="No one has applied to any contract yet"
-      />
+                  <EmptyState
+                    icon={<File size={40} />}
+                    title="No contracts found"
+                    description="No contracts have been created or assigned yet."
+                    action={
+                      <Button
+                        onClick={() => {
+                          setEditingContract(null);
+                          setIsModalOpen(true);
+                        }}
+                        variant="outline"
+                        className="rounded-xl"
+                      >
+                        Create Contract
+                      </Button>
+                    }
+                  />
     ) : (
       <DataTable
   data={paginatedApplicants}
@@ -663,7 +691,7 @@ actions={{
 />
     )}
 
-  </div>
+  </>
 )}
 
       </div>

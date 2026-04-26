@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { motion } from "framer-motion";
-import { Mail, Fingerprint, Eye, Trophy, HomeIcon } from "lucide-react";
+import { Mail, Fingerprint, Eye, Trophy, HomeIcon, BadgeCheck, DollarSign, Activity } from "lucide-react";
 import { InfoItem } from "../common/info-item";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
@@ -114,13 +114,12 @@ export function PaymnetCard({ contract,onClick }: PaymnetCardProps) {
                   ? `${contract.currency || ""} ${contract.salary}`
                   : "N/A"
               }
-              icon={<HomeIcon className="h-3.5 w-3.5" />}
             />
 
             <InfoItem
               label="Status"
               value={contract.status || "Unknown"}
-              icon={<Trophy className="h-3.5 w-3.5" />}
+              icon={<Activity className="h-3.5 w-3.5" />}
               highlight
             />
 

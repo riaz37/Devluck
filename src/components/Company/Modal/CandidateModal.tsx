@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -178,6 +179,9 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
         {/* Header */}
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>Select Candidate</DialogTitle>
+          <DialogDescription>
+            Select a candidate for this private assessment. Only who already applied to this opportunity will be shown.
+          </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto px-6 py-4">
         <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">

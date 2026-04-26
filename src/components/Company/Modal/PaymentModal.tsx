@@ -7,7 +7,7 @@ import { usePaymentHandler } from "@/hooks/companyapihandler/usePaymentHandler";
 import { ParallelogramInput } from "@/components/common/ParallelogramInput";
 import { ParallelogramSelect } from "@/components/common/ParallelogramSelect";
 import DatePickerField from "@/components/common/DatePickerField";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 
@@ -150,6 +150,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           <DialogTitle>
             {payment ? "Edit Payment" : "Create Payment"}
           </DialogTitle>
+
+          <DialogDescription>
+            {payment
+              ? "Update payment details for this applicant’s contract."
+              : "Record a new payment for an applicant under an active contract."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* CONTENT */}

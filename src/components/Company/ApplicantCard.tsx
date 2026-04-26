@@ -220,7 +220,7 @@ return (
               />
 
               <InfoItem
-                label="Score"
+                label="Ranking"
                 value={`${applicant.profileRanking || "N/A"}`}
                 icon={<Trophy className="h-3.5 w-3.5" />}
                 highlight

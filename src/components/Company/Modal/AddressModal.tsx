@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -84,6 +85,12 @@ const AddressModal: React.FC<AddressModalProps> = ({
           <DialogTitle>
             {Address ? "Edit Address" : "Add Address"}
           </DialogTitle>
+
+          <DialogDescription>
+            {Address
+              ? "Update your address details below. Make sure the information is accurate."
+              : "Add a new address so we can use it for delivery and billing purposes."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Scrollable Content */}

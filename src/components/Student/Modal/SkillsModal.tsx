@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,12 @@ const SkillsModal: React.FC<SkillsModalProps> = ({
           <DialogTitle>
             {skills ? "Edit Skills" : "Add Skills"}
           </DialogTitle>
+
+          <DialogDescription>
+            {skills
+              ? "Update your technical and professional skills."
+              : "Add your technical and professional skills such as React, Node.js, or UI/UX design."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Body */}

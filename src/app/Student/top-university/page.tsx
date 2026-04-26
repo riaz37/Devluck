@@ -150,7 +150,7 @@ export default function TopUniversityPage() {
             {/* Error State */}
             {!loading && error && (
               <ErrorState
-                title="Failed to load"
+                title="Failed to load universities"
                 description={error}
                 onRetry={() => getUniversities}
               />

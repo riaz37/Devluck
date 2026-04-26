@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -114,6 +115,12 @@ const ContractModal: React.FC<ContractModalProps> = ({
           <DialogTitle>
             {contract ? "Edit Template" : "Create Template"}
           </DialogTitle>
+
+          <DialogDescription>
+            {contract
+              ? "Update this contract template to adjust default terms and structure."
+              : "Create a reusable contract template to speed up contract creation."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Content */}

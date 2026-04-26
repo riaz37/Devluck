@@ -254,20 +254,20 @@ const [itemsPerPage, setItemsPerPage] = useState(10); // default 10 for desktop
 
             {/* Error State */}
             {!loading && error && (
-                    <ErrorState 
-                      title="Failed to load" 
-                      description={error} 
-                      onRetry={() => getTopCompanies}
-                    />
+              <ErrorState
+                title="Failed to load companies"
+                description={error || "We couldn’t fetch companies. Please try again."}
+                onRetry={() => getTopCompanies()}
+              />
             )}
 
             {/* Empty State */}
             {!loading && !error && paginatedCompanies.length === 0 && (
-                    <EmptyState
-                      icon={<File size={40} />}
-                      title="No contracts found"
-                      description="No one has applied to any contract yet"
-                    />
+              <EmptyState
+                icon={<File size={40} />}
+                title="No companies found"
+                description="No companies are available at the moment."
+              />
             )}
 
            {!loading && !error && paginatedCompanies.length > 0 && showCompanies && (

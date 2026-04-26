@@ -429,9 +429,9 @@ const handleActionDelete = async () => {
                     ))}
                   </div>
                 ) : error ? (
-                    <ErrorState 
-                      title="Failed to load" 
-                      description={error} 
+                    <ErrorState
+                      title="Unable to load opportunities"
+                      description={error || "We couldn’t fetch your job listings right now. Please try again."}
                       onRetry={() => listOpportunities(1, 1000)}
                     />
                ) : paginatedJobs.length === 0 ? (
@@ -440,7 +440,11 @@ const handleActionDelete = async () => {
                   description="Your search didn't match any jobs, or you haven't created one yet."
                   icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
                   action={
-                    <Button onClick={() => setIsModalOpen(true)} variant="outline" className="rounded-xl">
+                    <Button
+                      onClick={() => router.push("/Company/opportunity/create-opportunity")}
+                      variant="outline"
+                      className="rounded-xl"
+                    >
                       Create First Opportunity
                     </Button>
                   }
@@ -486,8 +490,8 @@ const handleActionDelete = async () => {
               <LoadingState label="Fetching opportunities..." />
             ) : error ? (
               <ErrorState
-                title="Failed to load"
-                description={error}
+                title="Unable to load opportunities"
+                description={error || "We couldn’t fetch your job listings right now. Please try again."}
                 onRetry={() => listOpportunities(1, 1000)}
               />
             ) : paginatedJobs.length === 0 ? (
@@ -497,7 +501,7 @@ const handleActionDelete = async () => {
                 icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
                 action={
                   <Button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => router.push("/Company/opportunity/create-opportunity")}
                     variant="outline"
                     className="rounded-xl"
                   >

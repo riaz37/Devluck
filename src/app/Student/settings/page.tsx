@@ -277,45 +277,7 @@ export default function SettingsPage() {
               </div>
             )
           },
-          {
-            name: "Notification",
-            value: "notification",
-            icon: Bell,
-            content: (
-              <div className="flex flex-col gap-6">
 
-                {/* PENDING ALERT */}
-                <Card className="border-dashed border-yellow-400/50 bg-yellow-50/40 dark:bg-yellow-500/10">
-                  <CardContent className="flex items-start gap-3 p-5">
-
-                    <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5" />
-
-                    <div className="space-y-1">
-                      <h4 className="font-semibold text-sm text-yellow-700 dark:text-yellow-300">
-                        Notification settings are not available yet
-                      </h4>
-
-                      <p className="text-sm text-muted-foreground">
-                        This section is currently under development and will be enabled once the notification setting API is ready.
-                      </p>
-
-                      <div className="flex gap-2 pt-2">
-                        <Badge variant="outline" className="text-yellow-600 border-yellow-400">
-                          Pending API
-                        </Badge>
-                        <Badge variant="secondary">
-                          Coming Soon
-                        </Badge>
-                      </div>
-
-                    </div>
-
-                  </CardContent>
-                </Card>
-
-              </div>
-            ),
-          },
           {
             name: "Security",
             value: "security",

@@ -453,14 +453,14 @@ return (
               </div>
         ) : applicationsError ? (
                     <ErrorState
-                      icon={<FileSearch className="h-10 w-10text-red-500" />}
+                      icon={<FileSearch className="h-10 w-10 text-red-500" />}
                       title="Something went wrong"
-                      description={applicationsError || "Unable to load opportunities. Please try again."}
+                      description={applicationsError || "Unable to load applied opportunities. Please try again."}
                     />
         ) : filteredApplicants.length === 0 ? (
                         <EmptyState
                           icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
-                          title="No opportunities found"
+                          title="No applied opportunities found"
                           description="Create your first opportunity to get started"
                         />
         ) : showApplicants && (

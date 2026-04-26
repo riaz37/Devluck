@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -87,6 +88,12 @@ const EducationModal: React.FC<EducationModalProps> = ({
           <DialogTitle>
             {education ? "Edit Education" : "Add Education"}
           </DialogTitle>
+
+          <DialogDescription>
+            {education
+              ? "Update your education details such as degree, institution, and dates."
+              : "Add your education background including degree, institution, and graduation year."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Body */}

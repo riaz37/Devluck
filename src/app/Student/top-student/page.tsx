@@ -131,8 +131,8 @@ export default function ApplicantPage() {
                {!loading && !error && students.length === 0 && (
                 <EmptyState
                   icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
-                  title="No applicants found"
-                  description="No students have applied yet"
+                  title="No students found"
+                  description="Top student data will appear here once activity is recorded."
                 />
               )}
 

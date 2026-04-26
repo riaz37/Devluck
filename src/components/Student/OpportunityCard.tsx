@@ -23,6 +23,7 @@ import {
   Calendar,
   Eye,
   Fingerprint,
+  Activity,
 } from "lucide-react";
 import { MappedOpportunity } from "@/types/opportunity-s";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -125,12 +126,12 @@ export function OpportunityCard({
         {/* Footer info */}
         <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
+            <Calendar className="w-3.5 h-3.5" />
             {opportunity.deadline}
           </div>
 
           <div className="flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" />
+           <Activity className="h-3.5 w-3.5" />
             {opportunity.status}
           </div>
         </div>

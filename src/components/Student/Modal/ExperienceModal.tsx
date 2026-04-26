@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,12 @@ const ExperienceModal: React.FC<ExperienceModalProps> = ({
           <DialogTitle>
             {experience ? "Edit Experience" : "Add Experience"}
           </DialogTitle>
+
+          <DialogDescription>
+            {experience
+              ? "Update your work experience details such as role, company, and duration."
+              : "Add your work experience including role, company, and employment period."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Body */}

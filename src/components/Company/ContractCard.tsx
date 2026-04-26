@@ -205,7 +205,6 @@ export function ContractCard({ contract, onAction }: ContractCardProps) {
             <InfoItem
               label="Budget"
               value={formatMoney(contract.salaryValue)}
-              icon={<DollarSign className="h-3.5 w-3.5" />}
             />
 
             <InfoItem

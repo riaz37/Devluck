@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -119,6 +120,12 @@ export default function AssignInterviewModal({
           <DialogTitle>
             {interview ? "Edit Interview" : "Assign Interview"}
           </DialogTitle>
+
+          <DialogDescription>
+            {interview
+              ? "Update interview details such as schedule, interviewer, or notes."
+              : "Assign an interview to a candidate by selecting the role, time, and interviewer."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* BODY */}

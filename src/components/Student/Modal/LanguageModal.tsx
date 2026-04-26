@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ParallelogramInput } from "@/components/common/ParallelogramInput";
@@ -73,6 +74,12 @@ const LanguageModal: React.FC<LanguageModalProps> = ({
           <DialogTitle>
             {language ? "Edit Language" : "Add Language"}
           </DialogTitle>
+
+          <DialogDescription>
+            {language
+              ? "Update language name and proficiency level."
+              : "Add a language you speak and specify your proficiency level."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Content */}

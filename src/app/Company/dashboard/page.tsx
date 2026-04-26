@@ -254,7 +254,7 @@ export default function DashboardPage() {
               {mappedOpportunities.length === 0 ? (
                 <EmptyState 
                   title="No opportunities found" 
-                  description="Start by creating your first job posting." 
+                  description="Create your first opportunity to start receiving candidate applications." 
                   icon={<Briefcase size={40} />} 
                 />
               ) : (
@@ -280,7 +280,7 @@ export default function DashboardPage() {
                 {uniqueApplications.length === 0 ? (
                   <EmptyState 
                     title="No applicants yet" 
-                    description="Student profiles will appear once they apply." 
+                    description="Once candidates apply to your job postings, they will appear here." 
                     icon={<Users size={40} />} 
                   />
                 ) : (

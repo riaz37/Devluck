@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -303,6 +304,12 @@ if (field === "email") {
           <DialogTitle>
             {contract ? "Edit Contract" : "Create Contract"}
           </DialogTitle>
+
+          <DialogDescription>
+            {contract
+              ? "Update contract terms such as salary, duration, or conditions."
+              : "Create a new contract to define terms between the company and the candidate."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Body */}

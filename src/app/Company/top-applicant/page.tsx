@@ -166,7 +166,7 @@ export default function TopApplicantPage() {
             {/* Error State */}
             {!loading && error && (
               <ErrorState
-                title="Failed to load"
+                title="Failed to load Applicants"
                 description={error}
                 onRetry={() => topApplicants}
               />
@@ -175,8 +175,8 @@ export default function TopApplicantPage() {
             {/* Empty State */}
             {!loading && !error && paginatedApplicants.length === 0 && (
               <EmptyState
-                title="No opportunities found"
-                description="Your search didn't match any jobs, or you haven't created one yet."
+                title="No Applicants found"
+                description="No applicants have applied to your opportunities yet."
                 icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
                
               />

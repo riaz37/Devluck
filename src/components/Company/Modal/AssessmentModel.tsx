@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -107,6 +108,12 @@ const AssessmentModal: React.FC<Props> = ({
           <DialogTitle>
             {assessment ? "Edit Assessment" : "Create Assessment"}
           </DialogTitle>
+
+          <DialogDescription>
+            {assessment
+              ? "Update assessment details, questions, or settings as needed."
+              : "Set up a new assessment by defining its structure, questions, and configuration."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Body */}

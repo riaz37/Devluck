@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -244,6 +245,12 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
           <DialogTitle>
             {university ? "Edit University" : "Create University"}
           </DialogTitle>
+
+          <DialogDescription>
+            {university
+              ? "Update university details such as name, location, and configuration."
+              : "Add a new university to the system for management and tracking."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Scrollable Content */}

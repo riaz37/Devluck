@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -77,8 +78,14 @@ const ProgramsModal: React.FC<ProgramsModalProps> = ({
         {/* Header */}
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>
-            {Program ? "Edit Programs" : "Add Programs"}
+            {Program ? "Edit Program" : "Add Program"}
           </DialogTitle>
+
+          <DialogDescription>
+            {Program
+              ? "Update the details of this company program."
+              : "Add a new program to showcase what your company offers."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Content */}

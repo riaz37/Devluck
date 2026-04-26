@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,12 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({
           <DialogTitle>
             {portfolio ? "Edit Portfolio" : "Add Portfolio"}
           </DialogTitle>
+
+          <DialogDescription>
+            {portfolio
+              ? "Update your project links such as GitHub, LinkedIn, and live demo URLs."
+              : "Add your project and include links like GitHub, LinkedIn, or a live demo to showcase your work."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Body */}

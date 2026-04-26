@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,10 @@ const ConfirmSubmitModal = ({
         {/* Header */}
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>Confirm Submission</DialogTitle>
+
+          <DialogDescription>
+            Please confirm that you want to submit this. Once submitted, changes may not be editable.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Content */}

@@ -29,6 +29,7 @@ import {
   Trash2,
   Edit,
   MoreVertical,
+  CalendarClock,
 } from "lucide-react";
 
 import { OpportunityUI } from "@/types/opportunity";

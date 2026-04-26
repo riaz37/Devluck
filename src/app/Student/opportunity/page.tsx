@@ -509,7 +509,7 @@ return (
               <EmptyState
                 icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
                 title="No opportunities found"
-                description="Create your first opportunity to get started"
+                description="No companies have posted any opportunities yet."
               />
             </div>
           ) : (

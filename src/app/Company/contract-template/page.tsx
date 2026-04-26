@@ -496,14 +496,16 @@ export default function ContractTemplatePage() {
                   </div>
               ) : error ? (
                 <ErrorState
-                  title="Failed to load"
-                  description={error}
+                  title="Failed to load contracts template"
+                  description={
+                    error || "We couldn’t fetch contract template data right now. Please try again."
+                  }
                   onRetry={() => listContractTemplates(1, 1000)}
                 />
               ) : filteredTemplates.length === 0 ? (
                 <EmptyState
-                  title="No opportunities found"
-                  description="Your search didn't match any jobs, or you haven't created one yet."
+                  title="No contract template found"
+                  description="No contracts template have been created or assigned yet."
                   icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
                   action={
                     <Button
@@ -511,7 +513,7 @@ export default function ContractTemplatePage() {
                       variant="outline"
                       className="rounded-xl"
                     >
-                      Create First Opportunity
+                      Create First  Contract Template
                     </Button>
                   }
                 />
@@ -542,11 +544,28 @@ export default function ContractTemplatePage() {
           loading ? (
             <LoadingState label="Fetching contract templates..." />
           ) : error ? (
-            <ErrorState
-              title="Failed to load"
-              description={error}
-              onRetry={() => listContractTemplates(1, 1000)}
-            />
+                <ErrorState
+                  title="Failed to load contracts template"
+                  description={
+                    error || "We couldn’t fetch contract template data right now. Please try again."
+                  }
+                  onRetry={() => listContractTemplates(1, 1000)}
+                />
+                ) : filteredTemplates.length === 0 ? (
+                <EmptyState
+                  title="No contract template found"
+                  description="No contracts template have been created or assigned yet."
+                  icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
+                  action={
+                    <Button
+                      onClick={() => setIsModalOpen(true)}
+                      variant="outline"
+                      className="rounded-xl"
+                    >
+                      Create First  Contract Template
+                    </Button>
+                  }
+                />
           ) : (
 <DataTable
   data={filteredTemplates}

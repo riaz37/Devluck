@@ -243,11 +243,6 @@ export default function contractDetailPage() {
                         </CardContent>
                       </Card>
                     </div>
-
-                    <div className="w-full">
-                      <ContractExtrasCard />
-                    </div>
-
                     <div className="w-full">
                       <Card>
                         <CardHeader>

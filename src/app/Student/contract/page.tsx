@@ -290,11 +290,11 @@ return (
                       description={contractsError || "Unable to load contracts. Please try again."}
                     />
         ) : filteredApplicants.length === 0 ? (
-                        <EmptyState
-                          icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
-                          title="No contracts found"
-                          description="Create your first contract to get started"
-                        />
+                    <EmptyState
+                      icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
+                      title="No contracts assigned"
+                      description="You don’t have any active contracts yet. Once a company assigns you one, it will appear here."
+                    />
         ) : (
           <>
             {showApplicants && (
@@ -319,7 +319,7 @@ return (
 
 
          {/* Contracts Grid */}
-          {!showApplicants && !contractsLoading && !contractsError && (
+          {!showApplicants && !contractsLoading && !contractsError && filteredApplicants.length > 0 &&  (
             <DataTable<MappedContract>
               data={paginatedApplicants}
               columns={contractColumns}

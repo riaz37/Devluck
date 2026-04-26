@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -76,8 +77,14 @@ const CorporateModal: React.FC<CorporateModalProps> = ({
         {/* Header */}
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>
-            {Corporate ? "Edit Corporate" : "Add Corporate"}
+            {Corporate ? "Edit Corporate Description" : "Add Corporate Description"}
           </DialogTitle>
+
+          <DialogDescription>
+            {Corporate
+              ? "Update the description for this corporate entity."
+              : "Add a description to define this corporate entity."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Scrollable Content ONLY */}

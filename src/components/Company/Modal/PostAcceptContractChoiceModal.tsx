@@ -1,5 +1,13 @@
 "use client";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 
 interface PostAcceptContractChoiceModalProps {
@@ -17,27 +25,33 @@ export default function PostAcceptContractChoiceModal({
   onCreateContract,
   onUseTemplate,
 }: PostAcceptContractChoiceModalProps) {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/35" onClick={onClose} />
-      <div
-        className="relative w-full max-w-md rounded-xl border bg-background p-5 shadow-lg"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-lg font-semibold">Applicant accepted</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {applicantName
-            ? `${applicantName} is accepted. Ready to create a contract?`
-            : "Applicant is accepted. Ready to create a contract?"}
-        </p>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <Button onClick={onCreateContract}>Create Contract</Button>
-          <Button variant="outline" onClick={onUseTemplate}>Use Template</Button>
-          <Button variant="ghost" onClick={onClose}>Later</Button>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Applicant accepted</DialogTitle>
+
+          <DialogDescription>
+            {applicantName
+              ? `${applicantName} has been accepted. Would you like to create a contract?`
+              : "Applicant has been accepted. Would you like to create a contract?"}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="mt-4 flex flex-wrap gap-2 justify-end">
+          <Button onClick={onCreateContract}>
+            Create Contract
+          </Button>
+
+          <Button variant="outline" onClick={onUseTemplate}>
+            Use Template
+          </Button>
+
+          <Button variant="ghost" onClick={onClose}>
+            Later
+          </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

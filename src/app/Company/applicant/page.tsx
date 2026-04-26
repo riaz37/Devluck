@@ -372,14 +372,12 @@ function mapApplicant(app: any, index: number): Applicant {
 
           {/* Error State */}
           {error && (
-                    <ErrorState 
-                      title="Failed to load" 
-                      description={error} 
-                      onRetry={() => getAllApplications(1, 1000)}
-                    />
+            <ErrorState
+              title="Unable to load applicants"
+              description={error || "We couldn’t fetch applicant data. Please try again."}
+              onRetry={() => getAllApplications(1, 1000)}
+            />
           )}
-
-            
            {/* Loading State */}
           {loading && !error && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -402,111 +400,131 @@ function mapApplicant(app: any, index: number): Applicant {
                 />
               ))
             ) : (
-              <div className="col-span-5 text-center py-12 text-gray-600 mt-25">                                      
+              <div className="col-span-5 text-center ">                                      
               <EmptyState
                 icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
-                title="No applicants found"
-                description="No students have applied yet"
+                title="No applicants yet"
+                description="No applicants have applied to your opportunities yet."
               />
               </div>
             )}
           </div>
           )}
 
-         {/* Contracts Grid */}
-          {!loading && !error && !showApplicants && (
-            <DataTable
-              data={paginatedApplicants}
-              getId={(a) => a.applicantId}
-              selectedIds={selectedIds}
-              onSelect={setSelectedIds}
-              columns={[
-                {
-                  header: (
-                    <Checkbox
-                      checked={
-                        selectedIds.length > 0 &&
-                        selectedIds.length === paginatedApplicants.length
-                      }
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedIds(
-                            paginatedApplicants.map((a) => a.applicantId)
-                          );
-                        } else {
-                          setSelectedIds([]);
-                        }
-                      }}
-                    />
-                  ),
-                  cell: (a: any) => (
-                    <Checkbox
-                      checked={selectedIds.includes(a.applicantId)}
-                      onCheckedChange={(v) =>
-                        handleSelect(a.applicantId, !!v)
-                      }
-                    />
-                  ),
-                },
+          {/* Contracts Grid */}
+          {!showApplicants && (
+            <>
+              {loading ? (
+                <LoadingState label="Fetching applicants..." />
+              ) : error ? (
+                <ErrorState
+                  title="Unable to load applicants"
+                  description={
+                    error || "We couldn’t fetch applicant data. Please try again."
+                  }
+                  onRetry={() => getAllApplications(1, 1000)}
+                />
+              ) : paginatedApplicants.length === 0 ? (
+                <EmptyState
+                  icon={<FileSearch className="h-10 w-10 text-muted-foreground" />}
+                  title="No applicants yet"
+                  description="No applicants have applied to your opportunities yet."
+                />
+              ) : (
+                <DataTable
+                  data={paginatedApplicants}
+                  getId={(a) => a.applicantId}
+                  selectedIds={selectedIds}
+                  onSelect={setSelectedIds}
+                  columns={[
+                    {
+                      header: (
+                        <Checkbox
+                          checked={
+                            selectedIds.length > 0 &&
+                            selectedIds.length === paginatedApplicants.length
+                          }
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedIds(
+                                paginatedApplicants.map((a) => a.applicantId)
+                              );
+                            } else {
+                              setSelectedIds([]);
+                            }
+                          }}
+                        />
+                      ),
+                      cell: (a: any) => (
+                        <Checkbox
+                          checked={selectedIds.includes(a.applicantId)}
+                          onCheckedChange={(v) =>
+                            handleSelect(a.applicantId, !!v)
+                          }
+                        />
+                      ),
+                    },
 
-                {
-                  header: "ID",
-                  cell: (a: any) => a.applicantId,
-                },
-                {
-                  header: "Name",
-                  cell: (a: any) => a.name,
-                },
-                {
-                  header: "Email",
-                  cell: (a: any) => a.email,
-                },
-                {
-                  header: "Applied Date",
-                  cell: (a: any) =>
-                    new Date(a.appliedAt).toLocaleDateString(),
-                },
-                {
-                  header: "Status",
-                  cell: (a: any) => {
-                    const status = a.status as ApplicantStatus;
+                    {
+                      header: "ID",
+                      cell: (a: any) => a.applicantId,
+                    },
+                    {
+                      header: "Name",
+                      cell: (a: any) => a.name,
+                    },
+                    {
+                      header: "Email",
+                      cell: (a: any) => a.email,
+                    },
+                    {
+                      header: "Applied Date",
+                      cell: (a: any) =>
+                        new Date(a.appliedAt).toLocaleDateString(),
+                    },
+                    {
+                      header: "Status",
+                      cell: (a: any) => {
+                        const status = a.status as ApplicantStatus;
 
-                    return (
+                        return (
                       <Badge
                         className={`border ${statusStyles[status]}`}
                       >
-                        {status}
-                      </Badge>
-                    );
-                  },
-                },
-              ]}
+                            {status}
+                          </Badge>
+                        );
+                      },
+                    },
+                  ]}
 
-              actions={{
-                type: "menu",
-                items: [
-                  {
-                    label: "View",
-                    icon: <Eye />,
-                    onClick: (a) =>
-                      router.push(`/Company/applicant/${a.applicantId}`),
-                  },
-                  {
-                    label: "Accept",
-                    icon: <Check />,
-                    onClick: (a) =>
-                      handleStatusChange(a.applicationId!, "accepted"),
-                  },
-                  {
-                    label: "Reject",
-                    icon: <Trash2 />,
-                    variant: "destructive",
-                    onClick: (a) =>
-                      handleStatusChange(a.applicationId!, "rejected"),
-                  },
-                ],
-              }}
-            />
+                  actions={{
+                    type: "menu",
+                    items: [
+                      {
+                        label: "View",
+                        icon: <Eye />,
+                        onClick: (a) =>
+                          router.push(`/Company/applicant/${a.applicantId}`),
+                      },
+                      {
+                        label: "Accept",
+                        icon: <Check />,
+                        onClick: (a) =>
+                          handleStatusChange(a.applicationId!, "accepted"),
+                      },
+                      {
+                        label: "Reject",
+                        icon: <Trash2 />,
+                        variant: "destructive",
+                        onClick: (a) =>
+                          handleStatusChange(a.applicationId!, "rejected"),
+                      },
+                    ],
+                  }}
+                />
+              )}
+            </>
           )}
         </div>
       </div>
