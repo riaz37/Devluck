@@ -4,7 +4,7 @@
 import { useEffect, useState} from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/Student/DashboardLayout";
-import AddressModal from "@/components/common/AddressModal";
+
 import { useAuth } from "@/hooks/useAuth"; 
 import { useStudentSettingsHandler } from "@/hooks/studentapihandler/useStudentSettingsHandler";
 import { useStudentProfileHandler } from "@/hooks/studentapihandler/useStudentProfileHandler";
@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { IconTabs } from "@/components/common/TabItem";
 import { Badge } from "@/components/ui/badge";
+import AddressModal from "@/components/Student/Modal/AddressModal";
 
  
 export default function SettingsPage() {
@@ -455,7 +456,7 @@ export default function SettingsPage() {
       </div>
     <AddressModal
       isOpen={isModalOpen}
-      address={editingAddress}
+      Address={editingAddress}
       onClose={() => {
         setIsModalOpen(false);
         setEditingAddress(null);

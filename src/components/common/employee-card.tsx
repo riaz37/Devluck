@@ -15,7 +15,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Eye, Fingerprint, HomeIcon } from "lucide-react";
+import { Briefcase, Eye, Fingerprint, HomeIcon, Mail } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 
 export default function EmployeeCard({
@@ -26,20 +27,12 @@ export default function EmployeeCard({
   const router = useRouter();
 
 return (
-  <Card className="group relative overflow-hidden rounded-xl shadow-sm transition hover:shadow-lg">
+  <Card className="relative p-2 overflow-hidden rounded-xl border  shadow-sm hover:shadow-md transition-all">
     
     {/* IMAGE SECTION */}
-    <div className="relative aspect-video overflow-hidden">
-      <img
-        src={applicant.student?.image || "https://avatar.vercel.sh/user"}
-        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-      />
-
-      {/* DARK OVERLAY */}
-      <div className="absolute inset-0 bg-black/25" />
-
+    <div className="relative  flex flex-col items-center justify-center">
       {/* LEFT BADGE (ID) */}
-      <div className="absolute left-3 top-3">
+      <div className="absolute left-1 top-1 z-10 flex flex-col gap-1">
         <Badge
           variant="secondary"
           className="flex items-center gap-1 bg-black/50 text-white backdrop-blur border-0"
@@ -51,30 +44,38 @@ return (
 
       {/* RIGHT BADGE (AVAILABILITY) */}
       {applicant.availability && (
-        <div className="absolute right-3 top-3">
+        <div className="absolute right-1 top-1 z-10">
           <Badge
-            variant="outline"
-            className="flex items-center gap-1 bg-black/50 text-white border-white/20 backdrop-blur"
+            variant="secondary"
+            className="flex items-center gap-1 bg-black/50 text-white backdrop-blur border-0"
           >
             <HomeIcon className="h-3 w-3" />
             {applicant.availability}
           </Badge>
         </div>
       )}
+
+                    {/* AVATAR */}
+          <Avatar className="h-50 w-50 ring-2 ring-background shadow-sm mt-6">
+            <AvatarImage
+              src={applicant.student?.image || undefined}
+              className="object-cover"
+            />
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
+              {applicant.student?.name?.charAt(0)?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
     </div>
 
-    {/* BODY */}
-    <CardHeader className="space-y-1 pb-2">
-      <CardTitle className="text-sm font-semibold leading-tight">
-        {applicant.student?.name || "Unknown Candidate"}
-      </CardTitle>
 
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Briefcase className="h-3.5 w-3.5 shrink-0" />
-        <span className="truncate">
-          {applicant.contractTitle || "Employee Role"}
-        </span>
-      </div>
+    {/* BODY */}
+    <CardHeader className="space-y-2">
+          <div className=" text-center">
+            {/* NAME */}
+            <CardTitle className="text-xl font-semibold tracking-tight leading-tight">
+              {applicant.student?.name || "Unknown Candidate"}
+            </CardTitle>
+          </div>
     </CardHeader>
 
     {/* PROGRESS */}
@@ -90,7 +91,7 @@ return (
     </CardContent>
 
     {/* FOOTER */}
-    <CardFooter>
+    <CardFooter className="p-0 pt-0">
       <Button
         size="sm"
         className="w-full justify-between"
