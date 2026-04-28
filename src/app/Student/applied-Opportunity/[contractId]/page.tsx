@@ -206,7 +206,7 @@ export default function contractDetailPage() {
                   <ArrowLeft className="w-4 h-4" />
                   Back
                 </Button> 
-            <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex flex-col lg:flex-row gap-6">
             <div className="w-full lg:w-1/2 flex flex-col gap-4">
               {/* ================= HEADER ================= */}
               <Card className="p-4">
@@ -220,7 +220,7 @@ export default function contractDetailPage() {
                       View job and company information
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                     {opportunity?.hasAssessment ? (
                       hasApplied ? (
                         <>
@@ -317,7 +317,7 @@ export default function contractDetailPage() {
             </div>
 
             <div className="w-full lg:w-1/2 flex items-start">
-                <div className="flex flex-col gap-2 w-full lg:h-[calc(100vh-120px)] lg:overflow-y-auto">
+                <div className="flex flex-col gap-2 w-full max-w-2xl mx-auto lg:h-[calc(100vh-120px)] lg:overflow-y-auto">
                   {/* =======================
                       Current Employees
                   ======================= */}
@@ -374,7 +374,7 @@ export default function contractDetailPage() {
                     <Card className="rounded-2xl border shadow-sm flex flex-col">
                       {/* HEADER */}
                       <CardHeader className="pb-3">
-                        <CardTitle>Reviews</CardTitle>
+                        <CardTitle className="text-lg font-semibold">Reviews</CardTitle>
                         <CardDescription>
                           What people say about this company
                         </CardDescription>
@@ -478,9 +478,7 @@ export default function contractDetailPage() {
 
                 </div>
             </div>
-
-
-    </div>
+          </div>
         </div>
     </DashboardLayout>
   );

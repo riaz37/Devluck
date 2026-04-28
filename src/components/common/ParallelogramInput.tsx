@@ -9,6 +9,7 @@ type Props = {
   placeholder: string;
   value: string|number;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   type?: "text" | "email" | "password" | "number" | "textarea";
 };  
    
@@ -17,6 +18,7 @@ export const ParallelogramInput = ({
   placeholder,
   value,
   onChange,
+  onBlur,
   type = "text",
 }: Props) => {
   return (
@@ -31,6 +33,7 @@ export const ParallelogramInput = ({
         <Textarea
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
           placeholder={placeholder}
           className="resize-none"
         />
@@ -39,6 +42,7 @@ export const ParallelogramInput = ({
           type={type}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
           placeholder={placeholder}
         />
       )}

@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useOpportunityHandler } from "@/hooks/companyapihandler/useOpportunityHandler";
+import { useQuestionHandler } from "@/hooks/companyapihandler/useQuestionHandler";
+import { useCompanyBillingHandler } from "@/hooks/companyapihandler/useCompanyBillingHandler";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/Company/DashboardLayout";
 import { ArrowLeft } from "lucide-react";
@@ -19,6 +21,8 @@ import DatePickerField from "@/components/common/DatePickerField";
 import { ParallelogramInput } from "@/components/common/ParallelogramInput";
 import { ParallelogramSelect } from "@/components/common/ParallelogramSelect";
 import { MultiInputList } from "@/components/common/MultiInputList";
+import AssessmentModal, { AssessmentData, AssessmentQuestion } from "@/components/Company/Modal/AssessmentModel";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 type OpportunityData = {
@@ -103,6 +107,11 @@ const [formData, setFormData] = useState<OpportunityData>({
   benefits: [],
   keyResponsibilities: [],
 });
+  const [includeAssessment, setIncludeAssessment] = useState(false);
+  const [assessmentModalOpen, setAssessmentModalOpen] = useState(false);
+  const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(null);
+  const [assessmentQuestions, setAssessmentQuestions] = useState<AssessmentQuestion[]>([]);
+  const [questionCountOptions, setQuestionCountOptions] = useState<number[]>([5, 10]);
   const [timeLengthValue, setTimeLengthValue] = useState("");
   const [timeLengthUnit, setTimeLengthUnit] = useState<TimeLengthUnit>("days");
 
@@ -117,6 +126,57 @@ const [formData, setFormData] = useState<OpportunityData>({
       try {
         const data = await getOpportunityById(id);
         setFormData(mapOpportunityToForm(data));
+        const rawFitProfile = (data as any)?.fitProfile;
+        const parsedFitProfile =
+          typeof rawFitProfile === "string"
+            ? (() => {
+                try {
+                  return JSON.parse(rawFitProfile);
+                } catch {
+                  return null;
+                }
+              })()
+            : rawFitProfile && typeof rawFitProfile === "object"
+              ? rawFitProfile
+              : null;
+        if ((data as any)?.hasAssessment || parsedFitProfile) {
+          setIncludeAssessment(true);
+          setAssessmentData({
+            numberOfQuestions: Number((data as any)?.questionCount || 10),
+            dimensions: Array.isArray(parsedFitProfile?.selected_dimensions)
+              ? parsedFitProfile.selected_dimensions
+              : Array.isArray(parsedFitProfile?.dimensions)
+                ? parsedFitProfile.dimensions
+                : [],
+            companyStyle: ((data as any)?.companyStyle || "Startup") as AssessmentData["companyStyle"],
+            opportunityVisibility: ((data as any)?.visibility || "Public") as AssessmentData["opportunityVisibility"],
+            roleType: parsedFitProfile?.role_type || parsedFitProfile?.roleType || "general",
+            seniorityLevel: parsedFitProfile?.seniority || parsedFitProfile?.seniorityLevel || "mid",
+            mission: parsedFitProfile?.mission || "",
+            communicationNorms: parsedFitProfile?.communicationNorms || "",
+            traitsWanted: parsedFitProfile?.traitsWanted || "",
+            traitsNotWanted: parsedFitProfile?.traitsNotWanted || "",
+            goalsNext3Months: parsedFitProfile?.goalsNext3Months || "",
+            skills: Array.isArray(parsedFitProfile?.skills) ? parsedFitProfile.skills : [],
+            values: Array.isArray(parsedFitProfile?.values) ? parsedFitProfile.values : [],
+            selectedSector: parsedFitProfile?.sector || "",
+            questionMode: (((data as any)?.questionMode || "dynamic") as AssessmentData["questionMode"]),
+            applicationCloseAt: (data as any)?.applicationCloseAt || "",
+            assessmentDeadlineHours: Number((data as any)?.assessmentDeadlineHours || 72),
+          });
+          const loadedQuestions = await getQuestions(id);
+          setAssessmentQuestions(
+            loadedQuestions.map((q) => ({
+              id: q.id,
+              question: q.question,
+              type: q.type,
+              dimension: (q as any).dimension || "technical_execution",
+              evaluationHint: (q as any).evaluationHint || "",
+              options: q.options || [],
+              isRequired: q.isRequired,
+            }))
+          );
+        }
       } catch (err) {
         toast.error("Failed to load opportunity");
       }
@@ -141,22 +201,79 @@ const [formData, setFormData] = useState<OpportunityData>({
     updateOpportunity,
     getOpportunityById,
   } = useOpportunityHandler();
+  const { bulkUpdateQuestions, getQuestions } = useQuestionHandler();
+  const { getSubscriptionStatus } = useCompanyBillingHandler();
   useEffect(() => {
     const parsed = parseTimeLength(formData.timeLength);
     setTimeLengthValue(parsed.value);
     setTimeLengthUnit(parsed.unit);
   }, [formData.timeLength]);
+  useEffect(() => {
+    getSubscriptionStatus()
+      .then((data) => {
+        setQuestionCountOptions(
+          Array.isArray(data.questionCountOptions) && data.questionCountOptions.length > 0
+            ? data.questionCountOptions
+            : [5, 10]
+        );
+      })
+      .catch(() => {
+        setQuestionCountOptions([5, 10]);
+      });
+  }, [getSubscriptionStatus]);
   /* ---------------- SUBMIT (CREATE + EDIT) ---------------- */
     const handleSubmit = async () => {
     try {
         console.log("SUBMIT:", formData);
-
-        if (formData.id) {
-        await updateOpportunity(formData.id, formData);
+        const payload: any = { ...formData };
+        if (includeAssessment && assessmentData) {
+          payload.companyStyle = assessmentData.companyStyle;
+          payload.questionCount = assessmentData.numberOfQuestions;
+          payload.visibility = assessmentData.opportunityVisibility;
+          payload.questionMode = assessmentData.questionMode;
+          payload.applicationCloseAt = assessmentData.applicationCloseAt || null;
+          payload.assessmentDeadlineHours = assessmentData.assessmentDeadlineHours;
+          payload.hasAssessment = true;
+          payload.fitProfile = {
+            sector: assessmentData.selectedSector || undefined,
+            selected_dimensions: assessmentData.dimensions,
+            role_type: assessmentData.roleType,
+            seniority: assessmentData.seniorityLevel,
+            dimensions: assessmentData.dimensions,
+            roleType: assessmentData.roleType,
+            seniorityLevel: assessmentData.seniorityLevel,
+            mission: assessmentData.mission,
+            communicationNorms: assessmentData.communicationNorms,
+            traitsWanted: assessmentData.traitsWanted,
+            traitsNotWanted: assessmentData.traitsNotWanted,
+            goalsNext3Months: assessmentData.goalsNext3Months,
+            skills: assessmentData.skills,
+            values: assessmentData.values,
+          };
+        }
+        let opportunityId = formData.id;
+        if (opportunityId) {
+        await updateOpportunity(opportunityId, payload);
         toast.success("Opportunity updated successfully");
         } else {
-        await createOpportunity(formData);
+        const created = await createOpportunity(payload);
+        opportunityId = created.id;
         toast.success("Opportunity created successfully");
+        }
+        if (includeAssessment && assessmentData && opportunityId) {
+          await bulkUpdateQuestions(
+            opportunityId,
+            assessmentQuestions.map((q, index) => ({
+              id: q.id,
+              question: q.question,
+              type: q.type,
+              dimension: q.dimension,
+              evaluationHint: q.evaluationHint || "",
+              options: q.options || [],
+              isRequired: q.isRequired ?? false,
+              order: index,
+            }))
+          );
         }
 
         router.push("/Company/opportunity");
@@ -294,6 +411,26 @@ const [formData, setFormData] = useState<OpportunityData>({
 
         </div>
 
+        <div className="space-y-4 border rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              checked={includeAssessment}
+              onCheckedChange={(checked) => setIncludeAssessment(Boolean(checked))}
+            />
+            <span className="text-sm font-medium">Include assessment</span>
+          </div>
+          {includeAssessment && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => setAssessmentModalOpen(true)}
+            >
+              {assessmentData ? "Update assessment for this opportunity" : "Create assessment for this opportunity"}
+            </Button>
+          )}
+        </div>
+
       <Button onClick={handleSubmit} disabled={loading} className="w-full">
         {loading
           ? "Saving..."
@@ -301,6 +438,18 @@ const [formData, setFormData] = useState<OpportunityData>({
           ? "Update Opportunity"
           : "Create Opportunity"}
       </Button>
+      <AssessmentModal
+        assessment={assessmentData}
+        isOpen={assessmentModalOpen}
+        questionCountOptions={questionCountOptions}
+        initialQuestions={assessmentQuestions}
+        onClose={() => setAssessmentModalOpen(false)}
+        onSave={(data, questions) => {
+          setAssessmentData(data);
+          setAssessmentQuestions(questions);
+          setAssessmentModalOpen(false);
+        }}
+      />
     </div>
     </DashboardLayout>
   );

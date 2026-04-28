@@ -26,9 +26,10 @@ import { Badge } from "@/components/ui/badge";
 import { useCompanyAssessmentHandler } from "@/hooks/companyapihandler/useCompanyAssessmentHandler";
 import { useCompanyInterviewHandler } from "@/hooks/companyapihandler/useCompanyInterviewHandler";
 import { useCompanyBillingHandler } from "@/hooks/companyapihandler/useCompanyBillingHandler";
+import { useQuestionHandler } from "@/hooks/companyapihandler/useQuestionHandler";
 import type { ContractTemplate } from "@/hooks/companyapihandler/useContractTemplateHandler";
 import { ApplicantCard } from "@/components/Company/ApplicantCard";
-import AssessmentModal, { AssessmentData } from "@/components/Company/Modal/AssessmentModel";
+import AssessmentModal, { AssessmentData, AssessmentQuestion } from "@/components/Company/Modal/AssessmentModel";
 import { SelectionBar1 } from "@/components/Company/SelectionBar";
 import AssignInterviewModal from "@/components/Company/Modal/AssignInterviewModal";
 import ReportModal from "@/components/Company/Modal/ReportModal";
@@ -59,6 +60,7 @@ export default function JobDetailPage() {
       Boolean(parsedFitProfile) &&
       (
         (Array.isArray(parsedFitProfile?.dimensions) && parsedFitProfile.dimensions.length > 0) ||
+        (Array.isArray(parsedFitProfile?.selected_dimensions) && parsedFitProfile.selected_dimensions.length > 0) ||
         (Array.isArray(parsedFitProfile?.skills) && parsedFitProfile.skills.length > 0) ||
         (Array.isArray(parsedFitProfile?.values) && parsedFitProfile.values.length > 0) ||
         Boolean(parsedFitProfile?.mission?.trim?.()) ||
@@ -67,18 +69,24 @@ export default function JobDetailPage() {
         Boolean(parsedFitProfile?.traitsNotWanted?.trim?.()) ||
         Boolean(parsedFitProfile?.goalsNext3Months?.trim?.()) ||
         Boolean(parsedFitProfile?.roleType) ||
-        Boolean(parsedFitProfile?.seniorityLevel)
+        Boolean(parsedFitProfile?.role_type) ||
+        Boolean(parsedFitProfile?.seniorityLevel) ||
+        Boolean(parsedFitProfile?.seniority)
       );
 
     if (!hasAssessmentData) return null;
 
     return {
       numberOfQuestions: Number(rawOpportunity.questionCount || 10),
-      dimensions: Array.isArray(parsedFitProfile?.dimensions) ? parsedFitProfile.dimensions : [],
+      dimensions: Array.isArray(parsedFitProfile?.selected_dimensions)
+        ? parsedFitProfile.selected_dimensions
+        : Array.isArray(parsedFitProfile?.dimensions)
+          ? parsedFitProfile.dimensions
+          : [],
       companyStyle: (rawOpportunity.companyStyle || "Startup") as AssessmentData["companyStyle"],
       opportunityVisibility: (rawOpportunity.visibility || "Public") as AssessmentData["opportunityVisibility"],
-      roleType: (parsedFitProfile?.roleType || "User") as AssessmentData["roleType"],
-      seniorityLevel: (parsedFitProfile?.seniorityLevel || "Entry-level") as AssessmentData["seniorityLevel"],
+      roleType: (parsedFitProfile?.role_type || parsedFitProfile?.roleType || "general") as AssessmentData["roleType"],
+      seniorityLevel: (parsedFitProfile?.seniority || parsedFitProfile?.seniorityLevel || "mid") as AssessmentData["seniorityLevel"],
       mission: parsedFitProfile?.mission || "",
       communicationNorms: parsedFitProfile?.communicationNorms || "",
       traitsWanted: parsedFitProfile?.traitsWanted || "",
@@ -86,6 +94,10 @@ export default function JobDetailPage() {
       goalsNext3Months: parsedFitProfile?.goalsNext3Months || "",
       skills: Array.isArray(parsedFitProfile?.skills) ? parsedFitProfile.skills : [],
       values: Array.isArray(parsedFitProfile?.values) ? parsedFitProfile.values : [],
+      selectedSector: parsedFitProfile?.sector || "",
+      questionMode: (rawOpportunity.questionMode || "dynamic") as AssessmentData["questionMode"],
+      applicationCloseAt: rawOpportunity.applicationCloseAt || "",
+      assessmentDeadlineHours: Number(rawOpportunity.assessmentDeadlineHours || 72),
     };
   };
   
@@ -145,7 +157,9 @@ export default function JobDetailPage() {
     const { getSubscriptionStatus } = useCompanyBillingHandler();
     const { sendAssessmentInvite, getCandidates, getReport } = useCompanyAssessmentHandler();
     const { assignInterview } = useCompanyInterviewHandler();
+    const { getQuestions, bulkUpdateQuestions } = useQuestionHandler();
     const [questionCountOptions, setQuestionCountOptions] = useState<number[]>([5, 10]);
+    const [customQuestions, setCustomQuestions] = useState<AssessmentQuestion[]>([]);
 
     const validateInviteCandidate = useCallback(
       async (email: string) => {
@@ -161,6 +175,29 @@ export default function JobDetailPage() {
         getOpportunityById(jobId as string).catch(console.error);
       }
     }, [jobId, getOpportunityById]);
+
+    useEffect(() => {
+      const loadQuestions = async () => {
+        if (!jobId) return;
+        try {
+          const loaded = await getQuestions(jobId as string);
+          setCustomQuestions(
+            loaded.map((q) => ({
+              id: q.id,
+              question: q.question,
+              type: q.type,
+              dimension: (q as any).dimension || "technical",
+              evaluationHint: (q as any).evaluationHint || (q as any).evaluation_hint || "",
+              options: q.options || [],
+              isRequired: q.isRequired,
+            }))
+          );
+        } catch {
+          setCustomQuestions([]);
+        }
+      };
+      loadQuestions();
+    }, [jobId, getQuestions]);
 
     useEffect(() => {
       getSubscriptionStatus()
@@ -428,11 +465,6 @@ const assessmentContent = (
         </Button>
       ) : null}
 
-      <Button onClick={() =>
-        router.push(`/Company/opportunity/${jobId}/add-questions`)
-      }>
-        Add Questions
-      </Button>
     </div>
 
     {!currentAssessment ? (
@@ -887,15 +919,23 @@ const assessmentContent = (
   assessment={currentAssessment}
   isOpen={isAssessmentModalOpen}
   questionCountOptions={questionCountOptions}
+  initialQuestions={customQuestions}
   onClose={() => setAssessmentModalOpen(false)}
-  onSave={async (data) => {
+  onSave={async (data, questions) => {
     if (!jobId) return;
     await updateOpportunity(jobId as string, {
       companyStyle: data.companyStyle,
       questionCount: data.numberOfQuestions,
       visibility: data.opportunityVisibility,
+      questionMode: data.questionMode,
+      applicationCloseAt: data.applicationCloseAt || null,
+      assessmentDeadlineHours: data.assessmentDeadlineHours,
       hasAssessment: true,
       fitProfile: {
+        sector: data.selectedSector || undefined,
+        selected_dimensions: data.dimensions,
+        role_type: data.roleType,
+        seniority: data.seniorityLevel,
         dimensions: data.dimensions,
         roleType: data.roleType,
         seniorityLevel: data.seniorityLevel,
@@ -908,6 +948,31 @@ const assessmentContent = (
         values: data.values,
       },
     } as any);
+    await bulkUpdateQuestions(
+      jobId as string,
+      questions.map((q, index) => ({
+        id: q.id,
+        question: q.question,
+        type: q.type,
+        dimension: q.dimension,
+        evaluationHint: q.evaluationHint || "",
+        options: q.options || [],
+        isRequired: q.isRequired ?? false,
+        order: index,
+      }))
+    );
+    const refreshedQuestions = await getQuestions(jobId as string);
+    setCustomQuestions(
+      refreshedQuestions.map((q) => ({
+        id: q.id,
+        question: q.question,
+        type: q.type,
+        dimension: (q as any).dimension || "technical",
+        evaluationHint: (q as any).evaluationHint || (q as any).evaluation_hint || "",
+        options: q.options || [],
+        isRequired: q.isRequired,
+      }))
+    );
     setEditingAssessment(data);
     await getOpportunityById(jobId as string);
     setAssessmentModalOpen(false);

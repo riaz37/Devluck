@@ -47,4 +47,11 @@ export interface MappedOpportunity {
   appliedAt: string;
   opportunityId: string;
   hasAssessment?: boolean;
+  assessmentSource?: "public" | "private";
+  assessmentStatus?: string;
+  sessionStatus?: string | null;
+  sessionId?: string | null;
+  inviteToken?: string | null;
+  canStartAssessment?: boolean;
+  assessmentBlockedReason?: string | null;
 }

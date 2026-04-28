@@ -64,7 +64,7 @@ export default function AssignInterviewModal({
 }: AssignInterviewModalProps) {
   const [formData, setFormData] = useState<InterviewData>({
     interviewDate: "",
-    interviewTime: "",
+    interviewTime: "12:00 AM",
     meetingLink: "",
     notes: "",
   });
@@ -80,7 +80,7 @@ export default function AssignInterviewModal({
     } else if (isOpen) {
       setFormData({
         interviewDate: "",
-        interviewTime: "",
+        interviewTime: "12:00 AM",
         meetingLink: "",
         notes: "",
       });
@@ -92,6 +92,9 @@ export default function AssignInterviewModal({
   };
 
   const handleSubmit = async () => {
+    if (!formData.interviewDate || !formData.interviewTime || !formData.meetingLink.trim()) {
+      return;
+    }
     setLoading(true);
     try {
       await onAssign(formData);

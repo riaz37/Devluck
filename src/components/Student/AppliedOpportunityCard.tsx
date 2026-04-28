@@ -19,7 +19,6 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 
 import {
@@ -30,9 +29,11 @@ import {
   Calendar,
   Building2,
   DollarSign,
+  PlayCircle,
+  RotateCcw,
 } from "lucide-react";
 import { MappedOpportunity } from "@/types/opportunity-s";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 
 
@@ -42,8 +43,10 @@ interface AppliedOpportunityCardProps {
   onClick?: () => void;
   onWithdraw?: () => void;
   isWithdrawing?: boolean;
-
-  
+  onAssessmentAction?: () => void;
+  assessmentActionLabel?: string;
+  isAssessmentActionLoading?: boolean;
+  assessmentActionDisabled?: boolean;
 }
 
 export const AppliedOpportunityCard = ({
@@ -51,7 +54,10 @@ export const AppliedOpportunityCard = ({
   onClick,
   onWithdraw,
   isWithdrawing,
-
+  onAssessmentAction,
+  assessmentActionLabel,
+  isAssessmentActionLoading,
+  assessmentActionDisabled,
 }: AppliedOpportunityCardProps) => {
   const truncate = (text?: string, max = 22) =>
     text ? (text.length > max ? text.slice(0, max) + "…" : text) : "N/A";
@@ -70,6 +76,25 @@ export const AppliedOpportunityCard = ({
         return "bg-muted text-muted-foreground";
     }
   };
+  const getAssessmentActionColor = () => {
+    const label = String(assessmentActionLabel || "").toLowerCase();
+    if (label.includes("resume")) {
+      return "bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-100";
+    }
+    if (label.includes("start")) {
+      return "bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-100";
+    }
+    if (label.includes("completed")) {
+      return "bg-green-100 text-green-700 border border-green-200 hover:bg-green-100";
+    }
+    if (label.includes("deadline")) {
+      return "bg-red-100 text-red-700 border border-red-200 hover:bg-red-100";
+    }
+    if (label.includes("unavailable") || label.includes("cannot")) {
+      return "bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-100";
+    }
+    return "bg-muted text-muted-foreground border border-border";
+  };
 
   return (
     <Card className="rounded-2xl shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
@@ -78,7 +103,7 @@ export const AppliedOpportunityCard = ({
       <CardHeader className="flex flex-row items-start justify-between pb-2">
         <div className="flex items-center gap-3">
           {/* IMAGE */}
-          <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm bg-primary/10 flex-shrink-0">
+          <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm bg-primary/10 shrink-0">
             <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
               {applicant.company?.charAt(0)?.toUpperCase() || "U"}
             </AvatarFallback>
@@ -110,6 +135,19 @@ export const AppliedOpportunityCard = ({
               <FileText className="w-4 h-4 mr-2" />
               Details
             </DropdownMenuItem>
+            {assessmentActionLabel && (
+              <DropdownMenuItem
+                onClick={onAssessmentAction}
+                disabled={isAssessmentActionLoading || assessmentActionDisabled || !onAssessmentAction}
+              >
+                {assessmentActionLabel.toLowerCase().includes("resume") ? (
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                ) : (
+                  <PlayCircle className="w-4 h-4 mr-2" />
+                )}
+                {isAssessmentActionLoading ? "Starting..." : assessmentActionLabel}
+              </DropdownMenuItem>
+            )}
 
             <DropdownMenuItem
               onClick={onWithdraw}
@@ -172,6 +210,21 @@ export const AppliedOpportunityCard = ({
 
       {/* FOOTER */}
       <CardFooter className="flex gap-2">
+        {assessmentActionLabel ? (
+          <Button
+            onClick={onAssessmentAction}
+            className={`flex-1 justify-between cursor-pointer ${getAssessmentActionColor()}`}
+            disabled={isAssessmentActionLoading || assessmentActionDisabled || !onAssessmentAction}
+            variant="secondary"
+          >
+            {isAssessmentActionLoading ? "Starting..." : assessmentActionLabel}
+            {assessmentActionLabel.toLowerCase().includes("resume") ? (
+              <RotateCcw className="w-4 h-4" />
+            ) : (
+              <PlayCircle className="w-4 h-4" />
+            )}
+          </Button>
+        ) : null}
         <Button
           onClick={onClick}
           className="flex-1 justify-between cursor-pointer"

@@ -36,23 +36,28 @@ export function AssessmentCard({
   const isCompleted = status === "completed";
   const isEvaluating = status === "evaluating";
   const isInProgress = status === "in_progress";
+  const isExpired = Boolean((item as any).isExpired) || !item.canStart;
 
   const title = item.opportunity?.title || "Assessment";
 
-  const isDisabled = isCompleted || isEvaluating;
+  const isDisabled = isCompleted || isEvaluating || isExpired;
 
   const getButtonLabel = () => {
     if (isCompleted) return "Completed";
     if (isEvaluating) return "Evaluating";
+    if (isExpired) return "You can't take this assignment anymore";
     if (isInProgress) return "Resume";
     if (item.sessionId) return "Resume";
     return "Start";
   };
 
   const getIcon = () => {
+    if (isExpired) return null;
     if (isInProgress || item.sessionId) return <RotateCcw className="h-4 w-4" />;
     return <PlayCircle className="h-4 w-4" />;
   };
+
+  const icon = getIcon();
 
   return (
     <Card className="rounded-2xl border shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
@@ -110,7 +115,7 @@ export function AssessmentCard({
           ) : (
             <>
               {getButtonLabel()}
-              {getIcon()}
+              {icon}
             </>
           )}
         </Button>

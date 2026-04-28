@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import DashboardLayout from "@/components/Student/DashboardLayout";
 import { useStudentApplicationHandler } from "@/hooks/studentapihandler/useStudentApplicationHandler";
+import { useStudentAssessmentHandler } from "@/hooks/studentapihandler/useStudentAssessmentHandler";
 import { motion } from "framer-motion";
 import { SyncLoader } from "react-spinners";
 import DecryptedText from "@/components/ui/DecryptedText";
@@ -22,6 +23,7 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { LoadingState } from "@/components/common/LoadingState";
 import { BackendApplicationStatus, MappedOpportunity, OpportunityStatus, StatusFilter } from "@/types/opportunity-s";
 import { AssessmentReport } from "@/hooks/companyapihandler/questions-mock-api";
+import { AssessmentItem } from "@/types/assessment";
 
 import { AppliedOpportunityCard } from "@/components/Student/AppliedOpportunityCard";
 import { SelectionBar } from "@/components/Student/SelectionBar-w";
@@ -101,11 +103,19 @@ export default function ContractListPage() {
       } = useStudentApplicationHandler();
 
       const [withdrawingApplicationId, setWithdrawingApplicationId] = useState<string | null>(null);
+      const [startingAssessmentKey, setStartingAssessmentKey] = useState<string | null>(null);
+      const { listAssessments, startAssessment, startAssessmentFromInvite } = useStudentAssessmentHandler();
+      const [assessmentItems, setAssessmentItems] = useState<AssessmentItem[]>([]);
 
 
       useEffect(() => {
         getApplications(1, 1000).catch(console.error);
       }, [getApplications]);
+      useEffect(() => {
+        listAssessments("all")
+          .then((data) => setAssessmentItems(data || []))
+          .catch(() => setAssessmentItems([]));
+      }, [listAssessments]);
 
       const handleWithdraw = async (applicationId: string) => {
         try {
@@ -132,12 +142,26 @@ export default function ContractListPage() {
 
       const mappedApplications = useMemo<MappedOpportunity[]>(() => {
         if (!Array.isArray(applications)) return [];
+        const assessmentByApplicationId = new Map<string, AssessmentItem>();
+        const assessmentByOpportunityId = new Map<string, AssessmentItem>();
+        assessmentItems.forEach((item) => {
+          if (item.applicationId) assessmentByApplicationId.set(item.applicationId, item);
+          if (item.opportunity?.id) assessmentByOpportunityId.set(item.opportunity.id, item);
+        });
 
         const toDate = (d?: string) =>
           d ? new Date(d).toLocaleDateString() : "Not specified";
 
         return applications.map((app, index) => {
           const opp = app.opportunity ?? {};
+          const assessment =
+            assessmentByApplicationId.get(app.id) ||
+            assessmentByOpportunityId.get(app.opportunityId);
+          const rawAssessmentStatus = String(
+            assessment?.sessionStatus || assessment?.assessmentStatus || ""
+          ).toLowerCase();
+          const hasSession = Boolean(assessment?.sessionId);
+          const canStartAssessment = Boolean(assessment?.canStart);
 
           return {
             id: index + 1,
@@ -179,9 +203,63 @@ export default function ContractListPage() {
             appliedAt: toDate(app.appliedAt),
 
             opportunityId: app.opportunityId,
+            hasAssessment: Boolean(opp.hasAssessment),
+            assessmentSource: assessment?.source,
+            assessmentStatus: assessment?.assessmentStatus ?? undefined,
+            sessionStatus: assessment?.sessionStatus || null,
+            sessionId: assessment?.sessionId || null,
+            inviteToken: assessment?.inviteToken || null,
+            canStartAssessment,
+            assessmentBlockedReason: (assessment as any)?.isExpired
+              ? "Assessment deadline passed"
+              : !assessment?.canStart
+                ? "Assessment cannot be started right now"
+                : null,
           };
         });
-      }, [applications]);
+      }, [applications, assessmentItems]);
+      const handleAssessmentAction = async (row: MappedOpportunity) => {
+        const actionKey =
+          row.originalId || row.sessionId || row.opportunityId;
+        if (!actionKey) return;
+        setStartingAssessmentKey(actionKey);
+        const toastId = toast.loading("Starting assessment...");
+        try {
+          let sessionId = row.sessionId || null;
+          if (!sessionId) {
+            if (row.assessmentSource === "private" && row.inviteToken) {
+              const res = await startAssessmentFromInvite(row.inviteToken);
+              sessionId = res.sessionId;
+            } else if (row.originalId) {
+              const res = await startAssessment(row.originalId);
+              sessionId = res.sessionId;
+            }
+          }
+          if (!sessionId) {
+            toast.error("Failed to start assessment", { id: toastId });
+            return;
+          }
+          toast.success("Assessment started", { id: toastId });
+          const sourceParam = row.assessmentSource === "private" ? "&source=invite" : "";
+          router.push(
+            `/Student/applied-Opportunity/${row.opportunityId}/assessment?sessionId=${sessionId}${sourceParam}`
+          );
+        } catch (err: unknown) {
+          const message =
+            err instanceof Error ? err.message : "Something went wrong";
+          toast.error(message, { id: toastId });
+        } finally {
+          setStartingAssessmentKey(null);
+        }
+      };
+      const getAssessmentActionLabel = (row: MappedOpportunity) => {
+        const status = String(row.assessmentStatus || row.sessionStatus || "").toLowerCase();
+        if (!row.hasAssessment) return null;
+        if (status === "completed" || status === "evaluating") return "Assessment Completed";
+        if (!row.canStartAssessment) return row.assessmentBlockedReason || "Assessment unavailable";
+        if (status === "in_progress" || row.sessionId) return "Resume Assessment";
+        return "Start Assessment";
+      };
 
       const getCount = (status: OpportunityStatus) =>
         mappedApplications.filter((c) => c.opportunityStatus === status).length;
@@ -481,6 +559,21 @@ return (
                   setConfirmOpen(true);
                 }}
                 isWithdrawing={withdrawingApplicationId !== null}
+                onAssessmentAction={
+                  getAssessmentActionLabel(contract)
+                    ? () => handleAssessmentAction(contract)
+                    : undefined
+                }
+                assessmentActionLabel={getAssessmentActionLabel(contract) || undefined}
+                isAssessmentActionLoading={
+                  startingAssessmentKey === (contract.originalId || contract.sessionId || contract.opportunityId)
+                }
+                assessmentActionDisabled={
+                  !contract.canStartAssessment ||
+                  ["Assessment Completed", "Assessment Unavailable"].includes(
+                    getAssessmentActionLabel(contract) || ""
+                  )
+                }
               />
             ))}
           </div>
@@ -551,6 +644,12 @@ return (
                         );
                       }
                     },
+                  },
+                  {
+                    label: "Start/Resume Assessment",
+                    icon: <PlayCircle className="w-4 h-4" />,
+                    hidden: (row) => !getAssessmentActionLabel(row),
+                    onClick: (row) => handleAssessmentAction(row),
                   },
                   {
                     label: "Withdraw",

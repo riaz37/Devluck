@@ -52,45 +52,9 @@ export default function DashboardPage() {
       opportunity: string;
     }
 
-    // Mock data
-    const mockInterviews: DisplayInterview[] = [
-      {
-        id: "1",
-        opportunity: "Frontend Developer",
-        interviewDate: "Mar 18, 2026",
-        interviewTime: "10:00 AM",
-        meetingLink: "https://zoom.us/meeting/1",
-        notes: "Prepare coding test.",
-      },
-      {
-        id: "2",
-        opportunity: "Backend Engineer",
-        interviewDate: "Mar 19, 2026",
-        interviewTime: "02:00 PM",
-        meetingLink: "https://zoom.us/meeting/2",
-        notes: "Discuss team fit.",
-      },
-      {
-        id: "3",
-        opportunity: "UI/UX Designer",
-        interviewDate: "Mar 20, 2026",
-        interviewTime: "11:00 AM",
-        meetingLink: "https://zoom.us/meeting/3",
-        notes: "Review past projects.",
-      },
-    ];
-
     // State
     const [interviews, setInterviews] = useState<DisplayInterview[]>([]);
     const [interviewsLoading, setInterviewsLoading] = useState(true);
-
-    useEffect(() => {
-      setInterviewsLoading(true);
-      setTimeout(() => {
-        setInterviews(mockInterviews);
-        setInterviewsLoading(false);
-      }, 1000);
-    }, []);
 
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
@@ -133,6 +97,7 @@ export default function DashboardPage() {
     stats,
     loading: statsLoading,
     getDashboardStats,
+    getUpcomingInterviews
   } = useStudentDashboardHandler();
 
   const { reviews, loading: reviewsLoading, getStudentReviews } = useStudentProfileReview();
@@ -151,15 +116,36 @@ export default function DashboardPage() {
           getDashboardStats()
         ]);
         if (profileData?.id) {
-          getStudentReviews(profileData.id);
+          await Promise.all([
+            getStudentReviews(profileData.id),
+            getUpcomingInterviews(profileData.id)
+              .then((apiInterviews) => {
+                const mappedInterviews: DisplayInterview[] = apiInterviews.map((interview) => {
+                  const interviewDateObj = interview.interviewAt ? new Date(interview.interviewAt) : null;
+                  return {
+                    id: interview.id,
+                    opportunity: interview.opportunity?.title || "Unknown Opportunity",
+                    interviewDate: interviewDateObj ? interviewDateObj.toLocaleDateString() : "N/A",
+                    interviewTime: interviewDateObj
+                      ? interviewDateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                      : "N/A",
+                    meetingLink: interview.meetingLink || "",
+                    notes: interview.notes || "",
+                  };
+                });
+                setInterviews(mappedInterviews);
+              })
+          ]);
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
         showToast("Failed to load dashboard data.", "error");
+      } finally {
+        setInterviewsLoading(false);
       }
     };
     fetchData();
-  }, [getProfile, getExperiences, getEducations, getSkills, listOpportunities, getDashboardStats]);
+  }, [getProfile, getExperiences, getEducations, getSkills, listOpportunities, getDashboardStats, getStudentReviews, getUpcomingInterviews]);
 
   const mappedOpportunities = useMemo(() => {
     if (!opportunities || !Array.isArray(opportunities)) {
@@ -195,7 +181,7 @@ export default function DashboardPage() {
   const totalOpportunities = stats?.totalOpportunities ?? 0;
   const totalApplied = stats?.totalApplied ?? 0;
   const totalRejected = stats?.totalRejected ?? 0;
-  const upcomingInterviews = 0;
+  const upcomingInterviews = interviews.length;
 
   const isLoading =
   profileLoading ||

@@ -9,6 +9,8 @@ export interface Question {
   opportunityId: string
   question: string
   type: 'text' | 'select' | 'checkbox' | 'rating'
+  dimension?: string
+  evaluationHint?: string
   options: string[]
   order: number
   isRequired: boolean
@@ -19,6 +21,8 @@ export interface Question {
 export interface QuestionData {
   question: string
   type: 'text' | 'select' | 'checkbox' | 'rating'
+  dimension?: string
+  evaluationHint?: string
   options?: string[]
   order?: number
   isRequired?: boolean
