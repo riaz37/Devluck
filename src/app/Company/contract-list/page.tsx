@@ -298,7 +298,7 @@ export default function ContractListPage() {
           email: (originalContract as any).email || "",
           name: originalContract.name || "",
           contractTitle: originalContract.contractTitle || "",
-          Contract: originalContract.duration || "",
+          durationValue: originalContract.duration || "",
           startDate: createdDate.toISOString().split("T")[0],
           endDate: endDate.toISOString().split("T")[0],
           salary: originalContract.salary

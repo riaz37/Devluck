@@ -12,6 +12,14 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 import { Button } from "@/components/ui/button";
 
 import { useCompanyApplicationHandler } from "@/hooks/companyapihandler/useCompanyApplicationHandler";
@@ -21,6 +29,8 @@ import { ParallelogramSelect } from "@/components/common/ParallelogramSelect";
 import { ParallelogramEmailAutocomplete } from "@/components/common/ParallelogramEmailAutocomplete";
 import { ParallelogramInput } from "@/components/common/ParallelogramInput";
 import DatePickerField from "@/components/common/DatePickerField";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 
 
@@ -28,17 +38,16 @@ import DatePickerField from "@/components/common/DatePickerField";
 
 interface ContractData {
   email: string;
+
   name: string;
 
   contractTitle: string;
 
-  Contract: string;
+  durationValue: number;
 
   contractStatus: string;
 
   startDate: string;
-
-  endDate: string;
 
   salary?: string;
 
@@ -68,9 +77,8 @@ const ContractModal: React.FC<ContractModalProps> = ({
     email: "",
     name: "",
     contractTitle: "",
-    Contract: "",
+    durationValue: 1,
     startDate: "",
-    endDate: "",
     salary: "",
     note: "",
     contractStatus: "",
@@ -102,9 +110,8 @@ const ContractModal: React.FC<ContractModalProps> = ({
         email: (contract as any).email || "",
         name: (contract as any).name || "",
         contractTitle: contract.contractTitle || "",
-        Contract: contract.Contract || "",
+        durationValue: (contract as any).durationValue || 1,
         startDate: contract.startDate || "",
-        endDate: contract.endDate || "",
         salary: (contract as any).salary || "",
         note: contract.note || "",
         contractStatus: contract.contractStatus || "",
@@ -117,9 +124,8 @@ const ContractModal: React.FC<ContractModalProps> = ({
         email: "",
         name: "",
         contractTitle: "",
-        Contract: "",
+        durationValue: 1,
         startDate: "",
-        endDate: "",
         salary: "",
         note: "",
         contractStatus: "",
@@ -232,7 +238,7 @@ if (field === "email") {
       return;
     }
 
-    if (!formData.name.trim() || !formData.contractTitle.trim() || !formData.Contract || !formData.contractStatus) {
+    if (!formData.name.trim() || !formData.contractTitle.trim() || !formData.durationValue || !formData.contractStatus) {
       setSubmitError("Please fill in all required fields");
       return;
     }
@@ -241,6 +247,7 @@ if (field === "email") {
     setSubmitError(null);
 
     try {
+      const duration = `${formData.durationValue}`;
       if (isEditing) {
         // Update existing contract
         const contractId = (contract as any).id;
@@ -248,7 +255,7 @@ if (field === "email") {
           contractTitle: formData.contractTitle,
           name: formData.name.trim(),
           email: formData.email.trim() || undefined,
-          duration: formData.Contract,
+          duration,
           salary: formData.salary ? parseFloat(formData.salary) : undefined,
           note: formData.note || undefined,
           status: formData.contractStatus
@@ -266,7 +273,7 @@ if (field === "email") {
           inContractNumber: contractNumber,
           inContractList: [],
           currency: "USD",
-          duration: formData.Contract,
+          duration,
           monthlyAllowance: 0,
           salary: formData.salary ? parseFloat(formData.salary) : undefined,
           workLocation: "",
@@ -384,27 +391,18 @@ if (field === "email") {
             onChange={(e) => handleInputChange("salary", e.target.value)}
           />
 
-          <ParallelogramSelect
-            label="Duration"
-            placeholder="Select duration"
-            value={formData.Contract}
-            options={[
-              "1 month",
-              "3 months",
-              "6 months",
-              "12 months",
-            ]}
-            onChange={(val) => handleInputChange("Contract", val)}
-          />
           <DatePickerField
             label="Start Date"
             value={formData.startDate}
             onChange={(val) => handleInputChange("startDate", val)}
           />
-          <DatePickerField
-            label="End Date"
-            value={formData.endDate}
-            onChange={(val) => handleInputChange("endDate", val)}
+
+          <ParallelogramInput
+            label="Duration (in months)"
+            placeholder="Enter number of months"
+            type="number"
+            value={formData.durationValue}
+            onChange={(e) => handleInputChange("durationValue", e.target.value)}
           />
 
           <ParallelogramInput

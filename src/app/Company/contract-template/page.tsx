@@ -610,10 +610,10 @@ export default function ContractTemplatePage() {
           try {
             if (editingContract?.id) {
               await updateContractTemplate(editingContract.id, data);
-              toast.success("Opportunity updated successfully");
+              toast.success("Contract-template updated successfully");
             } else {
               await createContractTemplate(data);
-              toast.success("Opportunity created successfully");
+              toast.success("Contract-template created successfully");
             }
 
             await Promise.all([
@@ -624,7 +624,7 @@ export default function ContractTemplatePage() {
             setIsModalOpen(false);
             setEditingContract(null);
           } catch (error) {
-            toast.error("Failed to save opportunity");
+            toast.error("Failed to save Contract-template");
             console.error(error);
           }
         }}

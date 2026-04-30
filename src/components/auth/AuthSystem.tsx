@@ -30,10 +30,12 @@ import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import { loginSchema, registerSchema } from "@/lib/schemas/auth"
 import { useAuth } from "@/hooks/useAuth"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp"
+import React from "react"
 
 /* ---------------- TYPES ---------------- */
 
-type AuthMode = "login" | "register"
+type AuthMode = "login" | "register" | "forgot" | "reset"
 
 interface AuthSystemProps {
   initialMode?: AuthMode
@@ -76,6 +78,15 @@ export default function AuthSystem({
   const { login, signup, loading } = useAuth()
   const router = useRouter()
   const { setTheme } = useTheme()
+
+  const [pin, setPin] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+
+  React.useEffect(() => {
+    if (pin.length === 6) {
+      console.log("Entered PIN:", pin)
+    }
+  }, [pin])
 
   /* ---------------- GET SCHEMA (FIXED) ---------------- */
 
@@ -136,6 +147,32 @@ export default function AuthSystem({
     }
   }
 
+  const handleSendPin = async () => {
+    if (!email) {
+      toast.error("Email is required")
+      return
+    }
+
+    await new Promise((res) => setTimeout(res, 1000))
+
+    toast.success("PIN sent to your email (mock)")
+    console.log("Mock PIN: 123456")
+
+    setMode("reset")
+  }
+
+  const handleResetPassword = async () => {
+    if (!pin || !newPassword || confirmPassword !== newPassword) {
+      toast.error("Please fix the errors")
+      return
+    }
+
+    await new Promise((res) => setTimeout(res, 1000))
+
+    toast.success("Password reset successful 🎉")
+    setMode("login")
+  }
+
   /* ---------------- UI ---------------- */
 
   return (
@@ -185,19 +222,30 @@ export default function AuthSystem({
           <CardHeader>
             <motion.div variants={item} className="space-y-1 text-center">
               <CardTitle className="text-xl">
-                {mode === "login" ? "Welcome back" : "Create an account"}
+                {mode === "login"
+                  ? "Welcome back"
+                  : mode === "register"
+                  ? "Create an account"
+                  : mode === "forgot"
+                  ? "Reset your password"
+                  : "Enter verification code"}
               </CardTitle>
 
               <CardDescription>
                 {mode === "login"
                   ? "Enter your credentials to access your account."
-                  : "Fill in your details to get started."}
+                  : mode === "register"
+                  ? "Fill in your details to get started."
+                  : mode === "forgot"
+                  ? "We’ll send you a reset code via email."
+                  : "Enter the 6-digit code and your new password."}
               </CardDescription>
             </motion.div>
           </CardHeader>
 
           <CardContent className="space-y-4">
-
+          {(mode === "login" || mode === "register") && (
+            <>
             {/* EMAIL */}
             <motion.div variants={item}>
               <Label className="mb-2">Email</Label>
@@ -241,6 +289,18 @@ export default function AuthSystem({
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+
+            {mode === "login" && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => setMode("forgot")}
+                  className="text-xs text-muted-foreground hover:text-primary"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
 
             {fieldErrors.password && (
               <p id="password-error" className="text-xs text-red-500">
@@ -353,6 +413,122 @@ export default function AuthSystem({
                 {mode === "login" ? "Sign up" : "Sign in"}
               </button>
             </motion.p>
+            </>
+          )}
+
+
+            {mode === "forgot" && (
+              <motion.div variants={item} className="space-y-4">
+                <p className="text-sm text-muted-foreground text-center">
+                  Enter your email to receive a reset code
+                </p>
+
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="yourname@devluck.com"
+                  />
+                </div>
+
+                <Button onClick={handleSendPin} className="w-full">
+                  Send Code
+                </Button>
+
+                <p className="text-center text-sm">
+                  Back to{" "}
+                  <button
+                    onClick={() => setMode("login")}
+                    className="text-primary hover:underline"
+                  >
+                    login
+                  </button>
+                </p>
+              </motion.div>
+            )}
+
+            {mode === "reset" && (
+              <motion.div variants={item} className="space-y-4">
+                
+                {/* OTP */}
+                <div className="flex justify-center">
+                  <InputOTP
+                    maxLength={6}
+                    value={pin}
+                    onChange={(value) => setPin(value)}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
+
+                {/* PASSWORDS */}
+                <div className="space-y-3">
+                  {/* New Password */}
+                  <div className="space-y-2">
+                    <Label>New Password</Label>
+                    <Input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div className="space-y-2">
+                    <Label>Confirm Password</Label>
+                    <Input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={
+                        confirmPassword && confirmPassword !== newPassword
+                          ? "border-red-500"
+                          : ""
+                      }
+                    />
+
+                    {confirmPassword && confirmPassword !== newPassword && (
+                      <p className="text-xs text-red-500">
+                        Passwords do not match
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* BUTTON */}
+                <Button
+                  onClick={handleResetPassword}
+                  className="w-full"
+                  disabled={
+                    pin.length < 6 ||
+                    !newPassword ||
+                    confirmPassword !== newPassword
+                  }
+                >
+                  Reset Password
+                </Button>
+
+                {/* RESEND */}
+                <div className="text-center text-sm">
+                  Didn’t receive code?{" "}
+                  <button
+                    onClick={handleSendPin}
+                    className="text-primary hover:underline"
+                  >
+                    Resend
+                  </button>
+                </div>
+
+              </motion.div>
+            )}
 
           </CardContent>
         </Card>

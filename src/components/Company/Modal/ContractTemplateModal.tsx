@@ -17,8 +17,8 @@ import { Button } from "@/components/ui/button";
 import { ParallelogramInput } from "@/components/common/ParallelogramInput";
 import { ParallelogramSelect } from "@/components/common/ParallelogramSelect";
 
+/* ---------------- Types ---------------- */
 
-// Types
 interface ContractData {
   name: string;
   contractTitle: string;
@@ -54,7 +54,16 @@ const ContractModal: React.FC<ContractModalProps> = ({
 
   const [loading, setLoading] = useState(false);
 
-  // reset + fill when open
+  const [durationValue, setDurationValue] = useState<number>(1);
+  const [durationUnit, setDurationUnit] = useState<"day" | "month" | "year">("month");
+
+  /* ---------------- Build duration ---------------- */
+
+  const buildDuration = () =>
+    `${durationValue} ${durationUnit}${durationValue > 1 ? "s" : ""}`;
+
+  /* ---------------- Load / Reset ---------------- */
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -68,6 +77,16 @@ const ContractModal: React.FC<ContractModalProps> = ({
         workLocation: contract.workLocation || "Hybrid",
         status: contract.status || "Active",
       });
+
+      // ✅ parse duration safely
+      if (contract.duration) {
+        const match = contract.duration.match(/(\d+)\s*(day|month|year)s?/i);
+
+        if (match) {
+          setDurationValue(Number(match[1]));
+          setDurationUnit(match[2].toLowerCase() as any);
+        }
+      }
     } else {
       setFormData({
         name: "",
@@ -78,18 +97,30 @@ const ContractModal: React.FC<ContractModalProps> = ({
         workLocation: "Hybrid",
         status: "Active",
       });
+
+      setDurationValue(1);
+      setDurationUnit("month");
     }
   }, [contract, isOpen]);
+
+  /* ---------------- Input handler ---------------- */
 
   const handleInputChange = (field: keyof ContractData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  /* ---------------- Submit ---------------- */
+
   const handleSubmit = async () => {
     setLoading(true);
 
     try {
-      await onSave(formData);
+      const payload: ContractData = {
+        ...formData,
+        duration: buildDuration(), // ✅ FINAL FIX
+      };
+
+      await onSave(payload);
       onClose();
     } catch (error) {
       console.error("Failed to save contract:", error);
@@ -98,19 +129,12 @@ const ContractModal: React.FC<ContractModalProps> = ({
     }
   };
 
+  /* ---------------- UI ---------------- */
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent
-              className="
-                w-[calc(100%-24px)] 
-                max-w-[640px] 
-                max-h-[90vh] 
-                flex flex-col
-                p-0
-              "
-            >
- 
-        {/* Header */}
+      <DialogContent className="w-[calc(100%-24px)] max-w-[640px] max-h-[90vh] flex flex-col p-0">
+
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>
             {contract ? "Edit Template" : "Create Template"}
@@ -118,14 +142,12 @@ const ContractModal: React.FC<ContractModalProps> = ({
 
           <DialogDescription>
             {contract
-              ? "Update this contract template to adjust default terms and structure."
-              : "Create a reusable contract template to speed up contract creation."}
+              ? "Update this contract template."
+              : "Create a reusable contract template."}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
-          <div className="flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
           <ParallelogramInput
             label="Template Name"
@@ -143,13 +165,26 @@ const ContractModal: React.FC<ContractModalProps> = ({
             }
           />
 
-          <ParallelogramSelect
-            label="Duration"
-            placeholder="Select duration"
-            value={formData.duration}
-            options={["1 month", "3 months", "6 months", "12 months"]}
-            onChange={(val) => handleInputChange("duration", val)}
-          />
+          {/* Duration */}
+          <div className="flex gap-3">
+            <ParallelogramInput
+              label="Duration"
+              placeholder="Enter number"
+              type="number"
+              value={durationValue}
+              onChange={(e) => setDurationValue(Number(e.target.value))}
+            />
+
+            <ParallelogramSelect
+              label="Unit"
+              placeholder="Unit"
+              value={durationUnit}
+              options={["day", "month", "year"]}
+              onChange={(val) =>
+                setDurationUnit(val as "day" | "month" | "year")
+              }
+            />
+          </div>
 
           <ParallelogramSelect
             label="Work Location"
@@ -157,10 +192,7 @@ const ContractModal: React.FC<ContractModalProps> = ({
             value={formData.workLocation}
             options={["Hybrid", "Remote", "Onsite"]}
             onChange={(val) =>
-              handleInputChange(
-                "workLocation",
-                val as ContractData["workLocation"]
-              )
+              handleInputChange("workLocation", val)
             }
           />
 
@@ -178,7 +210,9 @@ const ContractModal: React.FC<ContractModalProps> = ({
             placeholder="Select currency"
             value={formData.currency}
             options={["USD", "EUR", "GBP", "SAR", "AED"]}
-            onChange={(val) => handleInputChange("currency", val)}
+            onChange={(val) =>
+              handleInputChange("currency", val)
+            }
           />
 
           <ParallelogramSelect
@@ -187,12 +221,11 @@ const ContractModal: React.FC<ContractModalProps> = ({
             value={formData.status}
             options={["Active", "Inactive", "Draft"]}
             onChange={(val) =>
-              handleInputChange("status", val as ContractData["status"])
+              handleInputChange("status", val)
             }
           />
         </div>
-        </div>
-        {/* Footer */}
+
         <DialogFooter className="px-6 pb-6 flex gap-2">
 
           <DialogClose asChild>
