@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/Company/DashboardLayout";
 import { useCompanyApplicationHandler } from "@/hooks/companyapihandler/useCompanyApplicationHandler";
 import { useGlobalRankingHandler } from "@/hooks/common/useGlobalRankingHandler";
 import {Activity, ArrowLeft, Calendar, DollarSign, FileText, Layers, Mail, Plus, Star, Trophy } from "lucide-react";
+
 import { useStudentProfileReview } from "@/hooks/common/useStudentProfileReview";
 import EmptyStateFeedback from "@/components/common/EmptyStateFeedback";
 import { LoadingState } from "@/components/common/LoadingState";
@@ -584,8 +585,8 @@ if (error || !student) {
                           <div className="flex items-center gap-3 min-w-0">
                             <Avatar className="w-8 h-8 shrink-0">
                               <AvatarImage src={review.reviewerImage ?? undefined} />
-                              <AvatarFallback>
-                                {review.reviewerName?.charAt(0)}
+                              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                                {review.reviewerImage?.charAt(0)?.toUpperCase() || "U"}
                               </AvatarFallback>
                             </Avatar>
 
@@ -606,7 +607,7 @@ if (error || !student) {
                                 key={i}
                                 className={`w-4 h-4 ${
                                   i < review.rating
-                                    ? "fill-yellow-400 text-yellow-400"
+                                    ? "fill-primary text-primary"
                                     : "text-muted-foreground"
                                 }`}
                               />

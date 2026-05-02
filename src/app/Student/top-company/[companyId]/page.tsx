@@ -6,7 +6,7 @@ import { useCompanyGlobalRankingHandler } from "@/hooks/common/useCompanyGlobalR
 import { useReviewHandler } from "@/hooks/companyapihandler/useReviewHandler";
 import { useState, useEffect } from "react";
 import { useDocumentHandler } from "@/hooks/companyapihandler/useDocumentHandler";
-import { ArrowLeft, MapPin, Phone} from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Trophy} from "lucide-react";
 import { motion } from "framer-motion";
 import EmployeeCard from "@/components/common/employee-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -317,9 +317,10 @@ export default function TopCompanyPage() {
       <CardContent className="flex flex-col items-center justify-center flex-1 space-y-6">
 
         {/* BIG SCORE */}
-        <div className="text-6xl font-bold tracking-tight text-muted-foreground">
-          {companyRanking ? `#${companyRanking.globalRank}` : "N/A"}
-        </div>
+          <div className="flex items-center gap-2 text-6xl font-bold tracking-tight text-primary">
+            <Trophy className="w-10 h-10 text-primary" />
+              {companyRanking ? companyRanking.globalRank : "N/A"}
+          </div>
 
         {/* PROGRESS */}
         <div className="w-full space-y-2">

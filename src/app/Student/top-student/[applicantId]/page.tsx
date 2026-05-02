@@ -534,7 +534,7 @@ export default function ApplicantPage() {
                           <div className="flex items-center gap-3 min-w-0">
                             <Avatar className="w-8 h-8 shrink-0">
                               <AvatarImage src={review.reviewerImage ?? undefined} />
-                              <AvatarFallback>
+                              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
                                 {review.reviewerName?.charAt(0)}
                               </AvatarFallback>
                             </Avatar>
@@ -556,7 +556,7 @@ export default function ApplicantPage() {
                                 key={i}
                                 className={`w-4 h-4 ${
                                   i < review.rating
-                                    ? "fill-yellow-400 text-yellow-400"
+                                    ? "fill-primary text-primary"
                                     : "text-muted-foreground"
                                 }`}
                               />

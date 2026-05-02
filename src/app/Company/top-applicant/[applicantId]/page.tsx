@@ -60,10 +60,7 @@ export default function ApplicantPage() {
     error,
     getStudentProfileById,
   } = useCompanyApplicationHandler();
-  const {
-    ranking: applicantRanking,
-    getStudentGlobalRankingByStudentId,
-  } = useGlobalRankingHandler();
+  const { ranking: applicantRanking, getStudentGlobalRankingByStudentId } = useGlobalRankingHandler();
 
     const mappedStudent = useMemo(() => {
     if (!student) return null;
@@ -246,7 +243,6 @@ if (error || !student) {
             <div className="grid grid-cols-2 md:grid-cols-2 gap-4 flex-1">
 
               {[
-
                 {
                   label: "Salary Expectation",
                   value: s?.salaryExpectation ? `$${s.salaryExpectation}` : "N/A",
@@ -589,8 +585,8 @@ if (error || !student) {
                           <div className="flex items-center gap-3 min-w-0">
                             <Avatar className="w-8 h-8 shrink-0">
                               <AvatarImage src={review.reviewerImage ?? undefined} />
-                              <AvatarFallback>
-                                {review.reviewerName?.charAt(0)}
+                              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                                {review.reviewerImage?.charAt(0)?.toUpperCase() || "U"}
                               </AvatarFallback>
                             </Avatar>
 
@@ -611,7 +607,7 @@ if (error || !student) {
                                 key={i}
                                 className={`w-4 h-4 ${
                                   i < review.rating
-                                    ? "fill-yellow-400 text-yellow-400"
+                                    ? "fill-primary text-primary"
                                     : "text-muted-foreground"
                                 }`}
                               />

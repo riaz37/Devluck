@@ -1,5 +1,5 @@
 "use client";
-import { FileText, FileImage, File, Users, Phone, MapPin, Camera, CameraIcon, CameraOff, LucideCamera } from "lucide-react";
+import { FileText, FileImage, File, Users, Phone, MapPin, Camera, CameraIcon, CameraOff, LucideCamera, Trophy, AlertCircle, CheckCircle2, UploadCloud, UploadCloudIcon, LucideUploadCloud, FolderUp } from "lucide-react";
 import DashboardLayout from "@/components/Company/DashboardLayout";
 import { useEffect, useRef, useState } from "react";
 import { useCompanyProfileHandler } from "@/hooks/companyapihandler/useCompanyProfileHandler";
@@ -9,7 +9,7 @@ import { useDocumentHandler } from "@/hooks/companyapihandler/useDocumentHandler
 import { useCompanyGlobalRankingHandler } from "@/hooks/common/useCompanyGlobalRankingHandler";
 import { api } from "@/lib/api";
 import {  Download, Eye,MoreVertical, Trash2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
 import { toast } from "sonner";
 import {
@@ -28,6 +28,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -55,10 +56,6 @@ type UploadItem = {
 const MAX_FILE_SIZE_MB = 5;
 const MAX_FILES = 5;
 export default function TopCompanyPage() {
-
-
-
-
     const { profile, profileLoading, getProfile, updateProfile, uploadLogo, uploadLogoLoading, uploadLogoError, employees, employeesLoading, getEmployees } = useCompanyProfileHandler();
     const {
     ranking: companyRanking,
@@ -86,17 +83,11 @@ export default function TopCompanyPage() {
 
     // ============= file upload (Section 1) ==============
     const [files, setFiles] = useState<UploadItem[]>([]);
-    const [dragging, setDragging] = useState(false);
     const uploadingFiles = useRef<Set<string>>(new Set());
     const [deletingFiles, setDeletingFiles] = useState<Set<number>>(new Set());
     const [clearingAll, setClearingAll] = useState(false);
+    const [dragging, setDragging] = useState(false);
 
-    // ============= file upload (Section 2) ==============
-    const [files2, setFiles2] = useState<UploadItem[]>([]);
-    const [dragging2, setDragging2] = useState(false);
-    const uploadingFiles2 = useRef<Set<string>>(new Set());
-    const [deletingFiles2, setDeletingFiles2] = useState<Set<number>>(new Set());
-    const [clearingAll2, setClearingAll2] = useState(false);
 
     useEffect(() => {
         if (documents) {
@@ -110,9 +101,49 @@ export default function TopCompanyPage() {
                 uploading: false
             }));
             setFiles(mappedFiles);
-            setFiles2(mappedFiles);
         }
     }, [documents]);
+
+
+
+    const getFileIcon = (fileType?: string) => {
+    if (!fileType) return <File className="w-4 h-4" />;
+
+    if (fileType.startsWith("image/")) {
+        return <FileImage className="w-4 h-4 text-blue-500" />;
+    }
+
+    if (fileType === "application/pdf") {
+        return <FileText className="w-4 h-4 text-red-500" />;
+    }
+
+    return <File className="w-4 h-4 text-muted-foreground" />;
+    };
+
+    const formatFileName = (name: string, max = 18) => {
+    if (!name) return "unknown";
+    if (name.length <= max) return name;
+
+    const extIndex = name.lastIndexOf(".");
+    const ext = extIndex !== -1 ? name.slice(extIndex) : "";
+
+    return name.slice(0, max - ext.length - 3) + "..." + ext;
+    };
+
+
+    const clearAll = async () => {
+        setClearingAll(true);
+        for (const file of files) {
+            if (file.id) {
+                try {
+                    await deleteDocument(file.id);
+                } catch (error) {
+                }
+            }
+        }
+        setFiles([]);
+        setClearingAll(false);
+    };
 
     const uploadFile = async (file: File, index: number) => {
         const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
@@ -160,7 +191,6 @@ export default function TopCompanyPage() {
                             uploading: false,
                             progress: 0,
                             error: "Upload failed. Retry."
-                            
                         }
                         : f
                 )
@@ -170,165 +200,8 @@ export default function TopCompanyPage() {
         }
     };
 
-    const getFileIcon = (fileType?: string) => {
-    if (!fileType) return <File className="w-4 h-4" />;
-
-    if (fileType.startsWith("image/")) {
-        return <FileImage className="w-4 h-4 text-blue-500" />;
-    }
-
-    if (fileType === "application/pdf") {
-        return <FileText className="w-4 h-4 text-red-500" />;
-    }
-
-    return <File className="w-4 h-4 text-muted-foreground" />;
-    };
-
-    const formatFileName = (name: string, max = 18) => {
-    if (!name) return "unknown";
-    if (name.length <= max) return name;
-
-    const extIndex = name.lastIndexOf(".");
-    const ext = extIndex !== -1 ? name.slice(extIndex) : "";
-
-    return name.slice(0, max - ext.length - 3) + "..." + ext;
-    };
-
-const handleFiles = (incoming: File[]) => {
-    if (files.length + incoming.length > MAX_FILES) {
-        toast.error(`Max ${MAX_FILES} files allowed`);
-        return;
-    }
-
-    incoming.forEach((file) => {
-        if (
-            !file.type.startsWith("image/") &&
-            file.type !== "application/pdf"
-        ) {
-            toast.error("Only images and PDFs allowed");
-            return;
-        }
-
-        if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-            toast.error(`Max file size ${MAX_FILE_SIZE_MB}MB`);
-            return;
-        }
-
-        const item: UploadItem = {
-            file,
-            preview: file.type.startsWith("image/")
-                ? URL.createObjectURL(file)
-                : undefined,
-            progress: 0,
-            uploading: false,
-        };
-
-        setFiles((prev) => {
-            const index = prev.length;
-            setTimeout(() => uploadFile(file, index), 100);
-            return [...prev, item];
-        });
-    });
-};
-
-    const removeFile = async (index: number) => {
-        const fileItem = files[index];
-        // Start loading state
-        setDeletingFiles(prev => new Set(prev).add(index));
-
-        try {
-            // Delete from backend if it has an ID
-            if (fileItem.id) {
-                await deleteDocument(fileItem.id);
-            }
-
-            // Remove file from local state
-            setFiles(prev => prev.filter((_, i) => i !== index));
-
-
-        } catch (error) {
-            console.error("Failed to delete file:", error);
-        } finally {
-            // Stop loading state
-            setDeletingFiles(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(index);
-                return newSet;
-            });
-        }
-    };
-
-    const clearAll = async () => {
-        setClearingAll(true);
-        for (const file of files) {
-            if (file.id) {
-                try {
-                    await deleteDocument(file.id);
-                } catch (error) {
-                }
-            }
-        }
-        setFiles([]);
-        setClearingAll(false);
-    };
-
-    const uploadFile2 = async (file: File, index: number) => {
-        const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
-        if (uploadingFiles2.current.has(fileKey)) {
-            return;
-        }
-
-        uploadingFiles2.current.add(fileKey);
-        try {
-            setFiles2((prev) =>
-                prev.map((f, i) =>
-                    i === index ? { ...f, uploading: true, error: undefined } : f
-                )
-            );
-
-            const document = await uploadDocument(file, (progress) => {
-                setFiles2((prev) =>
-                    prev.map((f, i) =>
-                        i === index ? { ...f, progress } : f
-                    )
-                );
-            });
-
-            setFiles2((prev) =>
-                prev.map((f, i) =>
-                    i === index
-                        ? {
-                            id: document.id,
-                            fileName: document.fileName,
-                            fileUrl: document.fileUrl,
-                            fileType: document.fileType,
-                            preview: document.fileType.startsWith('image/') ? document.fileUrl : undefined,
-                            progress: 100,
-                            uploading: false
-                        }
-                        : f
-                )
-            );
-        } catch (error) {
-            setFiles2((prev) =>
-                prev.map((f, i) =>
-                    i === index
-                        ? {
-                            ...f,
-                            uploading: false,
-                            progress: 0,
-                            error: "Upload failed. Retry."
-                        }
-                        : f
-                )
-            );
-        } finally {
-            uploadingFiles2.current.delete(fileKey);
-        }
-    };
-
-    const handleFiles2 = (incoming: File[]) => {
-        if (files2.length + incoming.length > MAX_FILES) {
+    const handleFiles = (incoming: File[]) => {
+        if (files.length + incoming.length > MAX_FILES) {
                 
             return;
         }
@@ -356,14 +229,72 @@ const handleFiles = (incoming: File[]) => {
                 uploading: false,
             };
 
-            setFiles2((prev) => {
+            setFiles((prev) => {
                 const index = prev.length;
-                setTimeout(() => uploadFile2(file, index), 100);
+                setTimeout(() => uploadFile(file, index), 100);
                 return [...prev, item];
             });
         });
     };
 
+    const removeFile = async (index: number) => {
+        const fileItem = files[index];
+
+        setDeletingFiles(prev => new Set(prev).add(index));
+
+        try {
+            if (fileItem.id) {
+                 await deleteDocument(fileItem.id);
+            }
+
+            setFiles(prev => prev.filter((_, i) => i !== index));
+
+        } catch (error) {
+             console.error("Delete failed", error);
+        } finally {
+             setDeletingFiles(prev => {
+                 const newSet = new Set(prev);
+                 newSet.delete(index);
+                 return newSet;
+            });
+        }
+    };
+
+    const openFile = (file: UploadItem) => {
+        if (!file.fileUrl) return;
+
+        if (file.fileType === "application/pdf") {
+            window.open(
+                `https://docs.google.com/viewer?url=${encodeURIComponent(file.fileUrl)}`,
+                "_blank",
+                "noopener,noreferrer"
+            );
+        } else {
+            window.open(file.fileUrl, "_blank", "noopener,noreferrer");
+        }
+    };
+
+    const downloadFile = async (file: UploadItem) => {
+        if (!file.fileUrl) return;
+
+        try {
+            const response = await fetch(file.fileUrl);
+            const blob = await response.blob();
+
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = file.fileName || "file";
+            document.body.appendChild(a);
+            a.click();
+
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            window.open(file.fileUrl, "_blank");
+        }
+    };
 
 
 
@@ -664,8 +595,9 @@ const handleFiles = (incoming: File[]) => {
             <CardContent className="flex flex-col items-center justify-center flex-1 space-y-6">
 
                 {/* BIG PROGRESS NUMBER */}
-                <div className="text-6xl font-bold tracking-tight text-muted-foreground">
-                    {companyRanking ? `#${companyRanking.globalRank}` : "N/A"}
+                <div className="flex items-center gap-2 text-6xl font-bold tracking-tight text-primary">
+                <Trophy className="w-10 h-10 text-primary" />
+                {companyRanking ? companyRanking.globalRank : "N/A"}
                 </div>
 
                 {/* PROGRESS BAR */}
@@ -886,46 +818,74 @@ const handleFiles = (incoming: File[]) => {
 
     <CardContent className="space-y-4">
 
-      {/* DROPZONE */}
-      <div
-        onClick={() => document.getElementById("file-input-2")?.click()}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging2(true);
-        }}
-        onDragLeave={() => setDragging2(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDragging2(false);
-          handleFiles2(Array.from(e.dataTransfer.files));
-        }}
+    <div
+    onClick={() => document.getElementById("file-input-2")?.click()}
+    onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+    }}
+    onDragLeave={() => setDragging(false)}
+    onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        handleFiles(Array.from(e.dataTransfer.files));
+    }}
+    className={`
+        group relative h-[140px] rounded-xl border border-dashed
+        flex flex-col items-center justify-center cursor-pointer
+        transition-all duration-300 ease-out
+
+        ${dragging 
+        ? "border-primary bg-primary/5 shadow-md scale-[1.01]" 
+        : "border-muted-foreground/30 bg-muted/20 hover:bg-muted/40 hover:border-primary/40"
+        }
+    `}
+    >
+    
+    {/* INPUT */}
+    <Input
+        id="file-input-2"
+        type="file"
+        multiple
+        accept="image/*,application/pdf"
+        className="hidden"
+        onChange={(e) =>
+        e.target.files && handleFiles(Array.from(e.target.files))
+        }
+    />
+
+  {/* ICON */}
+  <div
+    className={`
+      mb-2 transition-all duration-300
+      ${dragging ? "text-primary scale-110" : "text-muted-foreground"}
+      group-hover:text-primary group-hover:scale-110
+    `}
+  >
+    <FolderUp className="w-10 h-10" />
+  </div>
+
+    {/* TEXT */}
+    <p className="text-sm font-medium text-foreground">
+        {dragging ? "Drop files here..." : "Drop or click to upload"}
+    </p>
+
+    <p className="text-xs text-muted-foreground mt-1">
+        PNG, JPG, PDF up to 5MB
+    </p>
+
+    {/* GLOW EFFECT */}
+    <div
         className={`
-          h-[120px] rounded-xl border flex flex-col items-center justify-center cursor-pointer transition
-          ${dragging2 ? "bg-muted border-primary" : "bg-muted/30"}
+        absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-300
+        ${dragging ? "opacity-100" : "opacity-0"}
+        bg-gradient-to-r from-primary/10 via-transparent to-primary/10
         `}
-      >
-        <Input
-          id="file-input-2"
-          type="file"
-          multiple
-          accept="image/*,application/pdf"
-          className="hidden"
-          onChange={(e) =>
-            e.target.files && handleFiles2(Array.from(e.target.files))
-          }
-        />
-
-        <p className="text-sm font-medium">
-          Drop or click to upload
-        </p>
-
-        <p className="text-xs text-muted-foreground">
-          PNG, JPG, PDF up to 5MB
-        </p>
-      </div>
+    />
+    </div>
 
       {/* CLEAR ALL */}
-      {files2.length > 0 && (
+      {files.length > 0 && (
         <Button
           variant="ghost"
           size="sm"
@@ -933,7 +893,7 @@ const handleFiles = (incoming: File[]) => {
           disabled={clearingAll}
           className="text-red-500 hover:text-red-600"
         >
-          {clearingAll ? "Clearing..." : "Clear all"}
+          {clearingAll ? "Deleting..." : "Delete all"}
         </Button>
       )}
 
@@ -942,92 +902,101 @@ const handleFiles = (incoming: File[]) => {
 
       {/* ================= DOCUMENTS LIST ================= */}
         <div className="space-y-3">
+        
 
-        {files2?.length ? (
-            files2.map((item, index) => (
-       <Card
-        key={item.id || index}
-        className="w-full p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4"
-        >
-        {/* LEFT SIDE */}
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-
-            {/* ICON */}
-            <div className="w-11 h-11 shrink-0 rounded-md bg-muted flex items-center justify-center overflow-hidden">
-            {item.preview ? (
-                <img
-                src={item.preview}
-                className="w-full h-full object-cover"
-                />
-            ) : (
-                getFileIcon(item.fileType || item.file?.type)
-            )}
-            </div>
-
-            {/* INFO */}
-            <div className="flex-1 min-w-0 space-y-1">
-
-            <p className="text-sm font-medium text-foreground truncate">
-                {formatFileName(item.file?.name || item.fileName || "File")}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span>
-                {item.file
-                    ? (item.file.size / 1024 / 1024).toFixed(2)
-                    : "0.00"} MB
-                </span>
-
-                <span className="hidden sm:inline">•</span>
-
-                <span>{item.progress}%</span>
-            </div>
-
-            <Progress value={item.progress} className="h-1.5" />
-
-            {item.error && (
-                <p className="text-xs text-destructive">
-                {item.error}
-                </p>
-            )}
-            </div>
-        </div>
-
-        {/* RIGHT ACTIONS */}
-        <div className="flex items-center justify-end sm:justify-end w-full sm:w-auto ml-auto">
-
-            <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                <MoreVertical className="w-4 h-4" />
-                </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end" className="w-40">
-
-                <DropdownMenuItem>
-                <Eye className="w-4 h-4 mr-2" />
-                View
-                </DropdownMenuItem>
-
-                <DropdownMenuItem>
-                <Download className="w-4 h-4 mr-2" />
-                Download
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                className="text-destructive"
-                onClick={() => removeFile(index)}
+        {files?.length ? (
+            files.map((item, index) => (
+            <AnimatePresence mode="popLayout">
+                <motion.div
+                    key={item.id || index}
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, x: -20 }}
+                    transition={{ duration: 0.2 }}
                 >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
-                </DropdownMenuItem>
+                    <Card
+                    className={`
+                        relative overflow-hidden w-full p-4 flex flex-col sm:sm:flex-row sm:items-center gap-3 sm:gap-4 transition-all duration-300`}
+                    >
+                    {/* DELETING OVERLAY */}
+                    {deletingFiles.has(index) && (
+                        <div className="absolute inset-0 bg-background/70 backdrop-blur-sm flex items-center justify-center z-20">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground animate-pulse">
+                            <Trash2 className="w-4 h-4" />
+                            Deleting...
+                        </div>
+                        </div>
+                    )}
 
-            </DropdownMenuContent>
-            </DropdownMenu>
+                    {/* LEFT SIDE: ICON & INFO */}
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="relative w-12 h-12 shrink-0 rounded-md bg-muted flex items-center justify-center overflow-hidden border">
+                        {item.preview ? (
+                            <img src={item.preview} className="w-full h-full object-cover" alt="preview" />
+                        ) : (
+                            getFileIcon(item.fileType)
+                        )}
+                        </div>
 
-        </div>
-        </Card>
+                        <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-semibold truncate text-foreground">
+                            {formatFileName(item.fileName || "Unknown File")}
+                            </p>
+                            {item.progress === 100 && (
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                                Complete
+                            </span>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{item.progress}%</span>
+                            <span>•</span>
+                            <span className="uppercase">{item.fileType?.split('/')[1] || 'File'}</span>
+                        </div>
+
+                        <Progress 
+                            value={item.progress} 
+                            className={`h-1.5 transition-all ${item.progress === 100 ? "bg-emerald-100 [&>div]:bg-emerald-500" : ""}`} 
+                        />
+
+                        {item.error && (
+                            <div className="flex items-center gap-1 text-[10px] text-destructive font-medium mt-1">
+                            <AlertCircle className="w-3 h-3" />
+                            {item.error}
+                            </div>
+                        )}
+                        </div>
+                    </div>
+
+                    {/* RIGHT SIDE: ACTIONS */}
+                    <div className="flex items-center justify-end">
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted">
+                            <MoreVertical className="w-4 h-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => openFile(item)}>
+                            <Eye className="w-4 h-4 mr-2" /> View Document
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadFile(item)}>
+                            <Download className="w-4 h-4 mr-2" /> Download
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                            className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                            onClick={() => removeFile(index)}
+                            >
+                            <Trash2 className="w-4 h-4 mr-2" /> Delete File
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                    </Card>
+                </motion.div>
+            </AnimatePresence>
             ))
         ) : (
             <p className="text-sm text-muted-foreground">

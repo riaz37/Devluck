@@ -37,6 +37,7 @@ import CandidateModal from "@/components/Company/Modal/CandidateModal";
 import PostAcceptContractChoiceModal from "@/components/Company/Modal/PostAcceptContractChoiceModal";
 import ContractTemplatePickerModal from "@/components/Company/Modal/ContractTemplatePickerModal";
 import ContractModal from "@/components/Company/Modal/ContractModal";
+import { ApplicantCardSkeleton } from "@/components/Company/Skeleton/ApplicantCardSkeleton";
 
 
 export default function JobDetailPage() {
@@ -677,7 +678,11 @@ const assessmentContent = (
    
                    {/* Loading State */}
                    {applicationsLoading && (
-                   <LoadingState label="Fetching applicants ..." />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {Array.from({ length: 8 }).map((_, i) => (
+                          <ApplicantCardSkeleton key={i} />
+                        ))}
+                      </div>
                    )}
    
                    {/* Applicants Grid */}
