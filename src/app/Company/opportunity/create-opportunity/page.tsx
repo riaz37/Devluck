@@ -164,18 +164,6 @@ const [formData, setFormData] = useState<OpportunityData>({
             applicationCloseAt: (data as any)?.applicationCloseAt || "",
             assessmentDeadlineHours: Number((data as any)?.assessmentDeadlineHours || 72),
           });
-          const loadedQuestions = await getQuestions(id);
-          setAssessmentQuestions(
-            loadedQuestions.map((q) => ({
-              id: q.id,
-              question: q.question,
-              type: q.type,
-              dimension: (q as any).dimension || "technical_execution",
-              evaluationHint: (q as any).evaluationHint || "",
-              options: q.options || [],
-              isRequired: q.isRequired,
-            }))
-          );
         }
       } catch (err) {
         toast.error("Failed to load opportunity");
@@ -260,20 +248,8 @@ const [formData, setFormData] = useState<OpportunityData>({
         opportunityId = created.id;
         toast.success("Opportunity created successfully");
         }
-        if (includeAssessment && assessmentData && opportunityId) {
-          await bulkUpdateQuestions(
-            opportunityId,
-            assessmentQuestions.map((q, index) => ({
-              id: q.id,
-              question: q.question,
-              type: q.type,
-              dimension: q.dimension,
-              evaluationHint: q.evaluationHint || "",
-              options: q.options || [],
-              isRequired: q.isRequired ?? false,
-              order: index,
-            }))
-          );
+        if (includeAssessment && assessmentData && opportunityId && assessmentQuestions.length > 0) {
+          await bulkUpdateQuestions(opportunityId, assessmentQuestions);
         }
 
         router.push("/Company/opportunity");

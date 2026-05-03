@@ -15,4 +15,19 @@ export interface MappedContract {
   status: ContractStatus;
   salary: string;
   startedAt: string;
+  note: string;
+  opportunity?: {
+    id: string;
+    title: string;
+    details: string;
+    skills: string[];
+    benefits: string[];
+    keyResponsibilities: string[];
+    whyYouWillLoveWorkingHere: string[];
+    location?: string;
+    type?: string;
+    timeLength?: string;
+    currency?: string;
+    allowance?: string;
+  };
 }

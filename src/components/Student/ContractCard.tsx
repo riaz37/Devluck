@@ -28,6 +28,7 @@ import {
   Briefcase,
   Eye,
   Fingerprint,
+  BadgeCheck,
 } from "lucide-react";
 
 
@@ -42,7 +43,7 @@ interface ContractCardProps {
     company: string;
     jobType: string;
     location: string;
-    workProgress: number;
+    note: string;
     startDate: string;
     endDate: string;
     status: string;
@@ -64,35 +65,18 @@ export function ContractCard({
 const getStatusStyles = () => {
   switch (contract.status) {
     case "Running":
-      return "bg-blue-500/10 text-blue-600 border-blue-500/20";
+      return "bg-green-100 text-green-600 border-green-200";
     case "Completed":
-      return "bg-green-500/10 text-green-600 border-green-500/20";
+      return "bg-blue-100 text-blue-600 border-blue-200";
     case "Disputed":
-      return "bg-red-500/10 text-red-600 border-red-500/20";
+      return "bg-yellow-100 text-yellow-600 border-yellow-200";
     default:
       return "bg-muted text-muted-foreground";
   }
 };
 
-const getProgressColor = () => {
-  switch (contract.status) {
-    case "Running":
-      return "[&>div]:bg-blue-500";
-    case "Completed":
-      return "[&>div]:bg-green-500";
-    case "Disputed":
-      return "[&>div]:bg-red-500";
-    default:
-      return "[&>div]:bg-primary";
-  }
-};
-
-  
-
   return (
     <Card className="rounded-2xl shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
-      
-      {/* HEADER */}
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div className="space-y-1">
           <CardTitle className="text-base font-semibold leading-tight">
@@ -104,27 +88,35 @@ const getProgressColor = () => {
           </CardDescription>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger >
-            <button className="p-1 rounded-md hover:bg-muted">
-              <MoreVertical className="w-5 h-5" />
-            </button>
-          </DropdownMenuTrigger>
+        {/* RIGHT SIDE ACTIONS */}
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+            <Fingerprint className="h-3 w-3" />
+            {contract.id.slice(0, 8)}
+          </Badge>
 
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onDetails}>
-              <FileText className="w-4 h-4 mr-2" />
-              Details
-            </DropdownMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-1 rounded-md hover:bg-muted">
+                <MoreVertical className="w-5 h-5" />
+              </button>
+            </DropdownMenuTrigger>
 
-            {contract.status !== "Disputed" && (
-              <DropdownMenuItem onClick={onDispute}>
-                <XCircle className="w-4 h-4 mr-2 text-destructive" />
-                Dispute
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={onDetails}>
+                <FileText className="w-4 h-4 mr-2" />
+                Details
               </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+              {contract.status !== "Disputed" && (
+                <DropdownMenuItem onClick={onDispute}>
+                  <XCircle className="w-4 h-4 mr-2 text-destructive" />
+                  Dispute
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardHeader>
 
       {/* CONTENT */}
@@ -132,16 +124,8 @@ const getProgressColor = () => {
         
         {/* Top meta */}
         <div className="flex items-center justify-between">
-            <Badge
-            variant="outline"
-            className={getStatusStyles()}
-            >
-            {contract.status}
-            </Badge>
-            <Badge variant="secondary" className="flex items-center gap-1 text-xs">
-            <Fingerprint className="h-3 w-3" />
-            {contract.id.slice(0, 8)}
-            </Badge>
+
+
         </div>
 
         <Separator />
@@ -149,49 +133,53 @@ const getProgressColor = () => {
         {/* Info Grid */}
         <div className="grid grid-cols-2 gap-4">
           <InfoItem
-            label="Started"
+            label="Start Date"
             value={contract.startedAt}
+            icon={<Calendar className="w-4 h-4" />}
+          />
+
+          <InfoItem
+            label="Duration"
+            value={truncate(contract.endDate)}
             icon={<Calendar className="w-4 h-4" />}
           />
 
           <InfoItem
             label="Salary"
             value={truncate(contract.salary, 12)}
-            icon={<DollarSign className="w-4 h-4" />}
-            highlight
           />
 
           <InfoItem
-            label="Type"
-            value={contract.jobType}
-            icon={<Briefcase className="w-4 h-4" />}
+            label="Status"
+            value={
+            <Badge
+              variant="outline"
+              className={getStatusStyles()}
+              >
+              {contract.status}
+            </Badge>}
+            icon={<BadgeCheck className="w-4 h-4" />}
           />
 
-          <InfoItem
-            label="Location"
-            value={truncate(contract.location, 12)}
-            icon={<MapPin className="w-4 h-4" />}
-          />
+
         </div>
 
         <Separator />
+        {/* Description / Note */}
+        <div className="space-y-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Note
+          </p>
 
-        {/* Progress */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs font-medium">
-            <span className="text-muted-foreground">Work Progress</span>
-            <span>{contract.workProgress || 0}%</span>
-          </div>
-
-            <Progress
-            value={contract.workProgress || 0}
-            className={`h-2 ${getProgressColor()}`}
-            />
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 break-words">
+            {contract.note || "No note available"}
+          </p>
         </div>
+
       </CardContent>
 
       {/* FOOTER */}
-        <CardFooter className="pt-3">
+        <CardFooter >
             <Button
                 onClick={onDetails}
                 className="w-full justify-between cursor-pointer"

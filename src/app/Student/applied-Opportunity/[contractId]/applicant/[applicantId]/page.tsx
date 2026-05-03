@@ -123,13 +123,13 @@ export default function ApplicantPage() {
           </div>
 
         {/* CONTENT */}
-        <div className="px-6 pb-6 relative">
+        <div className="sm:px-6 px-2 pb-6 relative">
 
           {/* TOP ROW */}
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 -mt-8">
 
             {/* LEFT */}
-            <div className="flex items-end gap-4">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 w-full">
 
               {/* AVATAR */}
               <div className="relative bg-white h-24 w-24 rounded-full ">
@@ -557,7 +557,7 @@ export default function ApplicantPage() {
                                 className={`w-4 h-4 ${
                                   i < review.rating
                                     ? "fill-primary text-primary"
-                                    : "text-muted-foreground"
+                                    : "fill-muted-foreground text-muted-foreground"
                                 }`}
                               />
                             ))}

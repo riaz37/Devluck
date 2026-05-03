@@ -51,14 +51,15 @@ export function ContractCardTempletate({
     });
   };
 
-  const formatCurrency = (amount?: string | number) => {
+  const formatCurrency = (amount?: string | number, currency: string = "USD") => {
     if (!amount) return "N/A";
+
     const num = Number(amount);
     if (isNaN(num)) return "N/A";
 
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency, // ✅ dynamic here
       maximumFractionDigits: 0,
     }).format(num);
   };
@@ -144,7 +145,10 @@ export function ContractCardTempletate({
 
               <InfoItem
                 label="Salary"
-                value={formatCurrency(contract.salary || contract.monthlyAllowance)}
+                value={formatCurrency(
+                  contract.salary || contract.monthlyAllowance,
+                  contract.currency
+                )}
               />
 
               <InfoItem

@@ -7,7 +7,7 @@ import { useStudentOpportunityHandler } from "@/hooks/studentapihandler/useStude
 import { useStudentApplicationHandler } from "@/hooks/studentapihandler/useStudentApplicationHandler";
 import { useStudentAssessmentHandler } from "@/hooks/studentapihandler/useStudentAssessmentHandler";
 import { useStudentReviewHandler } from "@/hooks/studentapihandler/useStudentReviewHandler";
-import {  Briefcase, Building2,  Check, ArrowLeft } from 'lucide-react';
+import {  Briefcase, Building2,  Check, ArrowLeft, Star } from 'lucide-react';
 import { SyncLoader } from "react-spinners";
 import { useOpportunityApplicants } from "@//hooks/studentapihandler/useOpportunityApplicants";
 import { IconTabs } from "@/components/common/TabItem";
@@ -422,17 +422,14 @@ export default function contractDetailPage() {
                                         {/* MOBILE STARS */}
                                         <div className="flex gap-1 sm:hidden mt-1">
                                           {Array.from({ length: 5 }).map((_, i) => (
-                                            <span key={i}>
-                                              <svg
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                                className={i < review.rating ? "text-primary" : "text-muted-foreground"}
-                                              >
-                                                <path d="M10 1.6l2.6 5.3 5.9.9-4.3 4.2 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.2 5.9-.9L10 1.6z" />
-                                              </svg>
-                                            </span>
+                                            <Star
+                                              key={i}
+                                              className={`w-4 h-4 ${
+                                                i < review.rating
+                                                  ? "fill-primary text-primary"
+                                                  : "fill-muted-foreground text-muted-foreground"
+                                              }`}
+                                            />
                                           ))}
                                         </div>
 
@@ -445,17 +442,14 @@ export default function contractDetailPage() {
                                     {/* DESKTOP STARS */}
                                     <div className="hidden sm:flex gap-1 shrink-0">
                                       {Array.from({ length: 5 }).map((_, i) => (
-                                      <span key={i}>
-                                        <svg
-                                          width="16"
-                                          height="16"
-                                          viewBox="0 0 20 20"
-                                          fill="currentColor"
-                                          className={i < review.rating ? "text-primary" : "text-muted-foreground"}
-                                        >
-                                          <path d="M10 1.6l2.6 5.3 5.9.9-4.3 4.2 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.2 5.9-.9L10 1.6z" />
-                                        </svg>
-                                      </span>
+                                        <Star
+                                          key={i}
+                                          className={`w-4 h-4 ${
+                                            i < review.rating
+                                              ? "fill-primary text-primary"
+                                              : "fill-muted-foreground text-muted-foreground"
+                                          }`}
+                                        />
                                       ))}
                                     </div>
 

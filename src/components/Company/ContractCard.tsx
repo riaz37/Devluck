@@ -52,6 +52,7 @@ interface ContractCardProps {
     startDate: string;
     endDate: string;
     status: string;
+    currency:string;
     currentStage: ContractStage;
   };
   onAction?: (action: string, id: string) => void;
@@ -70,13 +71,20 @@ export function ContractCard({ contract, onAction }: ContractCardProps) {
   const isDisputed = contract.currentStage === "disputed";
   const isCompleted = contract.currentStage === "completed";
 
-  const formatMoney = (val: string | number) => {
-    const num = Number(val);
-    if (isNaN(num)) return val;
-    return `$${new Intl.NumberFormat("en", {
-      notation: "compact",
-      maximumFractionDigits: 1,
-    }).format(num)}`;
+  const formatCurrency = (amount: string | number, currency: string = "USD") => {
+    if (amount === undefined || amount === null || amount === "") return "N/A";
+
+    // remove commas, spaces, and non-numeric symbols
+    const cleaned = String(amount).replace(/[^0-9.-]/g, "");
+
+    const num = Number(cleaned);
+    if (isNaN(num)) return "N/A";
+
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(num);
   };
 
   return (
@@ -202,10 +210,10 @@ export function ContractCard({ contract, onAction }: ContractCardProps) {
           {/* DATA */}
           <div className="grid grid-cols-2 gap-4 text-sm">
 
-            <InfoItem
-              label="Budget"
-              value={formatMoney(contract.salaryValue)}
-            />
+<InfoItem
+  label="Budget"
+  value={formatCurrency(contract.salaryValue, contract.currency)}
+/>
 
             <InfoItem
               label="Status"

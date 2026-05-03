@@ -422,129 +422,132 @@ export default function DashboardPage() {
           {/* FRAME 254 */}
           <div className="flex flex-col lg:flex-row gap-6 w-full">
 
-            {/* LEFT SIDE */}
-            <Card className="p-0 rounded-2xl border  shadow-sm">      {/* Subtle top accent line */}
-              <div className="p-8">
-                {/* HEADER SECTION */}
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                  <div className="flex items-center gap-5">
-                    <div className="relative">
-                      <Avatar className="h-20 w-20 ring-4 ring-background shadow-xl">
-                        <AvatarImage src={profile?.image || ""} className="object-cover" />
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl">
-                          {profile?.name?.charAt(0) || "U"}
-                        </AvatarFallback>
-                      </Avatar>
+            <Card className="p-0 rounded-2xl border shadow-sm">
+              <div className="p-4 sm:p-6 lg:p-8">
 
-                      <div
-                        className={`absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-background ${
-                          isActive ? "bg-emerald-500" : "bg-slate-400"
-                        }`}
-                      />
-                    </div>
+                {/* ================= HEADER ================= */}
+                <div className="flex flex-col gap-6">
 
-                    {/* NAME + INFO */}
-                    <div className="space-y-1">
+                  {/* ================= TOP: AVATAR + NAME + RANK ================= */}
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 
-                      {/* NAME + BADGE + SETTINGS */}
-                      <div className="flex flex-col md:flex-row md:items-center md:gap-3">
+                    {/* ================= LEFT SIDE ================= */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
 
-                        {/* NAME */}
-                        <h2 className="text-2xl font-bold tracking-tight text-foreground">
-                          {profile?.name}
-                        </h2>
+                      {/* AVATAR */}
+                      <div className="relative mx-auto sm:mx-0">
+                        <Avatar className="h-16 w-16 sm:h-20 sm:w-20 ring-4 ring-background shadow-xl">
+                          <AvatarImage src={profile?.image || ""} className="object-cover" />
+                          <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
+                            {profile?.name?.charAt(0) || "U"}
+                          </AvatarFallback>
+                        </Avatar>
 
-                        {/* BADGE + SETTINGS */}
-                        <div className="flex items-center gap-2 mt-2 md:mt-0">
-                          
+                        <div
+                          className={`absolute bottom-1 right-1 h-3 w-3 sm:h-4 sm:w-4 rounded-full border-2 border-background ${
+                            isActive ? "bg-emerald-500" : "bg-slate-400"
+                          }`}
+                        />
+                      </div>
+
+                      {/* NAME + INFO */}
+                      <div className="text-center sm:text-left space-y-2">
+
+                        {/* NAME + STATUS */}
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                          <h2 className="text-xl sm:text-2xl font-bold break-words">
+                            {profile?.name}
+                          </h2>
+
                           <Badge
                             variant="secondary"
-                            className={`rounded-full px-3 py-0.5 text-[10px] uppercase tracking-wider font-bold border ${
+                            className={`text-[10px] uppercase font-bold ${
                               isActive
-                                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                                : "bg-slate-100 text-slate-500 border-slate-200"
+                                ? "bg-emerald-500/10 text-emerald-600"
+                                : "bg-muted text-muted-foreground"
                             }`}
                           >
                             {profile?.status || "offline"}
                           </Badge>
                         </div>
-                      </div>
 
-                      {/* EMAIL */}
-                      <div className="flex items-center gap-2 text-muted-foreground font-medium text-sm hover:text-primary transition-colors cursor-pointer">
-                        <Mail className="h-3.5 w-3.5" />
-                        {profile?.email || "No contact provided"}
+                        {/* EMAIL */}
+                        <div className="flex items-center justify-center sm:justify-start gap-2 text-muted-foreground text-sm">
+                          <Mail className="h-3.5 w-3.5" />
+                          <span className="truncate max-w-[220px]">
+                            {profile?.email || "No contact provided"}
+                          </span>
+                        </div>
                       </div>
-
                     </div>
-                  </div>
 
-                  {/* QUICK ACTIONS / PERCENTAGE CIRCLE */}
-                  <div className="hidden lg:flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Applicant Rank</p>
-                      <div className="flex items-center gap-2">
-                        <Trophy className="w-6 h-6 text-yellow-500" />
-
-                        <p className="text-3xl font-black text-primary leading-none">
-                          {studentRanking?.globalRank ?? "N/A"}
+                    {/* ================= RIGHT SIDE (RANK) ================= */}
+                    <div className="flex justify-center lg:justify-end">
+                      <div className="bg-primary/10 px-4 py-2 rounded-xl text-center min-w-[110px]">
+                        <p className="text-[10px] uppercase font-bold text-muted-foreground">
+                          Applicant Rank
                         </p>
+
+                        <div className="flex items-center justify-center gap-2">
+                          <Trophy className="w-5 h-5 text-primary" />
+                          <span className="text-xl sm:text-2xl font-black text-primary">
+                            {studentRanking?.globalRank ?? "N/A"}
+                          </span>
+                        </div>
                       </div>
                     </div>
+
                   </div>
+
                 </div>
 
-                {/* STATS STRIP - New minimalist layout */}
-                <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* ================= STATS ================= */}
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                   {[
                     { label: "Member Since", value: formatDate(profile?.createdAt), icon: Calendar },
-                    { label: "Last Update", value: formatDate(profile?.updatedAt), icon: Clock},
+                    { label: "Last Update", value: formatDate(profile?.updatedAt), icon: Clock },
                     { label: "Salary Expectation", value: profile?.salaryExpectation ? `$${profile.salaryExpectation}` : "N/A", icon: DollarSign },
                     { label: "Availability", value: profile?.availability || "N/A", icon: Calendar },
                   ].map((stat) => (
                     <div
                       key={stat.label}
-                      className="flex flex-col gap-1 p-4 rounded-2xl bg-secondary/30 border border-border/50 hover:bg-secondary/50 transition-colors"
+                      className="p-3 sm:p-4 rounded-xl bg-secondary/30 border hover:bg-secondary/50 transition"
                     >
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <stat.icon className="h-3.5 w-3.5" />
-                        <span className="text-[11px] font-bold uppercase tracking-tighter">
+                        <span className="text-[10px] font-bold uppercase">
                           {stat.label}
                         </span>
                       </div>
 
-                      <p className="text-base font-semibold text-foreground tracking-tight">
+                      <p className="text-sm sm:text-base font-semibold truncate">
                         {stat.value}
                       </p>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-8 space-y-4">
-                  {/* DESCRIPTION */}
-                  <div className="relative">
-                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 hover:line-clamp-none transition-all duration-300">
-                      "{profile?.description || "Applicant description not found."}"
-                    </p>
-                  </div>
-
-                  <Separator className="bg-border/40" />
-
-                  {/* PROGRESS SECTION */}
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-end">
-                      <div>
-                        <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">Profile Completion</h4>
-                        <p className="text-[10px] text-muted-foreground">Detailed evaluation pending</p>
-                      </div>
-                      <span className="text-sm font-black text-primary">{profile?.profileComplete ?? 0}%</span>
-                    </div>
-                    <Progress 
-                      value={profile?.profileComplete ?? 0} 
-                      className="h-1.5 bg-secondary" 
-                    />
-                  </div>
+                {/* ================= DESCRIPTION ================= */}
+                <div className="mt-6">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {profile?.description || "Applicant description not found."}
+                  </p>
                 </div>
+
+                {/* ================= PROGRESS ================= */}
+                <div className="mt-6 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-xs font-bold uppercase">
+                      Profile Completion
+                    </span>
+                    <span className="text-sm font-bold text-primary">
+                      {profile?.profileComplete ?? 0}%
+                    </span>
+                  </div>
+
+                  <Progress value={profile?.profileComplete ?? 0} className="h-2" />
+                </div>
+
               </div>
             </Card>
 
@@ -888,8 +891,8 @@ export default function DashboardPage() {
                                             key={i}
                                             className={`w-4 h-4 ${
                                               i < review.rating
-                                                ? "fill-yellow-400 text-yellow-400"
-                                                : "text-muted-foreground"
+                                                ? "fill-primary text-primary"
+                                                : "fill-muted-foreground text-muted-foreground"
                                             }`}
                                           />
                                         ))}

@@ -195,26 +195,26 @@ const ContractModal: React.FC<ContractModalProps> = ({
               handleInputChange("workLocation", val)
             }
           />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ParallelogramInput
+              label="Monthly Allowance"
+              placeholder="Enter amount"
+              value={formData.monthlyAllowance || ""}
+              onChange={(e) =>
+                handleInputChange("monthlyAllowance", e.target.value)
+              }
+            />
 
-          <ParallelogramInput
-            label="Monthly Allowance"
-            placeholder="Enter amount"
-            value={formData.monthlyAllowance || ""}
-            onChange={(e) =>
-              handleInputChange("monthlyAllowance", e.target.value)
-            }
-          />
-
-          <ParallelogramSelect
-            label="Currency"
-            placeholder="Select currency"
-            value={formData.currency}
-            options={["USD", "EUR", "GBP", "SAR", "AED"]}
-            onChange={(val) =>
-              handleInputChange("currency", val)
-            }
-          />
-
+            <ParallelogramSelect
+              label="Currency"
+              placeholder="Select currency"
+              value={formData.currency}
+              options={["USD", "EUR", "SAR"]}
+              onChange={(val) =>
+                handleInputChange("currency", val)
+              }
+            />
+          </div>
           <ParallelogramSelect
             label="Status"
             placeholder="Select status"

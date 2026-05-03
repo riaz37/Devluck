@@ -168,17 +168,17 @@ if (error || !student) {
           </div>
 
         {/* PROFILE ROW (avatar overlaps cover like Facebook) */}
-        <div className="px-6 pb-6 relative">
+        <div className="sm:px-6 px-2 pb-6 relative">
           
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 -mt-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 -mt-10">
 
             {/* LEFT SIDE */}
-            <div className="flex items-end gap-4 ">
+             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 w-full">
 
               {/* AVATAR */}
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="relative w-30 h-30 cursor-pointer"
+                className="relative w-30 h-30 "
               >
                 {/* Avatar circle */}
                 <div className="relative w-full h-full rounded-full border-2 border-background bg-white shadow-md overflow-hidden flex items-center justify-center group">
@@ -608,7 +608,7 @@ if (error || !student) {
                                 className={`w-4 h-4 ${
                                   i < review.rating
                                     ? "fill-primary text-primary"
-                                    : "text-muted-foreground"
+                                    : "fill-muted-foreground text-muted-foreground"
                                 }`}
                               />
                             ))}

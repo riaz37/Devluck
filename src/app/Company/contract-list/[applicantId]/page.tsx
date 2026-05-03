@@ -351,16 +351,16 @@ export default function ApplicantPage() {
   </div>
 
   {/* PROFILE CONTENT AREA */}
-  <div className="px-6 pb-6 relative">
+  <div className="sm:px-6 px-2 pb-6 relative">
     
     {/* PROFILE ROW (Avatar overlap) */}
-    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 -mt-8">
+    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 -mt-10">
       {/* LEFT SIDE: AVATAR & BASIC INFO */}
-      <div className="flex items-end gap-4">
+      <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 w-full">
               {/* AVATAR */}
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="relative w-30 h-30 cursor-pointer"
+                className="relative w-30 h-30 "
               >
                 {/* Avatar circle */}
                 <div className="relative w-full h-full rounded-full border-2 border-background bg-white shadow-md overflow-hidden flex items-center justify-center group">
@@ -400,17 +400,17 @@ export default function ApplicantPage() {
       </div>
 
       {/* RIGHT SIDE: EXPERT SCORE */}
-      <div className="bg-primary/10 p-3 rounded-2xl text-center min-w-[120px] border border-primary/20">
+      <div className="bg-primary/20 p-2 rounded-2xl text-center min-w-[120px]">
         <p className="text-[10px] uppercase font-bold tracking-tighter text-primary/60 mb-1">Expert Score</p>
-        <div className="flex items-center justify-center gap-2">
-          <Trophy className="w-5 h-5 text-primary" />
-          <span className="text-3xl font-black text-primary">{applicantRanking?.globalRank ?? "N/A"}</span>
-        </div>
+          <div className="flex items-center justify-center gap-2">
+            <Trophy className="w-5 h-5 text-primary" />
+            <span className="text-3xl font-black text-primary">{applicantRanking?.globalRank ?? "N/A"}</span>
+          </div>
       </div>
     </div>
 
     {/* ================= PAYMENT DETAILS SECTION ================= */}
-    <div className="mt-10 pt-8 border-t">
+    <div className="mt-5 pt-8 ">
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1">
           <h3 className="text-lg font-bold flex items-center gap-2">
@@ -816,7 +816,7 @@ export default function ApplicantPage() {
                                 className={`w-4 h-4 ${
                                   i < review.rating
                                     ? "fill-primary text-primary"
-                                    : "text-muted-foreground"
+                                    : "fill-muted-foreground text-muted-foreground"
                                 }`}
                               />
                             ))}

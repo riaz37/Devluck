@@ -76,11 +76,11 @@ export default function ContractListPage() {
           
           // Format salary
           let salaryDisplay = 'Not specified';
-          if (contract.monthlyAllowance !== null && contract.monthlyAllowance !== undefined) {
+          if (contract.salary !== null && contract.salary !== undefined) {
             const formattedAmount = typeof contract.monthlyAllowance === 'number' 
-              ? contract.monthlyAllowance.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
-              : contract.monthlyAllowance;
-            salaryDisplay = `${contract.currency || ''} ${formattedAmount}/month`.trim();
+              ? contract.salary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+              : contract.salary;
+            salaryDisplay = `${contract.currency || ''} ${formattedAmount}`.trim();
           }
           
           // Format started at date
@@ -99,6 +99,9 @@ export default function ContractListPage() {
             status: toContractStatus(contract.status), // ✅ FIXED
             salary: salaryDisplay,
             startedAt: startedAt,
+            // ✅ FIXED: required field
+            note: contract.note ?? "No note available",
+
           };
         });
       }, [contracts]);
@@ -210,10 +213,10 @@ export default function ContractListPage() {
           cell: (row: MappedContract) => (
             <span
               className={cn(
-                "px-2 py-1 rounded text-xs font-semibold",
-                row.status === "Running" && "bg-green-100 text-green-600",
-                row.status === "Completed" && "bg-red-100 text-red-600",
-                row.status === "Disputed" && "bg-yellow-100 text-yellow-600"
+                "px-2 py-1 rounded-full text-xs font-semibold border",
+                row.status === "Running" && "bg-green-100 text-green-600 border-green-200",
+                row.status === "Completed" && "bg-blue-100 text-blue-600 border-blue-200",
+                row.status === "Disputed" && "bg-yellow-100 text-yellow-600 border-yellow-200"
               )}
             >
               {row.status}

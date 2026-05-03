@@ -1,5 +1,5 @@
 "use client";
-import { FileText, FileImage, File, Users, Phone, MapPin, Camera, CameraIcon, CameraOff, LucideCamera, Trophy, AlertCircle, CheckCircle2, UploadCloud, UploadCloudIcon, LucideUploadCloud, FolderUp } from "lucide-react";
+import { FileText, FileImage, File, Users, Phone, MapPin, Camera, CameraIcon, CameraOff, LucideCamera, Trophy, AlertCircle, CheckCircle2, UploadCloud, UploadCloudIcon, LucideUploadCloud, FolderUp, Star } from "lucide-react";
 import DashboardLayout from "@/components/Company/DashboardLayout";
 import { useEffect, useRef, useState } from "react";
 import { useCompanyProfileHandler } from "@/hooks/companyapihandler/useCompanyProfileHandler";
@@ -91,7 +91,7 @@ export default function TopCompanyPage() {
 
     useEffect(() => {
         if (documents) {
-            const mappedFiles: UploadItem[] = documents.map((doc) => ({
+            const mappedFiles: UploadItem[] = documents.map((doc, index) => ({
                 id: doc.id,
                 fileName: doc.fileName,
                 fileUrl: doc.fileUrl,
@@ -434,24 +434,25 @@ export default function TopCompanyPage() {
   </div>
 
   {/* ================= PROFILE INFO ================= */}
-  <div className="pt-14 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+    <div className="pt-14 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
 
     {/* LEFT */}
-    <div className="space-y-2">
+    <div className="space-y-3 w-full">
 
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        {/* TOP ROW (responsive) */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
-        {/* ================= LEFT SIDE ================= */}
-        <div className="flex items-center gap-3">
+        {/* NAME + BADGES */}
+        <div className="flex flex-wrap items-center gap-2">
 
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-2xl sm:text-3xl font-bold break-words">
             {company?.name || "Company Name"}
             </h1>
 
             <Badge className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20">
             {company?.status || "Pending"}
             </Badge>
-            {/* RANK */}
+
             <Badge variant="outline" className="text-xs whitespace-nowrap">
             {rankingLoading
                 ? "Loading..."
@@ -462,33 +463,32 @@ export default function TopCompanyPage() {
 
         </div>
 
-        {/* ================= RIGHT SIDE ================= */}
-        <div className="flex items-center gap-4 w-full lg:w-auto">
-
+        {/* BUTTON */}
+        <div className="flex justify-start sm:justify-end">
             <Button
-                variant="outline"
-                size="sm"
-                className="transition hover:scale-[1.02]"
-                onClick={() => {
+            variant="outline"
+            size="sm"
+            className="transition hover:scale-[1.02] w-full sm:w-auto"
+            onClick={() => {
                 setEditingCorporate({
-                    description: profile?.corporate || "",
+                description: profile?.corporate || "",
                 });
                 setIsModalOpen1(true);
-                }}
+            }}
             >
-                Edit Description
+            Edit Description
             </Button>
         </div>
 
         </div>
 
-      {/* DESCRIPTION */}
-      <p className="text-sm text-muted-foreground line-clamp-5">
+        {/* DESCRIPTION */}
+        <p className="text-sm text-muted-foreground line-clamp-5">
         {profile?.corporate || "Add company description here..."}
-      </p>
+        </p>
 
     </div>
-  </div>
+    </div>
 
 </div>
 
@@ -496,6 +496,13 @@ export default function TopCompanyPage() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         <div className="grid grid-rows-1 lg:grid-rows-2 gap-6 items-stretch">
+            {/* ================= ADDRESSES ================= */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                whileHover={{ y: -4 }}
+            >
             <Card className="rounded-2xl border shadow-sm hover:shadow-md transition-all h-full flex flex-col">
 
             {/* HEADER */}
@@ -541,7 +548,7 @@ export default function TopCompanyPage() {
 
                     {profile.addresses.map((a: any, i: number) => (
                     <div
-                        key={i}
+                        key={a.id || `address-${i}`} // ✅ FIXED: Unique key
                         className="rounded-xl border bg-muted/30 p-4 space-y-2 hover:bg-muted/50 transition"
                     >
 
@@ -582,9 +589,16 @@ export default function TopCompanyPage() {
             </CardContent>
 
             </Card>
+            </motion.div>
 
+            {/* ================= PROFILE RANKING ================= */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut", delay: 0.05 }}
+                whileHover={{ y: -4 }}
+            >
             <Card className="rounded-2xl border shadow-sm hover:shadow-md transition-all h-full flex flex-col">
-
             <CardHeader>
                 <CardTitle>Global Rank</CardTitle>
                 <CardDescription>
@@ -620,9 +634,16 @@ export default function TopCompanyPage() {
             </CardContent>
 
             </Card>
+            </motion.div>
         </div>
 
         {/* ================= EMPLOYEES ================= */}
+        <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        whileHover={{ y: -4 }}
+        >
         <Card className="rounded-2xl border shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col">
 
             {/* ================= HEADER ================= */}
@@ -654,12 +675,13 @@ export default function TopCompanyPage() {
                     {/* ROW */}
                     <div className="flex gap-4 pb-2">
 
-                    {employees.map((employee: any) => {
+                    {employees.map((employee, index) => {
                         const student = employee.student;
 
                         return (
-                        <div key={employee.id} className="w-[260px] shrink-0">
-
+                        <div key={student?.id || employee.id || `emp-${index}`}
+                        className="w-[260px]"
+                        >
                             <EmployeeCard
                             showMenu={false}
                             applicant={{
@@ -700,8 +722,15 @@ export default function TopCompanyPage() {
             </CardContent>
 
         </Card>
+        </motion.div>
 
-        {/* ACTIVE PROGRAMS */}
+  {/* ================= PROGRAMS ================= */}
+    <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4, ease: "easeOut" }}
+    whileHover={{ y: -4 }}
+    >
 <Card className="rounded-2xl border shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col">
 
   {/* ================= HEADER ================= */}
@@ -760,7 +789,7 @@ export default function TopCompanyPage() {
             {(programs?.length ? programs : [{ name: "Empty" }]).map(
               (_: any, i: number) => (
                 <Cell
-                  key={i}
+                  key={`program-${i}`} // ✅ FIXED: Unique key
                   fill={`hsl(${(i * 55) % 360}, 75%, 60%)`}
                 />
               )
@@ -777,7 +806,7 @@ export default function TopCompanyPage() {
       {programs?.length ? (
         <div className="flex flex-wrap gap-2 justify-center">
           {programs.map((p: any, i: number) => (
-            <motion.div key={i} whileHover={{ scale: 1.05 }}>
+            <motion.div  key={p?.id || p || `program-${i}`}  whileHover={{ scale: 1.05 }}>
               <Badge variant="secondary" className="px-3 py-1 text-xs">
                 {typeof p === "object" ? p.name : p}
               </Badge>
@@ -795,7 +824,7 @@ export default function TopCompanyPage() {
   </CardContent>
 
 </Card>
-
+    </motion.div>
 
 
 
@@ -803,7 +832,12 @@ export default function TopCompanyPage() {
 
     {/* ================= ROW: EMPLOYEES + DOCUMENTS ================= */}
 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
+    <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4, ease: "easeOut" }}
+    whileHover={{ y: -4 }}
+    >
   {/* ================= DOCUMENTS ================= */}
   <Card className="rounded-2xl shadow-sm hover:shadow-md transition-shadow">
 
@@ -906,9 +940,10 @@ export default function TopCompanyPage() {
 
         {files?.length ? (
             files.map((item, index) => (
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence 
+            key={item.id || `file-${index}`}   // ✅ FIX HERE
+             mode="popLayout">
                 <motion.div
-                    key={item.id || index}
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, x: -20 }}
@@ -1010,7 +1045,15 @@ export default function TopCompanyPage() {
 
     </CardContent>
   </Card>
+  </motion.div>
+
     {/* ================= REVIEWS ================= */}
+            <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4, ease: "easeOut" }}
+    whileHover={{ y: -4 }}
+    >
     <Card className="rounded-2xl shadow-sm hover:shadow-md transition-shadow">
 
     <CardHeader>
@@ -1055,18 +1098,16 @@ export default function TopCompanyPage() {
 
                     {/* STARS */}
                     <div className="flex gap-0.5 text-xs">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                        <span
-                            key={i}
-                            className={
-                            i < r.rating
-                                ? "text-yellow-400"
-                                : "text-muted-foreground/30"
-                            }
-                        >
-                            ★
-                        </span>
-                        ))}
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < r.rating
+                                    ? "fill-primary text-primary"
+                                    : "fill-muted-foreground text-muted-foreground"
+                                }`}
+                              />
+                            ))}
                     </div>
 
                     </div>
@@ -1098,6 +1139,7 @@ export default function TopCompanyPage() {
     </CardContent>
 
     </Card>
+    </motion.div>
     </div>
    
                 

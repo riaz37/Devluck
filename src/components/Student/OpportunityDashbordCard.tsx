@@ -26,6 +26,7 @@ import {
   Activity,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { InfoItem } from "../common/info-item"
 
 interface CardContract {
   id: string | number
@@ -82,10 +83,7 @@ export function OpportunityDashbordCard({
           </div>
 
           {/* RIGHT BADGE */}
-          <Badge variant="secondary" className="text-xs flex items-center gap-1 ">
-            <Fingerprint className="w-3 h-3" />
-            {String(contract.id).slice(0, 8)}
-          </Badge>
+
 
         </CardHeader>
 
@@ -95,8 +93,9 @@ export function OpportunityDashbordCard({
           {/* BADGES */}
           <div className="flex flex-wrap gap-2">
 
-            <Badge variant={applied ? "default" : "outline"}>
-              {applied ? "Applied" : "Not Applied"}
+            <Badge variant="secondary" className="text-xs flex items-center gap-1 ">
+              <Fingerprint className="w-3 h-3" />
+              {String(contract.id).slice(0, 8)}
             </Badge>
 
             <Badge variant="outline" className="flex items-center gap-1">
@@ -126,18 +125,24 @@ export function OpportunityDashbordCard({
 
           </div>
 
-          {/* FOOTER INFO */}
-          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+          <div className="flex justify-between gap-2">
 
-            <div className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5" />
-              {contract.deadline || "No deadline"}
-            </div>
+            <InfoItem
+              label="Deadline"
+              value={contract.deadline || "No deadline"}
+              icon={<Calendar className="h-3.5 w-3.5" />}
+            />
 
-            <div className="flex items-center gap-1">
-              <Activity className="h-3.5 w-3.5" />
-              {contract.opportunityStatus || "Active"}
-            </div>
+            <InfoItem
+              label="Application Status"
+              value={
+                <Badge variant={applied ? "default" : "outline"}>
+                  {applied ? "Applied" : "Not Applied"}
+                </Badge>
+              }
+              icon={<Activity className="h-3.5 w-3.5" />}
+
+            />
 
           </div>
 
@@ -145,17 +150,14 @@ export function OpportunityDashbordCard({
 
         {/* FOOTER */}
         <CardFooter className="flex gap-2">
-
           <Button
             onClick={onClick}
             variant={applied ? "default" : "secondary"}
             className="w-full justify-between cursor-pointer"
           >
-            Details
+            {applied ? "Applied - View Details" : "Apply Now - View Details"}
             <Eye className="w-4 h-4" />
           </Button>
-
-
         </CardFooter>
 
       </Card>

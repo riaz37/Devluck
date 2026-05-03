@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 type InfoItemProps = {
   label: string;
-  value: string | number;
+  value: string | number | React.ReactNode;
   icon?: ReactNode;
   highlight?: boolean;
 };

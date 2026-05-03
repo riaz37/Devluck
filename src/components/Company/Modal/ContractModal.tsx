@@ -12,14 +12,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-
 import { Button } from "@/components/ui/button";
 
 import { useCompanyApplicationHandler } from "@/hooks/companyapihandler/useCompanyApplicationHandler";
@@ -29,10 +21,6 @@ import { ParallelogramSelect } from "@/components/common/ParallelogramSelect";
 import { ParallelogramEmailAutocomplete } from "@/components/common/ParallelogramEmailAutocomplete";
 import { ParallelogramInput } from "@/components/common/ParallelogramInput";
 import DatePickerField from "@/components/common/DatePickerField";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-
 
 /* ---------------- Types ---------------- */
 
@@ -54,6 +42,8 @@ interface ContractData {
   note?: string;
 
   opportunityId?: string;
+
+  currency: string,
 }
 
 interface ContractModalProps {
@@ -83,6 +73,7 @@ const ContractModal: React.FC<ContractModalProps> = ({
     note: "",
     contractStatus: "",
     opportunityId: "",
+    currency: "USD",
   });
 
   const [loading, setLoading] = useState(false);
@@ -107,15 +98,16 @@ const ContractModal: React.FC<ContractModalProps> = ({
   useEffect(() => {
     if (contract) {
       setFormData({
-        email: (contract as any).email || "",
-        name: (contract as any).name || "",
+        email: contract.email || "",
+        name: contract.name || "",
         contractTitle: contract.contractTitle || "",
-        durationValue: (contract as any).durationValue || 1,
+        durationValue: contract.durationValue || 1,
         startDate: contract.startDate || "",
-        salary: (contract as any).salary || "",
+        salary: contract.salary || "",
         note: contract.note || "",
         contractStatus: contract.contractStatus || "",
-        opportunityId: (contract as any).opportunityId || "",
+        opportunityId: contract.opportunityId || "",
+        currency: contract.currency || "USD",
       });
       // Clear email error when editing (email is optional for updates)
       setEmailError(null);
@@ -130,6 +122,7 @@ const ContractModal: React.FC<ContractModalProps> = ({
         note: "",
         contractStatus: "",
         opportunityId: "",
+        currency: "USD",
       });
     }
     setSubmitError(null);
@@ -258,7 +251,8 @@ if (field === "email") {
           duration,
           salary: formData.salary ? parseFloat(formData.salary) : undefined,
           note: formData.note || undefined,
-          status: formData.contractStatus
+          status: formData.contractStatus,
+          currency: formData.currency,
         };
 
         await updateContract(contractId, contractData);
@@ -272,14 +266,14 @@ if (field === "email") {
           name: formData.name.trim(),
           inContractNumber: contractNumber,
           inContractList: [],
-          currency: "USD",
+          currency: formData.currency,
           duration,
           monthlyAllowance: 0,
           salary: formData.salary ? parseFloat(formData.salary) : undefined,
           workLocation: "",
           note: formData.note || undefined,
           status: formData.contractStatus,
-          opportunityId: formData.opportunityId || undefined
+          opportunityId: formData.opportunityId || undefined,
         };
 
         await createContract(contractData);
@@ -383,6 +377,7 @@ if (field === "email") {
             onChange={(val) => handleInputChange("contractStatus", val)}
           />
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ParallelogramInput
             label="Salary"
             placeholder="Enter salary amount"
@@ -390,6 +385,15 @@ if (field === "email") {
             value={formData.salary ?? ""}
             onChange={(e) => handleInputChange("salary", e.target.value)}
           />
+
+          <ParallelogramSelect
+            label="Currency"
+            placeholder="Select currency"
+            value={formData.currency}
+            options={["USD", "EUR", "SAR"]}
+            onChange={(val) => handleInputChange("currency", val)}
+          />
+        </div>
 
           <DatePickerField
             label="Start Date"

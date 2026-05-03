@@ -6,7 +6,7 @@ import { useCompanyGlobalRankingHandler } from "@/hooks/common/useCompanyGlobalR
 import { useReviewHandler } from "@/hooks/companyapihandler/useReviewHandler";
 import { useState, useEffect } from "react";
 import { useDocumentHandler } from "@/hooks/companyapihandler/useDocumentHandler";
-import { ArrowLeft, MapPin, Phone, Trophy} from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Star, Trophy} from "lucide-react";
 import { motion } from "framer-motion";
 import EmployeeCard from "@/components/common/employee-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -170,12 +170,7 @@ export default function TopCompanyPage() {
 
 <div className="space-y-6">
 
-<motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.4, ease: "easeOut" }}
-  whileHover={{ y: -4 }}
->
+
   <div className="space-y-3">
     {/* ================= COVER ================= */}
     <div className="relative">
@@ -233,7 +228,6 @@ export default function TopCompanyPage() {
       </div>
     </div>
   </div>
-</motion.div>
 
 {/* ================= ROW 2 ================= */}
 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
@@ -262,7 +256,7 @@ export default function TopCompanyPage() {
 
             {company.addresses.map((a, index) => (
               <div
-                key={index}
+                key={a.id || `address-${index}`} // ✅ FIXED: Unique key
                 className="rounded-xl border bg-muted/30 p-3 space-y-2 hover:bg-muted/50 transition"
               >
 
@@ -376,7 +370,7 @@ export default function TopCompanyPage() {
               const student = employee.student;
 
               return (
-                <div
+                <div key={student?.id || employee.id || `emp-${index}`}
                   className="w-[260px]"
                 >
                   <EmployeeCard
@@ -481,7 +475,7 @@ export default function TopCompanyPage() {
                     : [{ name: "Empty" }]
                 ).map((_: any, i: number) => (
                     <Cell
-                    key={i}
+                    key={`program-${i}`} // ✅ FIXED: Unique key
                     fill={`hsl(${(i * 55) % 360}, 75%, 60%)`}
                     />
                 ))}
@@ -497,7 +491,7 @@ export default function TopCompanyPage() {
             <div className="flex flex-wrap gap-2 justify-center">
                 {company.programs.map((p: any, i: number) => (
                 <motion.div
-                    key={i}
+                    key={p?.id || p || `program-${i}`} // ✅ FIXED: Unique key
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.2 }}
                 >
@@ -663,19 +657,16 @@ export default function TopCompanyPage() {
 
                     {/* STARS */}
                     <div className="flex gap-1">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <svg
-                        key={i}
-                        className={`w-4 h-4 ${
-                            i < review.rating
-                            ? "fill-yellow-400"
-                            : "fill-muted-foreground/20"
-                        }`}
-                        viewBox="0 0 20 20"
-                        >
-                        <path d="M10 1.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L10 15.8 4.8 17.5l1-5.8L1.6 7.6l5.8-.8L10 1.5z" />
-                        </svg>
-                    ))}
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating
+                                    ? "fill-primary text-primary"
+                                    : "fill-muted-foreground text-muted-foreground"
+                                }`}
+                              />
+                            ))}
                     </div>
 
                 </div>

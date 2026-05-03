@@ -11,4 +11,5 @@ export interface MappedContract {
   image?: string;
   salaryPaid?: string;
   workProgress?: number;
+  currency: string;
 }

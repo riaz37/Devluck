@@ -31,9 +31,15 @@ import {
   DollarSign,
   PlayCircle,
   RotateCcw,
+  Fingerprint,
+  MapIcon,
+  CalendarCheck,
+  MapPin,
 } from "lucide-react";
-import { MappedOpportunity } from "@/types/opportunity-s";
+
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { InfoItem } from "../common/info-item";
+import { MappedOpportunity } from "@/types/application";
 
 
 
@@ -65,13 +71,13 @@ export const AppliedOpportunityCard = ({
   const getStatusColor = () => {
     switch (applicant.originalStatus) {
       case "pending":
-        return "bg-blue-500/10 text-blue-600 border-blue-500/20";
+        return "text-blue-600 bg-blue-100";
       case "accepted":
-        return "bg-green-500/10 text-green-600 border-green-500/20";
+        return "text-green-600 bg-green-100";
       case "rejected":
-        return "bg-red-500/10 text-red-600 border-red-500/20";
+        return "text-red-600 bg-red-100";
       case "withdrawn":
-        return "bg-gray-500/10 text-gray-600 border-gray-500/20";
+        return "text-gray-600 bg-gray-100";
       default:
         return "bg-muted text-muted-foreground";
     }
@@ -166,45 +172,51 @@ export const AppliedOpportunityCard = ({
 
         {/* STATUS */}
         <div className="flex items-center justify-between">
-          <Badge variant="outline" className={getStatusColor()}>
+          <Badge className={getStatusColor()}>
             {applicant.opportunityStatus}
           </Badge>
 
-          <Badge variant="secondary">
-            ID: {applicant.originalId.slice(0, 8)}
+          <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+            <Fingerprint className="h-3 w-3" />
+            {applicant.originalId.slice(0, 8)}
           </Badge>
         </div>
 
         <Separator />
 
-        {/* INFO */}
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-muted-foreground" />
-            <span>{truncate(applicant.company, 12)}</span>
+
+          {/* INFO GRID */}
+          <div className="grid grid-cols-2 gap-3">
+
+            {/* When user applied */}
+            <InfoItem
+              label="Applied On"
+              value={truncate(applicant.appliedAt, 12)}
+              icon={<Calendar className="w-4 h-4" />}
+            />
+
+            {/* Salary */}
+            <InfoItem
+              label="Salary"
+              value={truncate(applicant.salary, 12)}
+              icon={<DollarSign className="w-4 h-4" />}
+            />
+
+            {/* Job Location (better than "Availability") */}
+            <InfoItem
+              label="Location"
+              value={truncate(applicant.location, 12)}
+              icon={<MapPin className="w-4 h-4" />}
+            />
+
+            {/* Opportunity Start Date (not applicant start date) */}
+            <InfoItem
+              label="Start Date"
+              value={truncate(applicant.startDate, 12)}
+              icon={<CalendarCheck className="w-4 h-4" />}
+            />
           </div>
 
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-muted-foreground" />
-            <span>{truncate(applicant.salary, 12)}</span>
-          </div>
-
-          <div className="flex items-center gap-2 col-span-2">
-            <FileText className="w-4 h-4 text-muted-foreground" />
-            <span>{truncate(applicant.jobDescription, 40)}</span>
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* DEADLINE */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Deadline
-          </span>
-          <span>{applicant.deadline}</span>
-        </div>
 
       </CardContent>
 
@@ -229,7 +241,7 @@ export const AppliedOpportunityCard = ({
           onClick={onClick}
           className="flex-1 justify-between cursor-pointer"
         >
-          View Details
+          Details
           <Eye className="w-4 h-4" />
         </Button>
       </CardFooter>

@@ -3,7 +3,7 @@
 import {useRouter } from "next/navigation";
 import { useState, useMemo,useEffect } from "react";
 import DashboardLayout from "@/components/Company/DashboardLayout";
-import { CheckCircle, CheckCircle2, Edit, Eye, File, FilePlus2, FileText, MoreHorizontal, PlayCircle, Trash2 } from 'lucide-react';
+import { CheckCircle, CheckCircle2, Currency, Edit, Eye, File, FilePlus2, FileText, MoreHorizontal, PlayCircle, Trash2 } from 'lucide-react';
 
 import { useContractHandler } from "@/hooks/companyapihandler/useContractHandler";
 import { motion } from "framer-motion";
@@ -216,6 +216,7 @@ export default function ContractListPage() {
         contractStatus: contract.status,
         id: contract.id,
         image: contract.student?.image,
+        currency:contract.currency,
         salaryPaid: contract.monthlyAllowance
           ? `${contract.currency || "USD"} ${contract.monthlyAllowance}`
           : contract.salary
@@ -301,6 +302,7 @@ export default function ContractListPage() {
           durationValue: originalContract.duration || "",
           startDate: createdDate.toISOString().split("T")[0],
           endDate: endDate.toISOString().split("T")[0],
+          currency: originalContract.currency,
           salary: originalContract.salary
             ? originalContract.salary.toString()
             : originalContract.monthlyAllowance
@@ -549,6 +551,7 @@ return [
                       id: applicant.id,
                       title: applicant.contractTitle,
                       salaryValue: applicant.salaryPaid ?? "N/A",
+                      currency:applicant.currency,
                       startDate: applicant.startDate,
                       endDate: applicant.endDate,
                       status: applicant.contractStatus,

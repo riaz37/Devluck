@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/Student/DashboardLayout";
 import { useStudentProfileHandler } from "@/hooks/studentapihandler/useStudentProfileHandler";
 import { useGlobalRankingHandler } from "@/hooks/common/useGlobalRankingHandler";
-import {Calendar,Clock, DollarSign, Ellipsis,Mail,Plus,Settings, Trophy} from "lucide-react";
+import {Calendar,Clock, DollarSign, Ellipsis,Mail,Plus,Settings, Star, Trophy} from "lucide-react";
 import { useStudentProfileReview } from "@/hooks/common/useStudentProfileReview";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -163,13 +163,12 @@ export default function ApplicantPage() {
         </div>
 
           {/* ================= CONTENT ================= */}
-          <div className="px-6 pb-6 relative">
+          <div className="sm:px-6 px-2 pb-6 relative">
 
             {/* PROFILE ROW */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 -mt-10">
-
               {/* LEFT */}
-              <div className="flex items-end gap-4">
+              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 w-full">
 
                 {/* AVATAR */}
                 <div className="relative bg-white  w-24 h-24 rounded-full">
@@ -876,18 +875,15 @@ export default function ApplicantPage() {
 
                                 {/* Mobile Stars */}
                                 <div className="flex gap-1 sm:hidden">
-                                  {Array.from({ length: 5 }, (_, i) => (
-                                    <span key={i}>
-                                      <svg
-                                        width="16"
-                                        height="16"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                        className={i < review.rating ? "text-primary" : "text-muted-foreground"}
-                                      >
-                                        <path d="M10 1.6l2.6 5.3 5.9.9-4.3 4.2 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.2 5.9-.9L10 1.6z" />
-                                      </svg>
-                                    </span>
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-4 h-4 ${
+                                        i < review.rating
+                                          ? "fill-primary text-primary"
+                                          : "fill-muted-foreground text-muted-foreground"
+                                      }`}
+                                    />
                                   ))}
                                 </div>
 
@@ -899,18 +895,15 @@ export default function ApplicantPage() {
 
                             {/* Desktop Stars */}
                             <div className="hidden sm:flex gap-1 shrink-0">
-                              {Array.from({ length: 5 }, (_, i) => (
-                                <span key={i}>
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                    className={i < review.rating ? "text-primary" : "text-muted-foreground"}
-                                  >
-                                    <path d="M10 1.6l2.6 5.3 5.9.9-4.3 4.2 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.2 5.9-.9L10 1.6z" />
-                                  </svg>
-                                </span>
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${
+                                    i < review.rating
+                                      ? "fill-primary text-primary"
+                                      : "fill-muted-foreground text-muted-foreground"
+                                  }`}
+                                />
                               ))}
                             </div>
 

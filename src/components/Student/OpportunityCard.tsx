@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { MappedOpportunity } from "@/types/opportunity-s";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { InfoItem } from "../common/info-item";
 
 interface OpportunityCardProps {
   opportunity: MappedOpportunity;
@@ -107,8 +108,10 @@ export function OpportunityCard({
         <Separator />
 
         {/* Description */}
-        <p className="text-sm text-muted-foreground break-words">
-        {truncate(opportunity.jobDescription, 150)}
+        <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2rem] leading-5 break-words">
+          {opportunity.jobDescription?.trim()
+            ? opportunity.jobDescription
+            : "No job description available"}
         </p>
 
         {/* Progress */}
@@ -124,17 +127,26 @@ export function OpportunityCard({
         </div>
 
         {/* Footer info */}
-        <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5" />
-            {opportunity.deadline}
-          </div>
+          <div className="flex justify-between gap-2">
 
-          <div className="flex items-center gap-1">
-           <Activity className="h-3.5 w-3.5" />
-            {opportunity.status}
+            <InfoItem
+              label="Deadline"
+              value={opportunity.deadline || "No deadline"}
+              icon={<Calendar className="h-3.5 w-3.5" />}
+            />
+
+            <InfoItem
+              label="Application Status"
+              value={
+                <Badge variant={hasApplied ? "default" : "outline"}>
+                  {hasApplied ? "Applied" : "Not Applied"}
+                </Badge>
+              }
+              icon={<Activity className="h-3.5 w-3.5" />}
+
+            />
+
           </div>
-        </div>
 
       </CardContent>
 

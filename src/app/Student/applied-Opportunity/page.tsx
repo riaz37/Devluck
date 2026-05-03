@@ -12,25 +12,18 @@ import {Clock,FileSearch, FileText, PauseCircle, PlayCircle, XCircle} from 'luci
 import { StatsCard } from "@/components/common/stats-card";
 import { SearchAndFilterAndViewBar } from "@/components/common/SearchAndFilterAndViewBar";
 import { Pagination } from "@/components/common/Pagination";
-
 import { toast } from "sonner";
 import { EmptyState } from "@/components/common/EmptyState";
-
-
 import { DataTable } from "@/components/common/DataTable";
 import { cn } from "@/lib/utils";
 import { ErrorState } from "@/components/common/ErrorState";
-import { LoadingState } from "@/components/common/LoadingState";
-import { BackendApplicationStatus, MappedOpportunity, OpportunityStatus, StatusFilter } from "@/types/opportunity-s";
-import { AssessmentReport } from "@/hooks/companyapihandler/questions-mock-api";
 import { AssessmentItem } from "@/types/assessment";
-
 import { AppliedOpportunityCard } from "@/components/Student/AppliedOpportunityCard";
 import { SelectionBar } from "@/components/Student/SelectionBar-w";
 import { ConfirmWithdrawDialog } from "@/components/Student/ConfirmWithdrawDialog";
-import ReportModal from "@/components/Company/Modal/ReportModal";
 import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
 import { AppliedOpportunityCardSkeleton } from "@/components/Student/Skeleton/AppliedOpportunityCardSkeleton";
+import { BackendApplicationStatus, MappedOpportunity, OpportunityStatus, StatusFilter } from "@/types/application";
 
 const STATUS_MAP: Record<BackendApplicationStatus, OpportunityStatus> = {
   pending: "Applied",
@@ -117,28 +110,6 @@ export default function ContractListPage() {
           .catch(() => setAssessmentItems([]));
       }, [listAssessments]);
 
-      const handleWithdraw = async (applicationId: string) => {
-        try {
-          setWithdrawingApplicationId(applicationId);
-          await withdrawApplication(applicationId);
-          toast.success("Application withdrawn successfully!");
-          await getApplications(1, 1000);
-        } catch (err: any) {
-          toast.error(err.message || "Failed to withdraw application");
-        } finally {
-          setWithdrawingApplicationId(null);
-        }
-      };
-
-      const handleDelete = async (applicationId: string) => {
-        try {
-          await deleteApplication(applicationId);
-          toast.success("Application deleted successfully!");
-          await getApplications(1, 1000);
-        } catch (err: any) {
-          toast.error(err.message || "Failed to delete application");
-        }
-      };
 
       const mappedApplications = useMemo<MappedOpportunity[]>(() => {
         if (!Array.isArray(applications)) return [];
@@ -166,42 +137,18 @@ export default function ContractListPage() {
           return {
             id: index + 1,
             originalId: app.id,
-            applicantId: 0,
-
             contractTitle: opp.title || "Unknown Opportunity",
             company: opp.company?.name || "Unknown Company",
             salary: opp.allowance
               ? `${opp.currency || "USD"} ${opp.allowance}`
-              : "Not specified",
-
+              : "N/A",
             jobType: opp.type ?? "Full-time",
-            location: opp.location || "Not specified",
-
+            location: opp.location || "N/A",
             jobDescription: opp.details || "",
-
-            workProgress: Math.floor(Math.random() * 100),
-
-            deadline: toDate(opp.startDate),
             startDate: toDate(opp.startDate),
-            endDate: "Not specified",
-
-            status: "Running",
-
-            applicantIds: [],
-            companyId: opp.companyId || "",
-
             opportunityStatus: STATUS_MAP[app.status] ?? "Applied",
-
-            opportunityFrom: "Company",
-
-            skills: opp.skills ?? [],
-            benefits: opp.benefits ?? [],
-            keyResponsibilities: opp.keyResponsibilities ?? [],
-            whyYoullLoveWorkingHere: opp.whyYouWillLoveWorkingHere ?? [],
-
             originalStatus: app.status,
             appliedAt: toDate(app.appliedAt),
-
             opportunityId: app.opportunityId,
             hasAssessment: Boolean(opp.hasAssessment),
             assessmentSource: assessment?.source,
@@ -213,7 +160,7 @@ export default function ContractListPage() {
             assessmentBlockedReason: (assessment as any)?.isExpired
               ? "Assessment deadline passed"
               : !assessment?.canStart
-                ? "Assessment cannot be started right now"
+                ? "Assessment Not ready yet"
                 : null,
           };
         });
@@ -621,7 +568,7 @@ return (
                   return (
                     <span
                       className={cn(
-                        "px-2 py-1 rounded text-xs font-semibold",
+                        "px-2 py-1 rounded-full text-xs font-semibold",
                         STATUS_STYLE[status] ?? "text-muted-foreground bg-muted"
                       )}
                     >
