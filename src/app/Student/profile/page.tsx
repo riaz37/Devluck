@@ -21,6 +21,7 @@ import EducationModal from "@/components/Student/Modal/EducationModal";
 import LanguageModal from "@/components/Student/Modal/LanguageModal";
 import PortfolioModal from "@/components/Student/Modal/PortfolioModal";
 import SkillsModal from "@/components/Student/Modal/SkillsModal";
+import { ProfileSkeleton } from "@/components/Student/Skeleton/ProfileSkeleton";
 
 export default function ApplicantPage() {
 
@@ -141,9 +142,7 @@ export default function ApplicantPage() {
   if (profileLoading && !profile) {
     return (
       <DashboardLayout>
-      <div className="flex h-screen items-center justify-center">
-        <LoadingState label="Fetching Data..." />
-      </div>
+        <ProfileSkeleton />
     </DashboardLayout>
     );
   }

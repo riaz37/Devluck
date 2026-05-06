@@ -39,6 +39,8 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import CorporateModal from "@/components/Company/Modal/CorporateModal";
 import ProgramsModal from "@/components/Company/Modal/ProgramsModal";
 import AddressModal from "@/components/Company/Modal/AddressModal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ProfileSkeleton } from "@/components/Company/Skeleton/ProfileSkeleton";
 
 
 type UploadItem = {
@@ -359,17 +361,11 @@ export default function TopCompanyPage() {
     if (pageLoading) {
         return (
             <DashboardLayout>
-            <div className="flex h-screen items-center justify-center">
-                <LoadingState label="Loading Profile data..." />  
-            </div>
+                <ProfileSkeleton/>
             </DashboardLayout>
         );
     }
-
     
-
-
-
     return (
         <DashboardLayout>
 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">

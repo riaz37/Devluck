@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import DashboardLayout from "@/components/Student/DashboardLayout";
-import { useTopCompanyHandler} from "@/hooks/companyapihandler/useTopCompanyHandler";
 import { useCompanyGlobalRankingHandler } from "@/hooks/common/useCompanyGlobalRankingHandler";
 import { Clock, File, FileText, PauseCircle, PlayCircle, Trophy} from 'lucide-react';
 import { motion } from "framer-motion";
@@ -12,7 +11,6 @@ import DecryptedText from "@/components/ui/DecryptedText";
 import { StatsCard } from "@/components/common/stats-card";
 import { EmptyState } from "@/components/common/EmptyState";
 import { SearchAndViewBar } from "@/components/common/SearchAndViewBar";
-import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { CompanyCard } from "@/components/common/CompanyCard";
 import { toast } from "sonner";
@@ -31,8 +29,7 @@ export default function TopCompanyPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 //hook
-  const { loading, error } = useTopCompanyHandler();
-  const { rankings, listCompanyGlobalRankings } = useCompanyGlobalRankingHandler();
+  const { rankings, listCompanyGlobalRankings ,loading, error  } = useCompanyGlobalRankingHandler();
 //useEffect
   useEffect(() => {
     listCompanyGlobalRankings({ page: 1, limit: 100 }).catch((err) => {
