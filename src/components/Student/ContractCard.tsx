@@ -209,14 +209,16 @@ const getStatusIcon = (status: string) => {
             <span className="h-px flex-1 bg-border" />
           </div>
 
-          <p
+          <div
             className={cn(
-              "px-1 text-sm leading-relaxed",
+              "px-1 text-sm leading-relaxed min-h-[2.5rem]",
               contract.note ? "text-foreground" : "text-muted-foreground italic"
             )}
           >
-            {contract.note || "No notes provided for this contract."}
-          </p>
+            <p className="line-clamp-2 whitespace-pre-wrap">
+              {contract.note || "No notes provided for this contract."}
+            </p>
+          </div>
 
         </div>
 
