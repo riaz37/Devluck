@@ -10,7 +10,7 @@ import { useCompanyContractProgressHandler } from "@/hooks/companyapihandler/use
 import { motion } from "framer-motion";
 import { SyncLoader } from "react-spinners";
 import DecryptedText from "@/components/ui/DecryptedText";
-import DisputeModal from "@/components/Company/DisputeModal";
+import DisputeModal from "@/components/Company/Modal/DisputeModal";
 import { Pagination } from "@/components/common/Pagination";
 import { StatsCard } from "@/components/common/stats-card";
 import { SearchAndFilterAndViewBar } from "@/components/common/SearchAndFilterAndViewBar";

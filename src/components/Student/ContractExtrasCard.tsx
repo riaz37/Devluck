@@ -25,7 +25,7 @@ import {
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle2, Clock, Download, DownloadCloud, ExternalLink, Link2, UploadCloud } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, Download, DownloadCloud, ExternalLink, FilePlus, FileUp, Link, Link2, Loader2, UploadCloud } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link as LinkIcon, Trash2, Upload, FileText } from "lucide-react";
 import {
@@ -347,64 +347,117 @@ export default function ContractReportCard({
 
   return (
     <Card className="rounded-2xl shadow-sm border flex flex-col h-full">
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="text-lg font-semibold tracking-tight">
+      <CardHeader className="pb-5">
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="flex items-start justify-between gap-4"
+        >
+          {/* LEFT */}
+          <div className="space-y-1">
+            <CardTitle className="text-xl font-semibold tracking-tight">
               Contract Activity
             </CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">
-              Track progress updates, shared links, and uploaded files
+
+            <CardDescription className="text-sm text-muted-foreground leading-relaxed">
+              Track progress updates, shared links, and uploaded files in real time
             </CardDescription>
           </div>
-          <Badge variant="outline" className="text-xs">
+
+          {/* RIGHT */}
+          <Badge
+            variant="secondary"
+            className="text-xs px-2.5 py-1 rounded-full font-medium shrink-0"
+          >
             {links.length + files.length} items
           </Badge>
-        </div>
+        </motion.div>
       </CardHeader>
 
       <CardContent className="space-y-6 flex-1 flex flex-col">
-        {/* Progress Report */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium text-muted-foreground">
-            Progress update <span className="text-destructive">*</span>
-          </Label>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="space-y-3"
+        >
+          {/* LABEL */}
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium text-foreground">
+              Progress update <span className="text-destructive">*</span>
+            </Label>
+
+            <span className="text-xs text-muted-foreground">
+              {progressNote.length}/500
+            </span>
+          </div>
+
+          {/* TEXTAREA */}
           <Textarea
-            placeholder="Write what has been completed, blocked, or changed... (min 10 chars)"
+            placeholder="Write what has been completed, blocked, or changed..."
             value={progressNote}
             onChange={(e) => setProgressNote(e.target.value)}
-            className="min-h-[110px] resize-none"
             rows={4}
           />
-          <p className={`text-xs ${progressNote.length < 10 ? 'text-destructive' : 'text-muted-foreground'}`}>
-            {progressNote.length}/500 characters
-          </p>
-        </div>
+
+          {/* VALIDATION TEXT */}
+          <div className="flex items-center justify-between">
+            <p
+              className={`text-xs transition-colors ${
+                progressNote.length < 10
+                  ? "text-destructive"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {progressNote.length < 10
+                ? "Minimum 10 characters required"
+                : "Looking good"}
+            </p>
+
+            <span className="text-xs text-muted-foreground">
+              Min: 10 chars
+            </span>
+          </div>
+        </motion.div>
 
         {/* Links Section */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-              <LinkIcon className="w-4 h-4" />
-              Shared links ({links.length})
-            </Label>
-            <Dialog open={openLinkModal} onOpenChange={setOpenLinkModal}>
-              <DialogTrigger asChild>
-                <Button size="sm" variant="outline">+ Add link</Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className="space-y-3"
+      >
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <LinkIcon className="w-4 h-4 text-muted-foreground" />
+            Shared links
+            <span className="text-muted-foreground">({links.length})</span>
+          </div>
+
+          <Dialog open={openLinkModal} onOpenChange={setOpenLinkModal}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="rounded-lg">
+                + Add link
+              </Button>
+            </DialogTrigger>
+              <DialogContent className="sm:max-w-md rounded-2xl">
                 <DialogHeader>
-                  <DialogTitle>Add new link</DialogTitle>
+                  <DialogTitle className="text-base">Add external link</DialogTitle>
                   <DialogDescription>
-                    Attach external resources (GitHub, Drive, Notion, etc.)
+                    Attach resources like GitHub, Figma, Notion, or documentation.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
+
+                <div className="space-y-4 py-2">
+                  
+                  {/* TITLE */}
                   <div className="space-y-2">
-                    <Label htmlFor="link-title">Link title</Label>
+                    <Label htmlFor="link-title">Title</Label>
                     <Input
                       id="link-title"
-                      placeholder="e.g., Project documentation, Figma design, API reference"
+                      placeholder="e.g. Figma design"
                       value={linkName}
                       onChange={(e) => {
                         setLinkName(e.target.value);
@@ -419,11 +472,13 @@ export default function ContractReportCard({
                       </p>
                     )}
                   </div>
+
+                  {/* URL */}
                   <div className="space-y-2">
                     <Label htmlFor="link-url">URL</Label>
                     <Input
                       id="link-url"
-                      placeholder="Enter or paste a valid URL (https://example.com)"
+                      placeholder="https://..."
                       value={linkUrl}
                       onChange={(e) => {
                         setLinkUrl(e.target.value);
@@ -439,10 +494,10 @@ export default function ContractReportCard({
                     )}
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+
+                <DialogFooter className="gap-2">
+                  <Button
+                    variant="ghost"
                     onClick={() => {
                       setOpenLinkModal(false);
                       setLinkErrors({});
@@ -450,6 +505,7 @@ export default function ContractReportCard({
                   >
                     Cancel
                   </Button>
+
                   <Button onClick={addLink} disabled={submitting}>
                     Add link
                   </Button>
@@ -461,14 +517,18 @@ export default function ContractReportCard({
           <ScrollArea className="h-28 pr-2">
             <div className="space-y-2">
               {links.length === 0 ? (
-              <div className="text-center py-8 space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">
-                  No shared links yet
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Add external resources like GitHub, Figma, Drive, or documentation links
-                </p>
-              </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="rounded-xl border bg-muted/20 py-8 text-center space-y-1"
+                >
+                  <p className="text-sm font-medium text-muted-foreground">
+                    No links added yet
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Add GitHub, Figma, Drive, or documentation links
+                  </p>
+                </motion.div>
               ) : (
                 <AnimatePresence>
                   {links.map((l) => (
@@ -478,65 +538,74 @@ export default function ContractReportCard({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.15 }}
-                      className="group rounded-lg border bg-background p-3 hover:bg-muted/40 transition-colors"
+                      className="group flex items-start justify-between gap-3 rounded-xl border bg-background px-3 py-3 hover:bg-muted/40 hover:border-primary/20 transition-all"
                     >
-                      <div className="flex items-start justify-between gap-3">
+                      {/* LEFT */}
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <p className="text-sm font-medium truncate">
+                          {l.title}
+                        </p>
 
-                        {/* LEFT */}
-                        <div className="min-w-0 flex-1 space-y-1">
-                          <p className="text-sm font-medium truncate">
-                            {l.title}
-                          </p>
-
-                          <a
-                            href={l.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-xs text-muted-foreground hover:text-primary transition-colors break-all line-clamp-1"
-                          >
-                            {l.url}
-                          </a>
-                        </div>
-
-                        {/* ACTION */}
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => removeLink(l.id!)}
+                        <a
+                          href={l.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-muted-foreground hover:text-primary transition-colors line-clamp-1 break-all"
                         >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-
+                          {l.url}
+                        </a>
                       </div>
+
+                      {/* ACTION */}
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeLink(l.id!)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </motion.div>
                   ))}
                 </AnimatePresence>
               )}
             </div>
           </ScrollArea>
-        </div>
+        </motion.div>
 
         {/* Files Section */}
-        <div className="space-y-3">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="space-y-3"
+        >
+          {/* HEADER */}
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-              <FileText className="w-4 h-4" />
-              Files ({files.length})
-            </Label>
-            <Badge variant="secondary" className="text-xs">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <FileText className="w-4 h-4 text-muted-foreground" />
+              Files
+              <span className="text-muted-foreground">({files.length})</span>
+            </div>
+
+            <Badge variant="secondary" className="text-xs rounded-full">
               Max {maxFileSize}MB
             </Badge>
           </div>
 
-          {/* Enhanced Dropzone */}
-          <div
-            className={`group border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 cursor-pointer relative overflow-hidden
+          {/* DROPZONE */}
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            transition={{ type: "spring", stiffness: 250, damping: 20 }}
+            className={`
+              relative cursor-pointer rounded-2xl border-2 border-dashed
+              bg-muted/20 p-8 text-center transition-all duration-200
               ${
                 dragActive
-                  ? "border-primary bg-primary/10 scale-[1.02] shadow-lg ring-2 ring-primary/20"
-                  : "border-muted hover:border-primary/50 hover:bg-primary/5 hover:shadow-md"
-              }`}
+                  ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"
+                  : "border-muted hover:border-primary/40 hover:bg-muted/30"
+              }
+            `}
             onDragOver={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -551,32 +620,42 @@ export default function ContractReportCard({
               e.preventDefault();
               e.stopPropagation();
               setDragActive(false);
+
               const droppedFiles = Array.from(e.dataTransfer.files);
               droppedFiles.forEach(handleUpload);
             }}
             onClick={() => document.getElementById("fileInput")?.click()}
           >
-            <div className="relative z-10">
-              
-              {/* ICON SWITCH */}
-              {dragActive ? (
-                <DownloadCloud className="w-12 h-12 mx-auto mb-3 text-primary animate-bounce" />
-              ) : (
-                <UploadCloud className="w-12 h-12 mx-auto mb-3 text-muted-foreground group-hover:text-primary transition-colors" />
-              )}
+            <div className="space-y-3 relative z-10">
 
-              <p
-                className={`text-lg font-semibold transition-colors mb-1 ${
-                  dragActive ? "text-primary" : "text-foreground group-hover:text-primary"
-                }`}
+              {/* ICON */}
+              <motion.div
+                animate={{ y: dragActive ? -3 : 0 }}
+                transition={{ type: "spring", stiffness: 200 }}
               >
-                {dragActive ? "Drop files here" : "Drop files here or click to upload"}
+              {dragActive ? (
+                <FileUp className="w-10 h-10 mx-auto text-primary" />
+              ) : (
+                <File className="w-10 h-10 mx-auto text-muted-foreground group-hover:text-primary transition-colors" />
+              )}
+              </motion.div>
+
+              {/* TITLE */}
+              <p className="text-base font-semibold">
+                {dragActive ? "Drop files to upload" : "Upload files"}
               </p>
 
-              <p className="text-sm text-muted-foreground mb-4">
-                PDF, images, documents up to {maxFileSize}MB supported
+              {/* DESCRIPTION */}
+              <p className="text-sm text-muted-foreground">
+                Drag & drop or click to upload PDFs, images, or documents
               </p>
 
+              {/* LIMIT */}
+              <p className="text-xs text-muted-foreground">
+                Maximum file size: {maxFileSize}MB
+              </p>
+
+              {/* INPUT */}
               <Input
                 id="fileInput"
                 type="file"
@@ -589,21 +668,28 @@ export default function ContractReportCard({
                 }}
               />
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Files List */}
         <ScrollArea className="h-28 pr-2">
           <div className="space-y-2">
+
+            {/* EMPTY STATE */}
             {files.length === 0 ? (
-              <div className="text-center py-8 space-y-1">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="rounded-xl border bg-muted/20 py-8 text-center space-y-1"
+              >
                 <p className="text-sm font-medium text-muted-foreground">
                   No files uploaded yet
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Upload PDFs, images, or documents to attach them to this report
                 </p>
-              </div>
+              </motion.div>
+
             ) : (
               <AnimatePresence>
                 {files.map((f) => {
@@ -613,25 +699,30 @@ export default function ContractReportCard({
                   return (
                     <motion.div
                       key={f.id}
-                      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                      className="group flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-muted/40 transition-all hover:shadow-sm"
+                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                      transition={{ duration: 0.15 }}
+                      className="
+                        group flex items-center justify-between gap-3
+                        rounded-xl border bg-background px-3 py-3
+                        hover:bg-muted/40 hover:border-primary/20
+                        transition-all
+                      "
                     >
+
                       {/* LEFT SIDE */}
                       <div className="flex items-center gap-3 min-w-0 flex-1">
 
-                        {/* ICON */}
-                        <div className="h-9 w-9 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
+                        {/* FILE ICON (more grounded, no “UI noise”) */}
+                        <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                           <Icon className={`w-5 h-5 ${meta.iconClass}`} />
                         </div>
 
-                        {/* INFO */}
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium truncate max-w-[180px]">
-                            {f.name.length > 35
-                              ? f.name.slice(0, 35) + "..."
-                              : f.name}
+                        {/* FILE INFO */}
+                        <div className="min-w-0 flex-1 space-y-0.5">
+                          <p className="text-sm font-medium truncate">
+                            {f.name.length > 35 ? f.name.slice(0, 35) + "..." : f.name}
                           </p>
 
                           <p className="text-xs text-muted-foreground">
@@ -642,50 +733,69 @@ export default function ContractReportCard({
 
                       {/* ACTIONS */}
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+
+                        {/* VIEW */}
                         <Button
-                          size="sm"
+                          size="icon"
                           variant="ghost"
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8"
                           onClick={() => window.open(f.url, "_blank")}
                         >
-                          <LinkIcon className="w-4 h-4" />
+                          <FileText className="w-4 h-4" />
                         </Button>
 
+                        {/* DELETE */}
                         <Button
-                          size="sm"
+                          size="icon"
                           variant="ghost"
-                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                           onClick={() => removeFile(f.id!)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
+
                       </div>
+
                     </motion.div>
                   );
                 })}
               </AnimatePresence>
             )}
+
           </div>
         </ScrollArea>
 
         {/* Submit Button */}
-        <Button 
-          disabled={submitting || !progressNote.trim() || progressNote.trim().length < 10} 
-          className="w-full h-12 text-lg" 
-          onClick={submitUpdate}
+        <motion.div
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
-          {submitting ? (
-            <>
-              <CheckCircle2 className="w-4 h-4 mr-2 animate-spin" />
-              Sending...
-            </>
-          ) : (
-            <>
-              Send Progress Update
-              <FileText className="w-4 h-4 ml-2" />
-            </>
-          )}
-        </Button>
+          <Button
+            disabled={
+              submitting ||
+              !progressNote.trim() ||
+              progressNote.trim().length < 10
+            }
+            onClick={submitUpdate}
+            className="
+              w-full h-12 text-sm font-medium rounded-xl
+              transition-all duration-200
+              disabled:opacity-60 disabled:cursor-not-allowed
+            "
+          >
+            {submitting ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Sending update...
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                Send Progress Update
+                <FileText className="w-4 h-4 opacity-80" />
+              </div>
+            )}
+          </Button>
+        </motion.div>
 
       {/* History Section - 100% WORKING */}
       {history.length > 0 && (
@@ -698,66 +808,89 @@ export default function ContractReportCard({
               </h3>
               {/* ✅ ALWAYS RENDER DIALOG - Control with condition INSIDE */}
                   <Dialog open={openHistoryDialog} onOpenChange={setOpenHistoryDialog}>
-                    <DialogContent className="w-[calc(100%-24px)] max-w-[640px] max-h-[90vh] flex flex-col p-0">
+                    <DialogContent className="w-[calc(100%-24px)] max-w-[640px] h-[90vh] flex flex-col p-0 overflow-hidden">
 
                       {selectedHistory && (
-                        <div className="flex flex-col">
+                        <div className="flex flex-col h-full min-h-0">
 
                           {/* HEADER */}
-                        <DialogHeader className="px-6 pt-6">
-                          <div className="space-y-2 w-full min-w-0">
+                          <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/10">
 
-                            {/* TITLE */}
-                            <DialogTitle className="text-base flex items-center gap-2">
-                              <Clock className="w-4 h-4 shrink-0" />
-                              Progress Update
-                            </DialogTitle>
+                            <div className="space-y-2 w-full min-w-0">
 
-                            {/* DATE + BADGE INLINE */}
-                            <div className="flex items-center gap-2 flex-wrap">
-                              
-                              <DialogDescription className="text-xs">
-                                {new Date(selectedHistory.createdAt).toLocaleString()}
-                              </DialogDescription>
+                              {/* TITLE */}
+                              <DialogTitle className="text-base font-semibold flex items-center gap-2">
+                                <Clock className="w-4 h-4 shrink-0 text-muted-foreground" />
+                                Progress Update
+                              </DialogTitle>
 
-                              <Badge variant="secondary" className="text-xs">
-                                {(selectedHistory.links?.length || 0) +
-                                  (selectedHistory.files?.length || 0)}{" "}
-                                items
-                              </Badge>
+                              {/* META ROW */}
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+
+                                <DialogDescription className="text-xs text-muted-foreground">
+                                  {new Date(selectedHistory.createdAt).toLocaleString()}
+                                </DialogDescription>
+
+                                <Badge
+                                  variant="secondary"
+                                  className="text-xs px-2 py-0.5 rounded-md"
+                                >
+                                  {(selectedHistory.links?.length || 0) +
+                                    (selectedHistory.files?.length || 0)}{" "}
+                                  items
+                                </Badge>
+
+                              </div>
 
                             </div>
 
-                          </div>
-                        </DialogHeader>
+                          </DialogHeader>
 
                           {/* BODY */}
                            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
 
-                            {/* REPORT */}
-                            <div className="space-y-2">
-                              <p className="text-xs font-semibold uppercase text-muted-foreground">
-                                Report
-                              </p>
+                              {/* REPORT */}
+                              <div className="space-y-3">
 
-                              <p className="text-sm leading-relaxed text-foreground">
-                                {selectedHistory.report}
-                              </p>
-                            </div>
+                                {/* HEADER */}
+                                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                                  <FileText className="w-4 h-4" />
+                                  Report
+                                </h4>
 
-                            {/* LINKS */}
-                              {selectedHistory.links?.length ? (
-                                <div className="space-y-3">
-                                  {/* Header */}
-                                  <div className="flex items-center gap-2">
-                                    <Link2 className="w-4 h-4 text-muted-foreground" />
-                                    <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wide">
-                                      Links ({selectedHistory.links.length})
+                                {/* CONTENT */}
+                                {selectedHistory.report?.trim() ? (
+                                  <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+                                    {selectedHistory.report}
+                                  </p>
+                                ) : (
+                                  <div className="rounded-xl border bg-muted/20 p-4 text-center">
+                                    <p className="text-sm text-muted-foreground">
+                                      No report provided
                                     </p>
                                   </div>
+                                )}
 
-                                  {/* List */}
-                                  <div className="space-y-2">
+                              </div>
+
+                              {/* LINKS */}
+                              {selectedHistory.links?.length ? (
+                                <div className="space-y-3">
+
+                                  {/* HEADER */}
+                                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5">
+                                      <Link2 className="w-4 h-4" />
+                                      Links
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
+                                      {selectedHistory.links.length}
+                                    </span>
+                                  </h4>
+
+                                  {/* LIST */}
+                                  <div className="space-y-2 max-h-48 overflow-y-auto px-1.5">
                                     {selectedHistory.links.map((link, i) => (
                                       <a
                                         key={i}
@@ -765,20 +898,25 @@ export default function ContractReportCard({
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="
-                                          group flex items-start gap-3 rounded-lg border
-                                           px-3 py-2
-                                          transition-all duration-200 bg-card hover:bg-muted/40
-                                           hover:shadow-sm
+                                          group relative flex items-center gap-3
+                                          p-3 rounded-xl border bg-card
+                                          hover:bg-muted/40 hover:shadow-sm
+                                          transition-all duration-200
                                         "
                                       >
-                                        {/* Icon */}
-                                        <div className="mt-0.5">
-                                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+
+                                        {/* ICON */}
+                                        <div className="
+                                          h-9 w-9 rounded-lg bg-muted
+                                          flex items-center justify-center
+                                          shrink-0
+                                        ">
+                                          <Link className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                                         </div>
 
-                                        {/* Content */}
+                                        {/* CONTENT */}
                                         <div className="min-w-0 flex-1">
-                                          <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                                          <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
                                             {link.title}
                                           </p>
 
@@ -795,65 +933,88 @@ export default function ContractReportCard({
                             {/* FILES - NOW FULLY WORKING */}
                             {selectedHistory.files?.length ? (
                               <div className="space-y-3">
-                                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                                  <FileText className="w-4 h-4 text-green-500" />
-                                  Files ({selectedHistory.files.length})
+                                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5">
+                                    <FileText className="w-4 h-4" />
+                                    Files
+                                  </span>
+
+                                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
+                                    {selectedHistory.files.length}
+                                  </span>
                                 </h4>
                                 
-                                <div className="space-y-2 max-h-48 overflow-y-auto -mx-1.5 px-1.5">
+                                <div className="space-y-2 max-h-48 overflow-y-auto px-1.5">
                                   {selectedHistory.files.map((file, i) => {
-                                    const meta = getFileMeta({ 
-                                      name: file.fileName, 
-                                      type: file.mimeType || '',
-                                      size: 1024 * 1024 // Fake size for meta
+                                    const meta = getFileMeta({
+                                      name: file.fileName,
+                                      type: file.mimeType || "",
+                                      size: 1024 * 1024,
                                     } as any);
+
                                     const Icon = meta.icon;
 
                                     return (
                                       <motion.div
                                         key={i}
-                                        initial={{ opacity: 0, x: 10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        className="group flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-muted/40 transition-all hover:shadow-sm cursor-default"
+                                        initial={{ opacity: 0, y: 6 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="
+                                          group relative flex items-center justify-between
+                                          p-3 rounded-xl border bg-card
+                                          hover:bg-muted/40 hover:shadow-sm
+                                          transition-all duration-200
+                                        "
                                       >
-                                        {/* LEFT SIDE - IDENTICAL TO UPLOAD */}
+                                        {/* LEFT */}
                                         <div className="flex items-center gap-3 min-w-0 flex-1">
-                                          {/* ICON */}
-                                          <div className="h-9 w-9 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
+
+                                          {/* ICON BADGE */}
+                                          <div className="
+                                            h-10 w-10 rounded-lg bg-muted
+                                            flex items-center justify-center
+                                            shrink-0
+                                          ">
                                             <Icon className={`w-5 h-5 ${meta.iconClass}`} />
                                           </div>
 
-                                          {/* INFO */}
-                                          <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium truncate max-w-[180px]">
-                                              {file.fileName.length > 35 
-                                                ? file.fileName.slice(0, 35) + "..." 
-                                                : file.fileName}
+                                          {/* TEXT */}
+                                          <div className="min-w-0 flex flex-col">
+                                            <p className="text-sm font-medium truncate max-w-[220px]">
+                                              {file.fileName}
                                             </p>
-                                            <p className="text-xs text-muted-foreground">
-                                              {meta.label} • {file.mimeType || 'Unknown'}
-                                            </p>
+
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                              <span>{meta.label}</span>
+                                              <span>•</span>
+                                              <span>{file.mimeType || "Unknown type"}</span>
+                                            </div>
                                           </div>
                                         </div>
 
-                                        {/* ACTIONS - IDENTICAL TO UPLOAD + FULL FUNCTIONALITY */}
-                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                          {/* VIEW BUTTON - WORKS EXACTLY LIKE UPLOAD */}
+                                        {/* ACTIONS */}
+                                        <div className="
+                                          flex items-center gap-1
+                                          opacity-0 group-hover:opacity-100
+                                          transition-all duration-200
+                                        ">
+                                          {/* VIEW */}
                                           <Tooltip>
                                             <TooltipTrigger asChild>
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-8 w-8 p-0 hover:bg-accent"
+                                                className="h-8 w-8 p-0"
                                                 onClick={(e) => {
                                                   e.stopPropagation();
                                                   e.preventDefault();
-                                                  // SAME LOGIC AS ContractCard openReportFile
+
                                                   const lowerName = file.fileName.toLowerCase();
                                                   const lowerUrl = file.fileUrl.toLowerCase();
-                                                  const isPdf = file.mimeType === "application/pdf" || 
-                                                              lowerName.endsWith(".pdf") || 
-                                                              lowerUrl.includes(".pdf");
+                                                  const isPdf =
+                                                    file.mimeType === "application/pdf" ||
+                                                    lowerName.endsWith(".pdf") ||
+                                                    lowerUrl.includes(".pdf");
 
                                                   if (isPdf) {
                                                     window.open(
@@ -869,50 +1030,45 @@ export default function ContractReportCard({
                                                 <LinkIcon className="w-4 h-4" />
                                               </Button>
                                             </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                              <p>View file</p>
-                                            </TooltipContent>
+                                            <TooltipContent>View</TooltipContent>
                                           </Tooltip>
 
-                                          {/* DOWNLOAD BUTTON - FULL FUNCTIONALITY */}
+                                          {/* DOWNLOAD */}
                                           <Tooltip>
                                             <TooltipTrigger asChild>
                                               <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                                                 onClick={async (e) => {
                                                   e.stopPropagation();
                                                   e.preventDefault();
-                                                  
+
                                                   try {
-                                                    // SAME EXACT LOGIC AS ContractCard downloadReportFile
                                                     const response = await fetch(file.fileUrl);
-                                                    if (!response.ok) throw new Error('Failed to fetch');
-                                                    
+                                                    if (!response.ok) throw new Error();
+
                                                     const blob = await response.blob();
                                                     const url = URL.createObjectURL(blob);
+
                                                     const a = document.createElement("a");
                                                     a.href = url;
                                                     a.download = file.fileName;
                                                     document.body.appendChild(a);
                                                     a.click();
                                                     document.body.removeChild(a);
+
                                                     URL.revokeObjectURL(url);
                                                     toast.success(`Downloaded ${file.fileName}`);
-                                                  } catch (error) {
-                                                    // Fallback to direct download
-                                                    window.open(file.fileUrl, "_blank", "noopener,noreferrer");
-                                                    toast.warning("Opened in new tab (direct download not supported)");
+                                                  } catch {
+                                                    window.open(file.fileUrl, "_blank");
                                                   }
                                                 }}
                                               >
                                                 <Download className="w-4 h-4" />
                                               </Button>
                                             </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                              <p>Download</p>
-                                            </TooltipContent>
+                                            <TooltipContent>Download</TooltipContent>
                                           </Tooltip>
                                         </div>
                                       </motion.div>
