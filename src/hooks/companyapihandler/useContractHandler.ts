@@ -17,6 +17,7 @@ interface ContractData {
   note?: string
   status: string
   workProgress?: number
+  hasReport?: boolean
 }
 
 interface Contract extends ContractData {

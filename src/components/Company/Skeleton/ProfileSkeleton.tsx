@@ -13,7 +13,7 @@ export function ProfileSkeleton() {
   
                           {/* AVATAR SKELETON */}
                           <div className="absolute -bottom-12 left-6">
-                              <div className="w-28 h-28 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
+                              <div className="w-28 h-28 rounded-full border-4 border-background  bg-background shadow-md overflow-hidden">
                                   <Skeleton className="w-full h-full" />
                               </div>
                           </div>

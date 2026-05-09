@@ -35,6 +35,7 @@ export interface ContractData {
   /* status */
   status: string;
   workProgress?: number;
+  hasReport?: boolean;
 }
 
 export interface Contract extends ContractData {
@@ -84,6 +85,7 @@ export interface MappedContract {
 
   /* progress */
   workProgress: number;
+  hasReport?: boolean;
 
   /* extra */
   duration?: string;

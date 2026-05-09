@@ -161,10 +161,18 @@ if (error || !student) {
 
         {/* COVER IMAGE */}
           <div className="h-[220px] w-full rounded-2xl overflow-hidden">
-            <img
+              {/* Light Mode Image */}
+              <img
               src="/default-cover.svg"
-              className="w-full h-full object-cover"
-            />
+              alt="Cover"
+              className="block dark:hidden w-full h-full object-cover"
+              />
+              {/* Dark Mode Image */}
+              <img
+              src="/default-cover-dark.png"
+              alt="Cover"
+              className="hidden dark:block w-full h-full object-cover"
+              />
           </div>
 
         {/* PROFILE ROW (avatar overlaps cover like Facebook) */}

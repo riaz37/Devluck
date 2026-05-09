@@ -21,6 +21,11 @@ type ContractDescriptionProps = {
 export function ContractDescriptionComponent({
   contract,
 }: ContractDescriptionProps) {
+  const companyLocation =
+    contract.company?.location || contract.company?.address || "Not provided";
+  const companyPhone =
+    contract.company?.phone || contract.company?.phoneNumber || "Not provided";
+
   const renderText = (value?: string | number, max = 30) => {
     if (!value)
       return <span className="text-sm text-muted-foreground">Not provided</span>;
@@ -200,7 +205,7 @@ export function ContractDescriptionComponent({
               <div className="flex justify-between">
                 <span className="font-medium text-muted-foreground">Location</span>
                 <span className="text-foreground">
-                  {contract.company.location || "Not provided"}
+                  {companyLocation}
                 </span>
               </div>
 
@@ -208,7 +213,7 @@ export function ContractDescriptionComponent({
               <div className="flex justify-between">
                 <span className="font-medium text-muted-foreground">Phone</span>
                 <span className="text-foreground">
-                  {contract.company.phoneNumber || "Not provided"}
+                  {companyPhone}
                 </span>
               </div>
 

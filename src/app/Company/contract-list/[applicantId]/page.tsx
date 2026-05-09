@@ -343,12 +343,19 @@ export default function ApplicantPage() {
 <div className="rounded-2xl overflow-hidden bg-background border shadow-sm">
   {/* COVER IMAGE */}
   <div className="h-[220px] w-full relative">
-    <img
-      src="/default-cover.svg"
-      className="w-full h-full object-cover"
-      alt="Cover"
-    />
-  </div>
+        {/* Light Mode Image */}
+        <img
+        src="/default-cover.svg"
+        alt="Cover"
+        className="block dark:hidden w-full h-full object-cover"
+        />
+        {/* Dark Mode Image */}
+        <img
+        src="/default-cover-dark.png"
+        alt="Cover"
+        className="hidden dark:block w-full h-full object-cover"
+        />
+    </div>
 
   {/* PROFILE CONTENT AREA */}
   <div className="sm:px-6 px-2 pb-6 relative">

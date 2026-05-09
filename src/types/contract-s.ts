@@ -55,8 +55,10 @@ export interface ContractDescription {
     logoUrl?: string
     industry?: string
     location?: string
+    address?: string
     website?: string
     description?: string
+    phone?: string
     phoneNumber?: string
   };
 }

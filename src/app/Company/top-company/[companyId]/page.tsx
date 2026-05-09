@@ -176,10 +176,18 @@ export default function TopCompanyPage() {
     <div className="relative">
       {/* COVER IMAGE */}
       <div className="h-[220px] w-full rounded-2xl overflow-hidden">
-        <img
-          src="/default-cover.svg"
-          className="w-full h-full object-cover"
-        />
+              {/* Light Mode Image */}
+              <img
+              src="/default-cover.svg"
+              alt="Cover"
+              className="block dark:hidden w-full h-full object-cover"
+              />
+              {/* Dark Mode Image */}
+              <img
+              src="/default-cover-dark.png"
+              alt="Cover"
+              className="hidden dark:block w-full h-full object-cover"
+              />
       </div>
       {/* ================= AVATAR ================= */}
       <div className="absolute -bottom-12 left-6">

@@ -377,17 +377,25 @@ export default function TopCompanyPage() {
   <div className="relative">
 
     <div className="h-[220px] w-full rounded-2xl overflow-hidden">
-      <img
+        {/* Light Mode Image */}
+        <img
         src="/default-cover.svg"
-        className="w-full h-full object-cover"
-      />
+        alt="Cover"
+        className="block dark:hidden w-full h-full object-cover"
+        />
+        {/* Dark Mode Image */}
+        <img
+        src="/default-cover-dark.png"
+        alt="Cover"
+        className="hidden dark:block w-full h-full object-cover"
+        />
     </div>
 
     {/* ================= AVATAR (WITH HOVER ANIMATION) ================= */}
         <div className="absolute -bottom-12 left-6">
         <div
             onClick={() => fileInputRef.current?.click()}
-            className="relative w-28 h-28 rounded-full border-4 border-white bg-white shadow-md overflow-hidden cursor-pointer group"
+            className="relative w-28 h-28 rounded-full border-4 border-background bg-background shadow-md overflow-hidden cursor-pointer group"
         >
             <input
             type="file"
@@ -411,7 +419,7 @@ export default function TopCompanyPage() {
 
             {/* FIRST TIME EMPTY STATE OVERLAY */}
             {!imagePreview && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 text-primary">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 text-primary">
                 <Camera className="w-6 h-6 mb-1" />
                 <span className="text-[10px] font-medium">Add Image</span>
             </div>

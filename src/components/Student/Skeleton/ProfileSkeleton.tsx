@@ -19,13 +19,14 @@ export function ProfileSkeleton() {
             {/* LEFT */}
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 w-full">
               {/* AVATAR */}
-                <div className="relative bg-white w-24 h-24 rounded-full border-4 border-white shadow-md">
-                <Skeleton className="h-full w-full rounded-full object-cover" />
+              <div className="relative bg-background w-24 h-24 rounded-full border-4 border-background shadow-md">
+                <Skeleton className="h-full w-full rounded-full" />
+
                 {/* Status indicator skeleton */}
                 <div className="absolute bottom-2 right-2">
-                    <Skeleton className="h-4 w-4 rounded-full border-2 border-white shadow-sm" />
+                  <Skeleton className="h-4 w-4 rounded-full border-2 border-background shadow-sm" />
                 </div>
-                </div>
+              </div>
 
               {/* NAME + INFO */}
               <div className="pb-2 space-y-1">

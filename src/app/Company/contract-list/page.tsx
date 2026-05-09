@@ -336,6 +336,7 @@ export default function ContractListPage() {
           typeof contract.workProgress === "number"
             ? contract.workProgress
             : 0,
+        hasReport: Boolean(contract.hasReport),
 
         /* =========================================
         * Extra Details
@@ -725,9 +726,7 @@ return [
                     <ContractCard
                       key={contract.id}
                       contract={contract}
-                      hasReport={
-                        Boolean(reportByContractId[contract.id]?.hasReport)
-                      }
+                      hasReport={Boolean(contract.hasReport)}
                       reports={
                         reportByContractId[contract.id]?.reports ?? []
                       }

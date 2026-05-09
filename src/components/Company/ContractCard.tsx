@@ -310,7 +310,7 @@ export function ContractCard({
   };
 
   const selectedReport = reports[selectedReportIndex] || null;
-const hasAnyReport = reports?.length > 0;
+  const canViewReport = Boolean(hasReport);
   return (
     <>
       <motion.div
@@ -359,10 +359,12 @@ const hasAnyReport = reports?.length > 0;
 
                 <DropdownMenuContent align="end">
 
+                {canViewReport && (
                   <DropdownMenuItem onClick={openReport}>
                     <FileText className="h-4 w-4 mr-2" />
-                    View Report
+                    Report
                   </DropdownMenuItem>
+                )}
 
                   <DropdownMenuItem onClick={() => onAction?.("details", contract.id)}>
                     <Eye className="h-4 w-4 mr-2" />
@@ -491,7 +493,7 @@ const hasAnyReport = reports?.length > 0;
               <Eye className="h-4 w-4" />
             </Button>
 
-            {hasAnyReport  && (
+            {canViewReport && (
               <Button
                 variant="outline"
                 className="flex-1 justify-between"
