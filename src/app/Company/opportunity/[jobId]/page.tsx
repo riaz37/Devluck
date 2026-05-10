@@ -39,6 +39,7 @@ import PostAcceptContractChoiceModal from "@/components/Company/Modal/PostAccept
 import ContractTemplatePickerModal from "@/components/Company/Modal/ContractTemplatePickerModal";
 import ContractModal from "@/components/Company/Modal/ContractModal";
 import { ApplicantCardSkeleton } from "@/components/Company/Skeleton/ApplicantCardSkeleton";
+import ContractModal1 from "@/components/Company/Modal/ContractModal1";
 
 
 export default function JobDetailPage() {
@@ -384,13 +385,15 @@ export default function JobDetailPage() {
       email: applicant?.email || "",
       name: applicant?.name || "",
       contractTitle: template?.contractTitle || "",
-      Contract: template?.duration || "",
-      startDate: "",
-      endDate: "",
-      salary: template?.monthlyAllowance || "",
-      note: template?.content || "",
+      durationValue: template?.duration 
+      ? parseInt(template.duration) || 1 
+      : 1,
       contractStatus: "Running",
+      startDate: "",
+      salary: template?.monthlyAllowance?.toString() || "", // Convert to string for input
+      note: template?.content || "",
       opportunityId: typeof jobId === "string" ? jobId : "",
+      currency: template?.currency || "USD", // Added required currency field
     });
     const openPostAcceptFlow = (applicationId: string) => {
       const applicant = applicants.find((item) => item.applicationId === applicationId);
@@ -1080,7 +1083,7 @@ const assessmentContent = (
     setShowContractModal(true);
   }}
 />
-<ContractModal
+<ContractModal1
   isOpen={showContractModal}
   contract={prefilledContractData}
   onClose={() => {
