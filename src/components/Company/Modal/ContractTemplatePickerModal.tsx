@@ -22,7 +22,7 @@ export default function ContractTemplatePickerModal({
   onClose,
   onSelectTemplate,
 }: ContractTemplatePickerModalProps) {
-  const { contractTemplates, loading, listContractTemplates } =
+  const { contractTemplates, listLoading, listContractTemplates } =
     useContractTemplateHandler();
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
@@ -50,7 +50,7 @@ export default function ContractTemplatePickerModal({
 
         {/* Content */}
         <div className="mt-2 max-h-72 space-y-2 overflow-y-auto">
-          {loading ? (
+          {listLoading ? (
             <p className="text-sm text-muted-foreground">
               Loading templates...
             </p>
