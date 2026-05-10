@@ -35,13 +35,35 @@ import {
   MapIcon,
   CalendarCheck,
   MapPin,
+  Briefcase,
+  Activity,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { InfoItem } from "../common/info-item";
 import { MappedOpportunity } from "@/types/application";
+import { cn } from "@/lib/utils";
 
-
+/* ── single meta cell ── */
+function MetaCell({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="bg-muted/50 rounded-lg px-2.5 py-2">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5 flex items-center gap-1">
+        {icon}
+        {label}
+      </p>
+      <p className="text-xs font-medium text-foreground truncate">{value}</p>
+    </div>
+  );
+}
 
 
 interface AppliedOpportunityCardProps {
@@ -68,20 +90,6 @@ export const AppliedOpportunityCard = ({
   const truncate = (text?: string, max = 22) =>
     text ? (text.length > max ? text.slice(0, max) + "…" : text) : "N/A";
 
-  const getStatusColor = () => {
-    switch (applicant.originalStatus) {
-      case "pending":
-        return "text-blue-600 bg-blue-100";
-      case "accepted":
-        return "text-green-600 bg-green-100";
-      case "rejected":
-        return "text-red-600 bg-red-100";
-      case "withdrawn":
-        return "text-gray-600 bg-gray-100";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
-  };
   const getAssessmentActionColor = () => {
     const label = String(assessmentActionLabel || "").toLowerCase();
     if (label.includes("resume")) {
@@ -110,6 +118,14 @@ export const AppliedOpportunityCard = ({
         <div className="flex items-center gap-3">
           {/* IMAGE */}
           <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm bg-primary/10 shrink-0">
+            {applicant.companyLogo ? (
+              <AvatarImage
+                src={applicant.companyLogo}
+                alt={applicant.company}
+                className="object-cover"
+              />
+            ) : null}
+
             <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
               {applicant.company?.charAt(0)?.toUpperCase() || "U"}
             </AvatarFallback>
@@ -118,11 +134,18 @@ export const AppliedOpportunityCard = ({
           {/* TEXT */}
           <div className="space-y-1 min-w-0">
             <CardTitle className="text-base font-semibold truncate">
-              {truncate(applicant.contractTitle,35)}
+              {truncate(applicant.opportunityTitle,35)}
             </CardTitle>
 
-            <CardDescription className="truncate">
-              {truncate(applicant.company, 20)}
+            <CardDescription className="truncate flex items-center gap-2">
+              <span className="truncate">{truncate(applicant.company, 20)}</span>
+
+              <span className="text-muted-foreground">•</span>
+
+              <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                <Fingerprint className="h-3 w-3" />
+                {applicant.originalId.slice(0, 8)}
+              </span>
             </CardDescription>
           </div>
 
@@ -168,56 +191,74 @@ export const AppliedOpportunityCard = ({
       </CardHeader>
 
       {/* CONTENT */}
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2 pt-2">
+        {/* INFO GRID - 6 items, 2 rows */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          
+          {/* Row 1 */}
+          <InfoItem
+            label="Applied On"
+            value={truncate(applicant.appliedAt || "N/A", 12)}
+            icon={<Calendar className="w-4 h-4" />}
+          />
 
-        {/* STATUS */}
-        <div className="flex items-center justify-between">
-          <Badge className={getStatusColor()}>
-            {applicant.opportunityStatus}
-          </Badge>
+          <InfoItem
+            label="Start Date"
+            value={truncate(applicant.startDate || "N/A", 12)}
+            icon={<CalendarCheck className="w-4 h-4" />}
+          />
+          
+          <InfoItem
+            label="Salary"
+            value={truncate(applicant.salary || "N/A", 12)}
+            icon={<DollarSign className="w-4 h-4" />}
+          />
 
-          <Badge variant="secondary" className="flex items-center gap-1 text-xs">
-            <Fingerprint className="h-3 w-3" />
-            {applicant.originalId.slice(0, 8)}
-          </Badge>
+          {/* Row 2 */}
+          <InfoItem
+            label="Job Type"
+            value={truncate(applicant.jobType || "N/A", 12)}
+            icon={<Briefcase className="w-4 h-4" />}
+          />
+
+          <InfoItem
+            label="Location"
+            value={applicant.location || "N/A"}
+            icon={<MapPin className="w-4 h-4" />}
+          />
+
+          <InfoItem
+            label="Status"
+            value={truncate(applicant.opportunityStatus || "N/A", 20)}
+            icon={<Activity className="w-4 h-4" />}
+          />  
+
+
         </div>
 
-        <Separator />
-
-
-          {/* INFO GRID */}
-          <div className="grid grid-cols-2 gap-3">
-
-            {/* When user applied */}
-            <InfoItem
-              label="Applied On"
-              value={truncate(applicant.appliedAt, 12)}
-              icon={<Calendar className="w-4 h-4" />}
-            />
-
-            {/* Salary */}
-            <InfoItem
-              label="Salary"
-              value={truncate(applicant.salary, 12)}
-              icon={<DollarSign className="w-4 h-4" />}
-            />
-
-            {/* Job Location (better than "Availability") */}
-            <InfoItem
-              label="Location"
-              value={truncate(applicant.location, 12)}
-              icon={<MapPin className="w-4 h-4" />}
-            />
-
-            {/* Opportunity Start Date (not applicant start date) */}
-            <InfoItem
-              label="Start Date"
-              value={truncate(applicant.startDate, 12)}
-              icon={<CalendarCheck className="w-4 h-4" />}
-            />
+        {/* DESCRIPTION */}
+        <div className="space-y-2 pt-2 ">
+          <div className="flex items-center gap-2">
+            <span className="h-px flex-1 bg-border/60" />
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+              Opportunity Description
+            </span>
+            <span className="h-px flex-1 bg-border/60" />
           </div>
 
-
+          <div className="rounded-lg border border-border/40 bg-muted/20 px-4 py-3">
+            <p className={cn(
+              "text-sm leading-6 line-clamp-2 min-h-[3rem]",
+              applicant.jobDescription?.trim()
+                ? "text-foreground"
+                : "text-muted-foreground/70 italic"
+            )}>
+              {applicant.jobDescription?.trim() 
+                ? applicant.jobDescription 
+                : "No opportunity description available."}
+            </p>
+          </div>
+        </div>
       </CardContent>
 
       {/* FOOTER */}

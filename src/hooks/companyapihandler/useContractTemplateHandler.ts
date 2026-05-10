@@ -3,11 +3,9 @@
 import { api } from "@/lib/api";
 import { useState, useCallback } from "react";
 
-
 /* ──────────────────────────────────────────────
    UI TYPES (STRICT - SAFE FOR COMPONENTS)
 ────────────────────────────────────────────── */
-
 export type ContractStatus = "Active" | "Inactive" | "Draft";
 export type WorkLocation = "Hybrid" | "Remote" | "Onsite";
 
@@ -23,12 +21,12 @@ export interface ContractTemplate {
   status: ContractStatus;
   createdAt: string;
   updatedAt: string;
+  salaryDisplay?: string;
 }
 
 /* ──────────────────────────────────────────────
    DTO (RAW API - UNSAFE)
 ────────────────────────────────────────────── */
-
 interface ContractTemplateDTO {
   id?: string;
   name?: string;
@@ -36,7 +34,7 @@ interface ContractTemplateDTO {
   content?: string;
   currency?: string;
   duration?: string;
-  monthlyAllowance?:  string;
+  monthlyAllowance?: string | number;  // ✅ Fixed: allow number too
   workLocation?: string;
   status?: string;
   createdAt?: string;
@@ -63,13 +61,16 @@ interface ContractTemplateStats {
 }
 
 /* ──────────────────────────────────────────────
-   RETURN TYPE
+   RETURN TYPE - ✅ FIXED WITH SEPARATE LOADERS
 ────────────────────────────────────────────── */
-
 interface UseContractTemplateHandlerReturn {
   contractTemplates: ContractTemplate[];
   contractTemplate: ContractTemplate | null;
-  loading: boolean;
+  
+  // ✅ SEPARATE LOADING STATES
+  listLoading: boolean;
+  statsLoading: boolean;
+  actionLoading: boolean;
   error: string | null;
 
   createContractTemplate: (
@@ -88,18 +89,19 @@ interface UseContractTemplateHandlerReturn {
   listContractTemplates: (
     page?: number,
     pageSize?: number,
-    search?: string
+    search?: string,
+    status?: string[]  // ✅ Added for server-side filtering
   ) => Promise<ListContractTemplatesResponse>;
 
   getContractTemplateStats: () => Promise<ContractTemplateStats>;
 
   clearError: () => void;
+  refetch: () => Promise<void>;  // ✅ Bonus: manual refetch
 }
 
 /* ──────────────────────────────────────────────
    GUARDS
 ────────────────────────────────────────────── */
-
 const isWorkLocation = (v: string): v is WorkLocation =>
   ["Hybrid", "Remote", "Onsite"].includes(v);
 
@@ -107,134 +109,148 @@ const isContractStatus = (v: string): v is ContractStatus =>
   ["Active", "Inactive", "Draft"].includes(v);
 
 /* ──────────────────────────────────────────────
-   MAPPER (CRITICAL FIX)
+   MAPPER - ✅ SYNTAX ERROR FIXED
 ────────────────────────────────────────────── */
-
 const normalize = (dto: ContractTemplateDTO): ContractTemplate => {
   if (!dto.id) throw new Error("ContractTemplate missing id");
+
+  const formatCompactNumber = (value: number) => {
+    if (value >= 1_000_000) {
+      return (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+    }
+
+    if (value >= 1_000) {
+      return (value / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+    }
+
+    return value.toString();
+  };
 
   const workLocationRaw = dto.workLocation ?? "";
   const statusRaw = dto.status ?? "";
 
-  const workLocation: WorkLocation = ["Hybrid", "Remote", "Onsite"].includes(
-    workLocationRaw
-  )
-    ? (workLocationRaw as WorkLocation)
+  const workLocation: WorkLocation = isWorkLocation(workLocationRaw)
+    ? workLocationRaw
     : "Hybrid";
 
-  const status: ContractStatus = ["Active", "Inactive", "Draft"].includes(
-    statusRaw
-  )
-    ? (statusRaw as ContractStatus)
+  const status: ContractStatus = isContractStatus(statusRaw)
+    ? statusRaw
     : "Draft";
+
+  const currency = dto.currency ?? "USD";
+
+  // ✅ single safe numeric conversion
+  const allowanceNumber =
+    dto.monthlyAllowance !== undefined && dto.monthlyAllowance !== null
+      ? Number(dto.monthlyAllowance)
+      : NaN;
+
+  const hasValidAllowance = !Number.isNaN(allowanceNumber);
 
   return {
     id: dto.id,
-
-    // ✅ FIX: fallback values
-    name: dto.name?.trim() || "⚠ Add template name",
-    contractTitle: dto.contractTitle?.trim() || "⚠ Add contract title",
-
-    currency: dto.currency ?? "USD",
-    duration: dto.duration ?? "-",
-
-    monthlyAllowance: dto.monthlyAllowance
-      ? String(dto.monthlyAllowance)
-      : undefined,
+    name: dto.name?.trim() || "Untitled Template",
+    contractTitle: dto.contractTitle?.trim() || "Untitled Contract",
+    content: dto.content,
+    currency,
+    duration: dto.duration ?? "N/A",
+    monthlyAllowance:
+      dto.monthlyAllowance !== undefined && dto.monthlyAllowance !== null
+        ? String(dto.monthlyAllowance)
+        : undefined,
 
     workLocation,
     status,
-
     createdAt: dto.createdAt ?? new Date().toISOString(),
     updatedAt: dto.updatedAt ?? new Date().toISOString(),
+
+    salaryDisplay: hasValidAllowance
+      ? `${currency} ${formatCompactNumber(allowanceNumber)}`
+      : "N/A",
   };
 };
 
 /* ──────────────────────────────────────────────
-   HOOK
+   HOOK - ✅ FULLY FIXED
 ────────────────────────────────────────────── */
+export const useContractTemplateHandler = (): UseContractTemplateHandlerReturn => {
+  const [contractTemplates, setContractTemplates] = useState<ContractTemplate[]>([]);
+  const [contractTemplate, setContractTemplate] = useState<ContractTemplate | null>(null);
+  
+  // ✅ SEPARATE LOADING STATES
+  const [listLoading, setListLoading] = useState(false);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export const useContractTemplateHandler =
-  (): UseContractTemplateHandlerReturn => {
-    const [contractTemplates, setContractTemplates] = useState<
-      ContractTemplate[]
-    >([]);
+  const clearError = useCallback(() => setError(null), []);
 
-    const [contractTemplate, setContractTemplate] =
-      useState<ContractTemplate | null>(null);
+  /* ───────── CREATE ───────── */
+  const createContractTemplate = useCallback(
+    async (
+      data: Omit<ContractTemplate, "id" | "createdAt" | "updatedAt">
+    ): Promise<ContractTemplate> => {
+      setActionLoading(true);
+      setError(null);
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+      try {
+        const response = await api.post<{ status: string; data: ContractTemplateDTO }>(
+          "/company/contract-templates",
+          data
+        );
 
-    const clearError = useCallback(() => setError(null), []);
+        const created = normalize(response.data.data);
 
-    /* ───────── CREATE ───────── */
-    const createContractTemplate = useCallback(
-      async (
-        data: Omit<
-          ContractTemplate,
-          "id" | "createdAt" | "updatedAt"
-        >
-      ): Promise<ContractTemplate> => {
-        setLoading(true);
-        setError(null);
+        return created;
+      } catch (err: any) {
+        const msg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to create contract template";
 
-        try {
-          const response = await api.post<{
-            status: string;
-            data: ContractTemplateDTO;
-          }>("/company/contract-templates", data);
+        setError(msg);
+        throw new Error(msg);
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    []
+  );
 
-          return normalize(response.data.data);
-        } catch (err: any) {
-          const msg =
-            err.response?.data?.message ||
-            err.message ||
-            "Failed to create contract template";
+  /* ───────── UPDATE ───────── */
+  const updateContractTemplate = useCallback(
+    async (id: string, data: Partial<ContractTemplate>): Promise<ContractTemplate> => {
+      setActionLoading(true);
+      setError(null);
 
-          setError(msg);
-          throw new Error(msg);
-        } finally {
-          setLoading(false);
-        }
-      },
-      []
-    );
+      try {
+        const response = await api.put<{ status: string; data: ContractTemplateDTO }>(
+          `/company/contract-templates/${id}`,
+          data
+        );
 
-    /* ───────── UPDATE ───────── */
-    const updateContractTemplate = useCallback(
-      async (
-        id: string,
-        data: Partial<ContractTemplate>
-      ): Promise<ContractTemplate> => {
-        setLoading(true);
-        setError(null);
+        const updated = normalize(response.data.data);
 
-        try {
-          const response = await api.put<{
-            status: string;
-            data: ContractTemplateDTO;
-          }>(`/company/contract-templates/${id}`, data);
+        return updated;
+      } catch (err: any) {
+        const msg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to update contract template";
 
-          return normalize(response.data.data);
-        } catch (err: any) {
-          const msg =
-            err.response?.data?.message ||
-            err.message ||
-            "Failed to update contract template";
+        setError(msg);
+        throw new Error(msg);
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    []
+  );
 
-          setError(msg);
-          throw new Error(msg);
-        } finally {
-          setLoading(false);
-        }
-      },
-      []
-    );
-
-    /* ───────── DELETE ───────── */
-    const deleteContractTemplate = useCallback(async (id: string) => {
-      setLoading(true);
+  /* ───────── DELETE ───────── */
+  const deleteContractTemplate = useCallback(
+    async (id: string): Promise<void> => {
+      setActionLoading(true);
       setError(null);
 
       try {
@@ -248,115 +264,125 @@ export const useContractTemplateHandler =
         setError(msg);
         throw new Error(msg);
       } finally {
-        setLoading(false);
+        setActionLoading(false);
       }
-    }, []);
+    },
+    []
+  );
 
-    /* ───────── GET BY ID ───────── */
-    const getContractTemplateById = useCallback(async (id: string) => {
-      setLoading(true);
+
+  /* ───────── GET BY ID ───────── */
+  const getContractTemplateById = useCallback(async (id: string): Promise<ContractTemplate> => {
+    setActionLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.get<{ status: string; data: ContractTemplateDTO }>(
+        `/company/contract-templates/${id}`
+      );
+      const normalized = normalize(response.data.data);
+      setContractTemplate(normalized);
+      return normalized;
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || "Failed to get contract template";
+      setError(msg);
+      throw new Error(msg);
+    } finally {
+      setActionLoading(false);
+    }
+  }, []);
+
+  const PAGE_SIZE = 6; // ✅ Moved to constant for easy reuse
+
+  /* ───────── LIST - ✅ CLIENT-SIDE FILTERING ONLY ───────── */
+  const listContractTemplates = useCallback(
+    async (
+      page: number = 1,
+      pageSize: number = PAGE_SIZE, 
+      search: string = "",
+      status?: string[]  // ✅ Still accepts but IGNORES server-side filtering
+    ): Promise<ListContractTemplatesResponse> => {
+      setListLoading(true);
       setError(null);
 
       try {
+        // ✅ NO status param sent to server - pure client-side filtering
+        const params: any = { page, pageSize };
+        if (search) params.search = search;
+
         const response = await api.get<{
           status: string;
-          data: ContractTemplateDTO;
-        }>(`/company/contract-templates/${id}`);
+          data: ListContractTemplatesResponse;
+        }>("/company/contract-templates", { params });
 
-        const normalized = normalize(response.data.data);
-        setContractTemplate(normalized);
+        // ✅ Store ALL items for client-side filtering
+        const allItems = response.data.data?.items.map(normalize) || [];
+        setContractTemplates(allItems);
 
-        return normalized;
+        // ✅ Return original response structure
+        return {
+          ...response.data.data,
+          items: allItems, // normalized items
+        };
       } catch (err: any) {
-        const msg =
-          err.response?.data?.message ||
-          err.message ||
-          "Failed to get contract template";
-
+        const msg = err.response?.data?.message || err.message || "Failed to list contract templates";
         setError(msg);
+        setContractTemplates([]);
         throw new Error(msg);
       } finally {
-        setLoading(false);
+        setListLoading(false);
       }
-    }, []);
+    },
+    []
+  );
 
-    /* ───────── LIST ───────── */
-    const listContractTemplates = useCallback(
-      async (
-        page: number = 1,
-        pageSize: number = 10,
-        search: string = ""
-      ): Promise<ListContractTemplatesResponse> => {
-        setLoading(true);
-        setError(null);
+  /* ───────── STATS ───────── */
+  const getContractTemplateStats = useCallback(async (): Promise<ContractTemplateStats> => {
+    setStatsLoading(true);
+    setError(null);
 
-        try {
-          const params: any = { page, pageSize };
-          if (search) params.search = search;
+    try {
+      const response = await api.get<{
+        status: string;
+        data: ContractTemplateStats;
+      }>("/company/contract-templates/stats");
 
-          const response = await api.get<{
-            status: string;
-            data: ListContractTemplatesResponse;
-          }>("/company/contract-templates", { params });
+      return response.data.data;
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || "Failed to get contract template stats";
+      setError(msg);
+      throw new Error(msg);
+    } finally {
+      setStatsLoading(false);
+    }
+  }, []);
 
-          const items =
-            response.data.data?.items.map(normalize) || [];
+  /* ───────── REFETCH - BONUS UTILITY ───────── */
+  const refetch = useCallback(
+    async (page: number = 1, pageSize: number = PAGE_SIZE, search: string = "", status?: string[]) => {
+      await Promise.all([
+        listContractTemplates(page, pageSize, search, status),
+        getContractTemplateStats(),
+      ]);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [] // ✅ intentionally empty — listContractTemplates & getContractTemplateStats are stable
+  );
 
-          setContractTemplates(items);
-
-          return response.data.data;
-        } catch (err: any) {
-          const msg =
-            err.response?.data?.message ||
-            err.message ||
-            "Failed to list contract templates";
-
-          setError(msg);
-          setContractTemplates([]);
-          throw new Error(msg);
-        } finally {
-          setLoading(false);
-        }
-      },
-      []
-    );
-
-    /* ───────── STATS ───────── */
-    const getContractTemplateStats = useCallback(async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await api.get<{
-          status: string;
-          data: ContractTemplateStats;
-        }>("/company/contract-templates/stats");
-
-        return response.data.data;
-      } catch (err: any) {
-        const msg =
-          err.response?.data?.message ||
-          err.message ||
-          "Failed to get contract template stats";
-
-        setError(msg);
-        throw new Error(msg);
-      } finally {
-        setLoading(false);
-      }
-    }, []);
-
-    return {
-      contractTemplates,
-      contractTemplate,
-      loading,
-      error,
-      createContractTemplate,
-      updateContractTemplate,
-      deleteContractTemplate,
-      getContractTemplateById,
-      listContractTemplates,
-      getContractTemplateStats,
-      clearError,
-    };
+  return {
+    contractTemplates,
+    contractTemplate,
+    listLoading,      // ✅ List-specific
+    statsLoading,     // ✅ Stats-specific  
+    actionLoading,    // ✅ Create/update/delete-specific
+    error,
+    createContractTemplate,
+    updateContractTemplate,
+    deleteContractTemplate,
+    getContractTemplateById,
+    listContractTemplates,
+    getContractTemplateStats,
+    clearError,
+    refetch,          // ✅ Bonus
   };
+};

@@ -24,15 +24,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { InfoItem } from "../common/info-item";
+import { ContractTemplate } from "@/hooks/companyapihandler/useContractTemplateHandler";
+import { cn } from "@/lib/utils";
 
 
 
 /* ---------------- TYPES ---------------- */
 
 interface ContractCardTempletateProps {
-  contract: any;
-  onEdit: (contract: any) => void;
-  onDelete?: (contract: any) => void;
+  contract: ContractTemplate;
+  onEdit: (contract: ContractTemplate) => void;
+  onDelete?: (contract: ContractTemplate) => void;
 }
 
 /* ---------------- COMPONENT ---------------- */
@@ -42,27 +44,6 @@ export function ContractCardTempletate({
   onEdit,
   onDelete,
 }: ContractCardTempletateProps) {
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const formatCurrency = (amount?: string | number, currency: string = "USD") => {
-    if (!amount) return "N/A";
-
-    const num = Number(amount);
-    if (isNaN(num)) return "N/A";
-
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency, // ✅ dynamic here
-      maximumFractionDigits: 0,
-    }).format(num);
-  };
 
     const truncate = (text?: string, max = 40) =>
     text ? (text.length > max ? text.slice(0, max) + "..." : text) : "N/A";
@@ -99,12 +80,20 @@ export function ContractCardTempletate({
             <div className="flex flex-col items-end gap-1">
               <Badge variant="secondary" className="flex items-center gap-1 text-[10px]">
                 <Fingerprint className="h-3 w-3" />
-                {(contract.inContractNumber || contract.id)?.slice(0, 8)}
+                {(contract.id || contract.id)?.slice(0, 6)}
               </Badge>
-
-              <Badge variant="outline" className="flex items-center gap-1 text-[10px]">
+              <Badge
+                className={cn(
+                  "flex items-center gap-1 text-[10px]",
+                  contract.status === "Active"
+                    ? "bg-green-100 text-green-700 hover:bg-green-100"
+                    : contract.status === "Inactive"
+                    ? "bg-red-100 text-red-600 hover:bg-red-100"
+                    : "bg-blue-100 text-blue-600 hover:bg-blue-100"
+                )}
+              >
                 <Target className="h-3 w-3" />
-                 {contract.status}
+                {contract.status}
               </Badge>
             </div>
 
@@ -145,10 +134,8 @@ export function ContractCardTempletate({
 
               <InfoItem
                 label="Salary"
-                value={formatCurrency(
-                  contract.salary || contract.monthlyAllowance,
-                  contract.currency
-                )}
+                value={contract.salaryDisplay || "N/A"}
+     
               />
 
               <InfoItem

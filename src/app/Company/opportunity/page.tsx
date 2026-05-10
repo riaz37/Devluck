@@ -23,9 +23,9 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { cn } from "@/lib/utils";
 import { DataTable } from "@/components/common/DataTable";
 import { OpportunityCard } from "@/components/Company/OpportunityCard";
-import { Skeleton } from "@/components/ui/skeleton";
 import { OpportunityCardSkeleton } from "@/components/Company/Skeleton/OpportunityCardSkeleton";
 import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
+import { Badge } from "@/components/ui/badge";
 
 
 
@@ -91,34 +91,91 @@ export default function OpportunityPage() {
     return () => window.removeEventListener("resize", updateItemsPerPage);
   }, []);
 
+  const formatCompactNumber = (value: number) => {
+    if (value >= 1_000_000) {
+      return (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+    }
+
+    if (value >= 1_000) {
+      return (value / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+    }
+
+    return value.toString();
+  };
+
   /* ──────────────────────────────────────────────
      Mapping
   ────────────────────────────────────────────── */
   const mappedJobs: OpportunityUI[] = useMemo(() => {
-    if (!opportunities || !Array.isArray(opportunities)) {
-      return []
+    if (!Array.isArray(opportunities) || opportunities.length === 0) {
+      return [];
     }
+
     return opportunities.map((opp, index) => ({
-      id: opp.id,
-      jobNumber: opp.id.substring(0, 8) || String(index + 1),
-      jobName: opp.title,
-      country: opp.location || "Not specified",
-      jobtype: opp.type,
-      title: opp.title,
-      type: opp.type,
-      timeLength: opp.timeLength,
-      currency: opp.currency,
-      allowance: opp.allowance,
-      location: opp.location,
-      description: opp.details || opp.description || "",
-      startDate: opp.startDate ? new Date(opp.startDate).toISOString().split('T')[0] : undefined,
-      skills: opp.skills || [],
-      whyYouWillLoveWorkingHere: opp.whyYouWillLoveWorkingHere || [],
-      benefits: opp.benefits || [],
-      keyResponsibilities: opp.keyResponsibilities || [],
-      numberOfApplicants: String(opp.applicantCount ?? 0)
-    }))
-  }, [opportunities])
+      // keep original data
+      ...opp,
+
+
+      // required fields
+      id: opp?.id ?? `temp-${index}`,
+      title: opp?.title?.trim() || "Untitled Opportunity",
+
+      // union-safe fields
+      type: opp?.type ?? "Internship",
+      timeLength: opp?.timeLength || "",
+      currency: opp?.currency ?? "USD",
+      allowance: opp?.allowance || "",
+      salaryDisplay: opp?.allowance
+        ? `${opp.currency ?? "USD"} ${formatCompactNumber(
+            Number(opp.allowance)
+          )}`
+        : "N/A",
+      location: opp?.location ?? "Remote",
+
+      // UI-only fields
+      jobNumber: opp?.id?.substring(0, 8) || String(index + 1),
+      jobName: opp?.title?.trim() || "Untitled Opportunity",
+      country: opp?.location ?? "Remote",
+      jobtype: opp?.type ?? "Internship",
+      numberOfApplicants: String(opp?.applicantCount ?? 0),
+
+      // normalized description
+      description:
+        opp?.details?.trim() ||
+        opp?.description?.trim() ||
+        "No description provided",
+
+      // safe date
+      startDate: opp?.startDate
+        ? new Date(opp.startDate)
+            .toISOString()
+            .split("T")[0]
+        : undefined,
+
+      // safe arrays
+      skills: Array.isArray(opp?.skills)
+        ? opp.skills
+        : [],
+
+      whyYouWillLoveWorkingHere:
+        Array.isArray(
+          opp?.whyYouWillLoveWorkingHere
+        )
+          ? opp.whyYouWillLoveWorkingHere
+          : [],
+
+      benefits: Array.isArray(opp?.benefits)
+        ? opp.benefits
+        : [],
+
+      keyResponsibilities:
+        Array.isArray(
+          opp?.keyResponsibilities
+        )
+          ? opp.keyResponsibilities
+          : [],
+    }));
+  }, [opportunities]);
 
   /* ──────────────────────────────────────────────
      Save
@@ -529,16 +586,31 @@ const handleActionDelete = async () => {
                   header: "Opportunity Name",
                   cell: (job: any) => job.jobName,
                 },
-                {
+                      {
                   header: "Opportunity Type",
-                  cell: (job: any) => job.jobtype,
+                  cell: (job: any) => (
+                    <Badge
+                      className={cn(
+                        "font-medium border-transparent",
+                        job.jobtype === "Internship"
+                          ? "bg-purple-100 text-purple-700 hover:bg-purple-100"
+                          : job.jobtype === "Full-time"
+                          ? "bg-green-100 text-green-700 hover:bg-green-100"
+                          : job.jobtype === "Part-time"
+                          ? "bg-blue-100 text-blue-700 hover:bg-blue-100"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-100"
+                      )}
+                    >
+                      {job.jobtype || "Unknown"}
+                    </Badge>
+                  ),
                 },
                 {
-                  header: "Location",
+                  header: "Availability",
                   cell: (job: any) => job.country,
                 },
                 {
-                  header: "Amount Paid",
+                  header: "Allowance",
                   cell: (job: any) =>
                     job.allowance
                       ? `${job.allowance} ${job.currency}`

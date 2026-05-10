@@ -59,46 +59,70 @@ export default function ContractListPage() {
 /* ──────────────────────────────────────────────
   Mapping
 ────────────────────────────────────────────── */
-    const mappedContracts = useMemo(() => {
-      if (!contracts || !Array.isArray(contracts)) return [];
+const mappedContracts = useMemo<MappedContract[]>(() => {
+  if (!contracts || !Array.isArray(contracts)) return [];
 
-      return contracts.map((contract) => {
+  return contracts.map((contract) => {
+    const amount =
+      contract.salary ??
+      contract.monthlyAllowance ??
+      0;
+    const formatCompact = (value: number) => {
+      const abs = Math.abs(value);
 
-        const amount =
-          contract.salary ??
-          contract.monthlyAllowance ??
-          0;
+      if (abs >= 1_000_000) {
+        return `${(value / 1_000_000).toFixed(1)}M`;
+      }
 
-        const salaryDisplay = contract.currency
-          ? `${contract.currency} ${amount.toLocaleString("en-US")}`
-          : `${amount.toLocaleString("en-US")}`;
+      if (abs >= 1_000) {
+        return `${(value / 1_000).toFixed(1)}K`;
+      }
 
-        return {
-          id: contract.id,
-          applicantId: 0,
+      return value.toString();
+    };
+      const salaryDisplay = contract.currency
+        ? `${contract.currency} ${formatCompact(amount)}`
+        : `${formatCompact(amount)}`;
 
-          contractTitle: contract.contractTitle,
+    return {
+      id: contract.id,
+      applicantId: 0,
 
-          company: contract.company?.name || "Unknown Company",
+      contractTitle: contract.contractTitle,
 
-          location: contract.workLocation || "Not specified",
+      // still keep simple fields for UI speed
+      location: contract.workLocation || "Not specified",
 
-          workProgress: contract.workProgress ?? 0,
+      workProgress: contract.workProgress ?? 0,
 
-          startDate: contract.createdDate
-            ? new Date(contract.createdDate).toLocaleDateString()
-            : "Not specified",
+      startDate: contract.createdDate
+        ? new Date(contract.createdDate).toLocaleDateString()
+        : "Not specified",
 
-          status: toContractStatus(contract.status),
+      status: toContractStatus(contract.status),
 
-          salary: salaryDisplay,
+      salary: salaryDisplay,
 
-          durationMonths: contract.duration ?? 0,
+      durationMonths: contract.duration ?? 0,
 
-          note: contract.note ?? undefined,
-        };
-      });
-    }, [contracts]);
+      note: contract.note ?? undefined,
+
+      // ✅ FULL OBJECTS (this is what you wanted)
+      company: contract.company
+        ? {
+            ...contract.company,
+            logoUrl: contract.company.logoUrl || contract.company.logo,
+          }
+        : undefined,
+
+      opportunity: contract.opportunity
+        ? {
+            ...contract.opportunity,
+          }
+        : undefined,
+    };
+  });
+}, [contracts]);
 
 /* ──────────────────────────────────────────────
   Effects
@@ -116,7 +140,7 @@ export default function ContractListPage() {
       const searchMatch =
         !searchQuery.trim() ||
         contract.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        contract.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        contract.company?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         contract.contractTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
         contract.startDate.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -188,30 +212,34 @@ export default function ContractListPage() {
           cell: (row: MappedContract) => row.id.slice(-8),
         },
         {
-          header: "Company",
-          cell: (row: MappedContract) => row.company,
+          header: "Company name",
+          cell: (row: MappedContract) => row.company?.name,
         },
         {
-          header: "Title",
+          header: "contract title",
           cell: (row: MappedContract) => row.contractTitle,
         },
         {
-          header: "Started",
+          header: "Start Date",
           cell: (row: MappedContract) => row.startDate,
+        },
+                {
+          header: "Duration",
+          cell: (row: MappedContract) => row.durationMonths ? `${row.durationMonths} month${row.durationMonths > 1 ? 's' : ''}` : "Not specified",
         },
         {
           header: "Salary",
           cell: (row: MappedContract) => row.salary,
         },
         {
-          header: "Status",
+          header: "Contract Status",
           cell: (row: MappedContract) => (
             <span
               className={cn(
-                "px-2 py-1 rounded-full text-xs font-semibold border",
-                row.status === "Running" && "bg-green-100 text-green-600 border-green-200",
-                row.status === "Completed" && "bg-blue-100 text-blue-600 border-blue-200",
-                row.status === "Disputed" && "bg-yellow-100 text-yellow-600 border-yellow-200"
+                "px-2 py-1 rounded-full text-xs font-semibold ",
+                row.status === "Running" && "bg-green-100 text-green-600 ",
+                row.status === "Completed" && "bg-blue-100 text-blue-600 ",
+                row.status === "Disputed" && "bg-rose-100 text-rose-600"
               )}
             >
               {row.status}

@@ -334,16 +334,16 @@ const [itemsPerPage, setItemsPerPage] = useState(10); // default 10 for desktop
                 columns={[
 
                   {
-                    header: "ID",
+                    header: "CO-ID",
                     cell: (c: TopCompany) =>
                       `CO-${c.id.startsWith("C") ? c.id : `C${c.id.slice(0, 6)}`}`,
                   },
                   {
-                    header: "Name",
+                    header: "Company Name",
                     cell: (c: TopCompany) => c.name,
                   },
                   {
-                    header: "Rank",
+                    header: "Company Rank",
                     cell: (c: TopCompany) =>
                       typeof c.globalRank === "number" ? (
                         <div className="flex items-center gap-1">
@@ -355,7 +355,7 @@ const [itemsPerPage, setItemsPerPage] = useState(10); // default 10 for desktop
                       ),
                   },
                   {
-                    header: "Phone",
+                    header: "Phone Number",
                     cell: (c: TopCompany) => c.phoneNumber ?? "N/A",
                   },
                   {
@@ -367,7 +367,7 @@ const [itemsPerPage, setItemsPerPage] = useState(10); // default 10 for desktop
                       "N/A",
                   },
                   {
-                    header: "Status",
+                    header: "Company Status",
                     cell: (c: TopCompany) => (
                       <span
                         className={cn(

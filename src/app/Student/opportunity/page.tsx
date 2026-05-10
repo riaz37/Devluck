@@ -34,7 +34,7 @@ export default function ContractListPage() {
       const [searchQuery, setSearchQuery] = useState("");
       const [currentPage, setCurrentPage] = useState(1);
       const [salaryRange, setSalaryRange] = useState<[number, number]>([0, 10000]);
-      const [selectedJobType, setSelectedJobType] = useState<"All" | "Full-time" | "Part-time" | "Contract">("All");
+      const [selectedJobType, setSelectedJobType] = useState<"All" | "Full-time" | "Part-time" | "Internship">("All");
       const [applyingOpportunityId, setApplyingOpportunityId] = useState<string | null>(null);
       const [isFocused, setIsFocused] = useState(false);
       const [appliedMap, setAppliedMap] = useState<Record<string, boolean>>({});
@@ -70,71 +70,107 @@ export default function ContractListPage() {
       }, [opportunities]);
 
       // Map opportunities to mockContracts format
-      const mappedOpportunities = useMemo(() => {
-        if (!opportunities || !Array.isArray(opportunities)) {
-          return [];
-        }
-        const mapped: MappedOpportunity[] = opportunities.map((opp, index) => {
-          const mappedItem: MappedOpportunity = {
-            id: index + 1,
-            originalId: opp.id,
-            applicantId: 0,
+        const mappedOpportunities = useMemo(() => {
+          if (!opportunities || !Array.isArray(opportunities)) return [];
 
-            contractTitle: opp.title,
-            company: opp.company?.name || "Unknown Company",
-            salary: opp.allowance
-              ? `${opp.currency} ${opp.allowance}`
-              : "Not specified",
+          return opportunities.map((opp, index): MappedOpportunity => {
+            const formatCompactNumber = (value: number) => {
+              if (value >= 1_000_000) {
+                return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+              }
+              if (value >= 1_000) {
+                return `${(value / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
+              }
+              return value.toString();
+            };
 
-            jobType:
-              opp.type === "Full-time" ||
-              opp.type === "Part-time" ||
-              opp.type === "Contract"
-                ? opp.type
-                : "Full-time",
+            const allowanceValue = opp.allowance
+              ? `${opp.currency} ${formatCompactNumber(Number(opp.allowance))}`
+              : "Not specified";
 
-            location: opp.location || "Not specified",
-            jobDescription: opp.details || "",
+            const applicationStatus = opp.applicationStatus?.status || "Not Applied";
 
-            workProgress: Math.floor(Math.random() * 100),
+            return {
+              id: index + 1,
+              originalId: opp.id,
+              opportunityId: opp.id,
 
-            deadline: opp.startDate
-              ? new Date(opp.startDate).toLocaleDateString()
-              : "Not specified",
+              applicantId: 0,
 
-            startDate: opp.startDate
-              ? new Date(opp.startDate).toLocaleDateString()
-              : "Not specified",
+              // CORE INFO
+              opportunityTitle: opp.title,
+              company: opp.company?.name || "Unknown Company",
+              companyId: opp.companyId,
 
-            endDate: "Not specified",
+              // COMPANY ENRICHMENT (NEW)
+              companyLogo: opp.company?.logoUrl || opp.company?.logo,
+              companyIndustry: opp.company?.industry || "Unknown",
+              companyLocation: opp.company?.location || "Unknown",
+              companyWebsite: opp.company?.website,
 
-            status: "Running",
-            applicantIds: [],
+              // JOB DETAILS
+              salary: allowanceValue,
+              currency: opp.currency,
+              allowance: opp.allowance,
 
-            companyId: opp.companyId || "",
+              jobType:
+                opp.type === "Full-time" ||
+                opp.type === "Part-time" ||
+                opp.type === "Internship"
+                  ? opp.type
+                  : "Full-time",
 
-            // ✅ FIXED
-            opportunityStatus: "Applied",
-            opportunityFrom: "Company",
 
-            skills: opp.skills || [],
-            benefits: opp.benefits || [],
-            keyResponsibilities: opp.keyResponsibilities || [],
-            whyYoullLoveWorkingHere:
-              opp.whyYouWillLoveWorkingHere || [],
+              location: opp.location || "Not specified",
+              
+              jobDescription: opp.details || "",
 
-            // ✅ NEW REQUIRED FIELDS
-            originalStatus: "pending", // map from backend later
-            appliedAt: new Date().toISOString(), // or opp.appliedAt if exists
-            opportunityId: opp.id, // backend id
-            hasAssessment: Boolean(opp.hasAssessment),
-          };
+              // TIME INFO (ENHANCED)
+              timeLength: opp.timeLength,
+              startDate: opp.startDate
+                ? new Date(opp.startDate).toLocaleDateString()
+                : "Not specified",
 
-          return mappedItem;
-        });
+              endDate: opp.startDate
+                ? new Date(
+                    new Date(opp.startDate).getTime() +
+                      Number(opp.timeLength?.replace(/\D/g, "")) * 30 * 24 * 60 * 60 * 1000
+                  ).toLocaleDateString()
+                : "Not specified",
 
-        return mapped;
-      }, [opportunities]);
+              deadline: opp.startDate
+                ? new Date(opp.startDate).toLocaleDateString()
+                : "Not specified",
+
+              // STATUS (IMPORTANT UPGRADE)
+              status: applicationStatus,
+              opportunityStatus: applicationStatus,
+              opportunityFrom: "Company",
+
+              // PROGRESS / UI STATE
+              workProgress: Math.floor(Math.random() * 100),
+
+              // ASSESSMENT (FROM HOOK)
+              hasAssessment: Boolean(opp.hasAssessment),
+              assessmentDeadlineHours: opp.assessmentDeadlineHours,
+              questionMode: opp.questionMode,
+              fitProfile: opp.fitProfile,
+
+              // CONTENT
+              skills: opp.skills || [],
+              benefits: opp.benefits || [],
+              keyResponsibilities: opp.keyResponsibilities || [],
+              whyYoullLoveWorkingHere: opp.whyYouWillLoveWorkingHere || [],
+
+              // APPLICATION INFO (NEW IMPORTANT)
+              applicationId: opp.applicationStatus?.applicationId,
+              appliedAt: opp.applicationStatus?.appliedAt,
+
+              // UI DEFAULTS
+              applicantIds: [],
+            };
+          });
+        }, [opportunities]);
       
       // Use only real API data (no mock fallback)
       const displayContracts = mappedOpportunities;
@@ -156,7 +192,7 @@ export default function ContractListPage() {
           // 🔍 Search
           const searchMatch =
             !searchQuery.trim() ||
-            contract.contractTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            contract.opportunityTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
             contract.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
             contract.jobType.toLowerCase().includes(searchQuery.toLowerCase()) ||
             contract.company.toLowerCase().includes(searchQuery.toLowerCase());
@@ -272,7 +308,7 @@ return (
               
               {/* Header */}
               <CardHeader>
-                <CardTitle className="text-lg">Filters</CardTitle>
+                <CardTitle className="text-lg">Opportunity Filter</CardTitle>
               </CardHeader>
 
               <CardContent className="flex flex-col gap-5">
@@ -391,7 +427,7 @@ return (
                       </SelectTrigger>
 
                       <SelectContent align="center">
-                        {["All", "Full-time", "Part-time", "Contract"].map((type) => (
+                        {["All", "Full-time", "Part-time", "Internship"].map((type) => (
                           <SelectItem key={type} value={type}>
                             {type}
                           </SelectItem>

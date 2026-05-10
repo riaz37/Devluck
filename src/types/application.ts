@@ -13,34 +13,26 @@ export type OpportunityStatus =
 export type StatusFilter = OpportunityStatus | "All";
 
 export interface MappedOpportunity {
-    id: number;
+  id: number;
   originalId: string;
-
-  contractTitle: string;
+  companyLogo?: string;
+  opportunityTitle: string;
   company: string;
   salary: string;
-  jobType: "Full-time" | "Part-time" | "Contract";
+  jobType: "Full-time" | "Part-time" | "Internship";
   location: string;
   jobDescription: string;
-
   startDate: string;
-
-   opportunityStatus: OpportunityStatus;
-
+  opportunityStatus: OpportunityStatus;
   originalStatus: string;
-
   appliedAt: string;
-
   opportunityId: string;
-
   hasAssessment?: boolean;
   assessmentSource?: "public" | "private";
   assessmentStatus?: string;
-
   sessionStatus?: string | null;
   sessionId?: string | null;
   inviteToken?: string | null;
-
   canStartAssessment?: boolean;
   assessmentBlockedReason?: string | null;
 }

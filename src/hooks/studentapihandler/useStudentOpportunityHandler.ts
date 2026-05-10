@@ -12,7 +12,7 @@ interface Opportunity {
   timeLength: string
   currency: string
   allowance?: string
-  location?: string
+  location: "Onsite" | "Remote" | "Hybrid"
   details: string
   skills: string[]
   whyYouWillLoveWorkingHere: string[]

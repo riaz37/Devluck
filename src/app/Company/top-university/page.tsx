@@ -326,12 +326,12 @@ export default function TopUniversityPage() {
                 cell: (u: University) => u.name ?? "N/A",
               },
                 {
-                  header: "Phone",
+                  header: "Phone Number",
                   cell: (u: University) =>
                     u.phoneNumber?.trim() ? u.phoneNumber : "N/A",
                 },
                 {
-                  header: "Address",
+                  header: "Location",
                   cell: (u: University) =>
                     u.address?.trim() ? u.address : "N/A",
                 },

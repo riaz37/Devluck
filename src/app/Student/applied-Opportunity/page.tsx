@@ -137,8 +137,9 @@ export default function ContractListPage() {
           return {
             id: index + 1,
             originalId: app.id,
-            contractTitle: opp.title || "Unknown Opportunity",
+            opportunityTitle: opp.title || "Unknown Opportunity",
             company: opp.company?.name || "Unknown Company",
+            companyLogo: opp.company?.logo || undefined,
             salary: opp.allowance
               ? `${opp.currency || "USD"} ${opp.allowance}`
               : "N/A",
@@ -286,7 +287,7 @@ export default function ContractListPage() {
           if (!q) return true;
 
           return (
-            c.contractTitle.toLowerCase().includes(q) ||
+            c.opportunityTitle.toLowerCase().includes(q) ||
             c.location.toLowerCase().includes(q) ||
             c.jobType.toLowerCase().includes(q) ||
             c.company.toLowerCase().includes(q)
@@ -549,19 +550,19 @@ return (
                 cell: (row: MappedOpportunity) => row.id ?? "N/A",
               },
               {
-                header: "Company",
+                header: "Company Name",
                 cell: (row: MappedOpportunity) => row.company ?? "N/A",
               },
               {
-                header: "Title",
-                cell: (row: MappedOpportunity) => row.contractTitle ?? "N/A",
+                header: "Opportunity Title",
+                cell: (row: MappedOpportunity) => row.opportunityTitle ?? "N/A",
               },
               {
                 header: "Applied At",
                 cell: (row: MappedOpportunity) => row.appliedAt ?? "Not specified",
               },
               {
-                header: "Status",
+                header: "Opportunity Status",
                 cell: (row: MappedOpportunity) => {
                   const status = row.opportunityStatus;
 

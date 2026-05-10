@@ -6,7 +6,6 @@ export interface MappedContract {
   id: string;
   applicantId: number;
   contractTitle: string;
-  company: string;
   location: string;
   workProgress: number;
   status: ContractStatus;
@@ -27,6 +26,19 @@ export interface MappedContract {
     timeLength?: string;
     currency?: string;
     allowance?: string;
+  };
+    company?: {
+    id: string
+    name: string
+    logo?: string
+    logoUrl?: string
+    industry?: string
+    location?: string
+    address?: string
+    website?: string
+    description?: string
+    phone?: string
+    phoneNumber?: string
   };
 }
 

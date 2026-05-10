@@ -21,30 +21,25 @@ import {
   Activity,
   Briefcase,
   DollarSign,
+  Target,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { InfoItem } from "../common/info-item";
+import { MappedOpportunity } from "@/types/opportunity-s";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
-interface CardContract {
-  id: string | number;
-  contractTitle: string;
-  company?: string;
-  salary?: string;
-  workProgress?: number;
-  opportunityStatus?: string;
-  location?: string;
-  deadline?: string;
-}
+
 
 interface OpportunityDashbordCardProps {
-  contract: CardContract;
+  opportunity: MappedOpportunity;
   applied?: boolean;
   onClick?: () => void;
 }
 
 export function OpportunityDashbordCard({
-  contract,
+  opportunity,
   applied,
   onClick,
 }: OpportunityDashbordCardProps) {
@@ -52,87 +47,140 @@ export function OpportunityDashbordCard({
     text ? (text.length > max ? text.slice(0, max) + "..." : text) : "N/A";
 
   return (
-      <Card className="rounded-2xl shadow-sm hover:shadow-md ">
 
-      {/* HEADER */}
-      <CardHeader className="flex flex-row items-start justify-between gap-3">
+      <Card className="overflow-hidden rounded-2xl border-border/60 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
 
-        {/* LEFT */}
-        <div className="flex items-center gap-3 min-w-0">
+        {/* HEADER */}
+        <CardHeader className="flex flex-row items-start justify-between gap-3">
 
-          <Avatar className="h-11 w-11 ring-2 ring-muted shadow-sm">
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-              {contract.company?.charAt(0)?.toUpperCase() || "C"}
-            </AvatarFallback>
-          </Avatar>
+          {/* LEFT */}
+          <div className="flex items-center gap-3 min-w-0">
 
-          <div className="min-w-0 space-y-1">
-            <CardTitle className="text-base font-semibold leading-tight truncate">
-              {truncate(contract.contractTitle)}
-            </CardTitle>
+            <Avatar className="h-11 w-11 ring-2 ring-muted shadow-sm shrink-0">
 
-            <CardDescription className="text-xs text-muted-foreground truncate">
-              {truncate(contract.company, 22)}
-            </CardDescription>
+              {opportunity.companyLogo ? (
+                <img
+                  src={opportunity.companyLogo}
+                  alt={opportunity.company}
+                  className="h-full w-full object-cover rounded-full"
+                />
+              ) : (
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                  {opportunity.company?.charAt(0)?.toUpperCase() || "C"}
+                </AvatarFallback>
+              )}
+
+            </Avatar>
+
+            <div className="min-w-0 space-y-1">
+              <CardTitle className="text-base font-semibold truncate">
+                {truncate(opportunity.opportunityTitle, 28)}
+              </CardTitle>
+
+              <CardDescription className="truncate text-xs">
+                {truncate(opportunity.company, 22)}
+              </CardDescription>
+
+            </div>
+
           </div>
+            {/* RIGHT */}
+            <div className="flex flex-col items-end gap-2 shrink-0">
 
-        </div>
+              {/* ID */}
+              <Badge
+                variant="secondary"
+                className="rounded-full text-[10px] px-2 py-1"
+              >
+                <Fingerprint className="h-3 w-3 mr-1" />
+                {opportunity.opportunityId.slice(0, 8)}
+              </Badge>
 
-        {/* META */}
-        <Badge
-          variant="secondary"
-          className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-full shrink-0"
-        >
-          <Fingerprint className="h-3 w-3" />
-          {String(contract.id).slice(0, 8)}
-        </Badge>
+              {/* TYPE BADGE */}
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1 px-2 py-[2px] rounded-full text-[10px] font-medium",
+                  opportunity.jobType === "Full-time"
+                    ? "bg-emerald-100 text-emerald-700"
+                    : opportunity.jobType === "Part-time"
+                    ? "bg-blue-100 text-blue-700"
+                    : opportunity.jobType === "Internship"
+                    ? "bg-purple-100 text-purple-700"
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                <Target className="h-3 w-3" />
+                {opportunity.jobType || "N/A"}
+              </span>
 
-      </CardHeader>
+            </div>
 
-      {/* CONTENT */}
-      <CardContent className="space-y-4">
+        </CardHeader>
 
-        {/* INFO GRID (MATCHED STYLE) */}
-        <div className="grid grid-cols-2 gap-3 pt-1">
+        {/* CONTENT */}
+        <CardContent className="flex-1 space-y-2">
 
-          <div className="w-full">
-            <InfoItem
-              label="Type"
-              value={contract.opportunityStatus || "Contract"}
-              icon={<Briefcase className="h-3.5 w-3.5" />}
-            />
-          </div>
-
-          <div className="w-full">
+          {/* INFO ROW */}
+          <div className="grid grid-cols-4 items-center text-center gap-1">
             <InfoItem
               label="Location"
-              value={contract.location || "N/A"}
-              icon={<MapPin className="h-3.5 w-3.5" />}
+              value={opportunity.location || "N/A"}
+              icon={<MapPin className="h-4 w-4" />}
             />
-          </div>
 
-          <div className="w-full">
-            <InfoItem
-              label="Deadline"
-              value={contract.deadline || "No deadline"}
-              icon={<Calendar className="h-3.5 w-3.5" />}
-            />
-          </div>
-
-          <div className="w-full">
             <InfoItem
               label="Salary"
-              value={contract.salary || "N/A"}
-              icon={<DollarSign className="h-3.5 w-3.5" />}
+              value={opportunity.salary || "N/A"}
             />
+
+            <InfoItem
+              label="Start At"
+              value={opportunity.startDate || "N/A"}
+
+            />
+
+            <InfoItem
+              label="Duration"
+              value={opportunity.timeLength || "N/A"}
+            />
+
           </div>
 
-        </div>
+          {/* DESCRIPTION */}
+          <div className="space-y-3">
 
-      </CardContent>
+            <div className="flex items-center gap-2">
+              <span className="h-px flex-1 bg-border/60" />
+
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                Opportunity Description
+              </span>
+
+              <span className="h-px flex-1 bg-border/60" />
+            </div>
+
+            <div className="rounded-lg border border-border/40 bg-muted/20 px-3 py-2">
+
+              <p
+                className={cn(
+                  "text-sm leading-6 line-clamp-2 min-h-[2.5rem]",
+                  opportunity.jobDescription
+                    ? "text-foreground"
+                    : "text-muted-foreground italic"
+                )}
+              >
+                {opportunity.jobDescription?.trim()
+                  ? opportunity.jobDescription
+                  : "No job description available."}
+              </p>
+
+            </div>
+          </div>
+
+        </CardContent>
 
       {/* FOOTER */}
-      <CardFooter className="flex gap-2 pt-2">
+      <CardFooter>
 
         <Button
           onClick={onClick}

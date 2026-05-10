@@ -192,7 +192,7 @@ export default function TopCompanyPage() {
 
   const columns = [
     {
-      header: "ID",
+      header: "CO-ID",
       cell: (company: any) => (
         <span className="text-xs font-medium">
           CO-
@@ -211,7 +211,7 @@ export default function TopCompanyPage() {
       ),
     },
                       {
-                    header: "Rank",
+                    header: "Company Rank",
                     cell: (c: TopCompany) =>
                       typeof c.globalRank === "number" ? (
                         <div className="flex items-center gap-1">
@@ -224,7 +224,7 @@ export default function TopCompanyPage() {
                   },
 
     {
-      header: "Phone",
+      header: "Phone Number",
       cell: (company: any) => {
         const phone =
           company.phoneNumber ||
@@ -255,7 +255,7 @@ export default function TopCompanyPage() {
       },
     },
     {
-      header: "Status",
+      header: "Company Status",
       cell: (company: any) => (
         <span
           className={cn(

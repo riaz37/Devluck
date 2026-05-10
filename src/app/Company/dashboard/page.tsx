@@ -61,29 +61,88 @@ export default function DashboardPage() {
     };
     fetchData();
   }, [getRecentOpportunities, getRecentApplicants]);
+  const formatCompactNumber = (value: number) => {
+    if (value >= 1_000_000) {
+      return (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+    }
 
-  const mappedOpportunities = useMemo((): OpportunityUI[] => {
-    if (!Array.isArray(opportunities)) return [];
+    if (value >= 1_000) {
+      return (value / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+    }
+
+    return value.toString();
+  };
+  /* ──────────────────────────────────────────────
+     Mapping
+  ────────────────────────────────────────────── */
+  const mappedOpportunities: OpportunityUI[] = useMemo(() => {
+    if (!Array.isArray(opportunities) || opportunities.length === 0) {
+      return [];
+    }
 
     return opportunities.map((opp, index) => ({
-      id: opp.id,
-      jobNumber: opp.id.substring(0, 8) || String(index + 1),
-      jobName: opp.title,
-      country: opp.location || "Not specified",
-      jobtype: opp.type,
-      title: opp.title,
-      type: opp.type,
-      timeLength: opp.timeLength,
-      currency: opp.currency,
-      allowance: opp.allowance,
-      location: opp.location,
-      description: opp.details || opp.description || "",
-      startDate: opp.startDate ? new Date(opp.startDate).toISOString().split('T')[0] : undefined,
-      skills: opp.skills || [],
-      whyYouWillLoveWorkingHere: opp.whyYouWillLoveWorkingHere || [],
-      benefits: opp.benefits || [],
-      keyResponsibilities: opp.keyResponsibilities || [],
-      numberOfApplicants: String(opp.applicantCount ?? 0)
+      // keep original data
+      ...opp,
+
+
+      // required fields
+      id: opp?.id ?? `temp-${index}`,
+      title: opp?.title?.trim() || "Untitled Opportunity",
+
+      // union-safe fields
+      type: opp?.type ?? "Internship",
+      timeLength: opp?.timeLength || "",
+      currency: opp?.currency ?? "USD",
+      allowance: opp?.allowance || "",
+      salaryDisplay: opp?.allowance
+        ? `${opp.currency ?? "USD"} ${formatCompactNumber(
+            Number(opp.allowance)
+          )}`
+        : "N/A",
+      location: opp?.location ?? "Remote",
+
+      // UI-only fields
+      jobNumber: opp?.id?.substring(0, 8) || String(index + 1),
+      jobName: opp?.title?.trim() || "Untitled Opportunity",
+      country: opp?.location ?? "Remote",
+      jobtype: opp?.type ?? "Internship",
+      numberOfApplicants: String(opp?.applicantCount ?? 0),
+
+      // normalized description
+      description:
+        opp?.details?.trim() ||
+        opp?.description?.trim() ||
+        "No description provided",
+
+      // safe date
+      startDate: opp?.startDate
+        ? new Date(opp.startDate)
+            .toISOString()
+            .split("T")[0]
+        : undefined,
+
+      // safe arrays
+      skills: Array.isArray(opp?.skills)
+        ? opp.skills
+        : [],
+
+      whyYouWillLoveWorkingHere:
+        Array.isArray(
+          opp?.whyYouWillLoveWorkingHere
+        )
+          ? opp.whyYouWillLoveWorkingHere
+          : [],
+
+      benefits: Array.isArray(opp?.benefits)
+        ? opp.benefits
+        : [],
+
+      keyResponsibilities:
+        Array.isArray(
+          opp?.keyResponsibilities
+        )
+          ? opp.keyResponsibilities
+          : [],
     }));
   }, [opportunities]);
 

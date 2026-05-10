@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { OpportunityDashbordCard } from "@/components/Student/OpportunityDashbordCard";
 import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
+import { MappedOpportunity } from "@/types/opportunity-s";
 
 
 export default function DashboardPage() {
@@ -152,36 +153,108 @@ export default function DashboardPage() {
     fetchData();
   }, [getProfile, getExperiences, getEducations, getSkills, getPortfolios, listOpportunities, getDashboardStats, getStudentReviews, getUpcomingInterviews]); 
 
-  const mappedOpportunities = useMemo(() => {
-    if (!opportunities || !Array.isArray(opportunities)) {
-      return [];
-    }
-    return opportunities.map((opp) => ({
-      id: opp.id,
-      applicantId: 0,
-      contractTitle: opp.title,
-      company: opp.company?.name || "Unknown Company",
-      salary: opp.allowance ? `${opp.currency} ${opp.allowance}` : "Not specified",
-      workProgress: Math.floor(Math.random() * 100),
-      opportunityStatus: "Applied" as const,
-      opportunityFrom: "Company" as const,
-      deadline: opp.startDate ? new Date(opp.startDate).toLocaleDateString() : "Not specified",
-      startDate: opp.startDate ? new Date(opp.startDate).toLocaleDateString() : "Not specified",
-      endDate: "Not specified",
-      status: "Running" as const,
-      applicantIds: [],
-      companyId: opp.companyId || "",
-      skills: opp.skills || [],
-      benefits: opp.benefits || [],
-      keyResponsibilities: opp.keyResponsibilities || [],
-      whyYoullLoveWorkingHere: opp.whyYouWillLoveWorkingHere || [],
-      jobDescription: opp.details || "",
-      jobType: (opp.type === "Full-time" || opp.type === "Part-time" || opp.type === "Contract") 
-        ? opp.type 
-        : "Full-time" as "Full-time" | "Part-time" | "Contract",
-      location: opp.location || "Not specified",
-    }));
-  }, [opportunities]);
+      // Map opportunities to mockContracts format
+        const mappedOpportunities = useMemo(() => {
+          if (!opportunities || !Array.isArray(opportunities)) return [];
+
+          return opportunities.map((opp, index): MappedOpportunity => {
+            const formatCompactNumber = (value: number) => {
+              if (value >= 1_000_000) {
+                return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+              }
+              if (value >= 1_000) {
+                return `${(value / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
+              }
+              return value.toString();
+            };
+
+            const allowanceValue = opp.allowance
+              ? `${opp.currency} ${formatCompactNumber(Number(opp.allowance))}`
+              : "Not specified";
+
+            const applicationStatus = opp.applicationStatus?.status || "Not Applied";
+
+            return {
+              id: index + 1,
+              originalId: opp.id,
+              opportunityId: opp.id,
+
+              applicantId: 0,
+
+              // CORE INFO
+              opportunityTitle: opp.title,
+              company: opp.company?.name || "Unknown Company",
+              companyId: opp.companyId,
+
+              // COMPANY ENRICHMENT (NEW)
+              companyLogo: opp.company?.logoUrl || opp.company?.logo,
+              companyIndustry: opp.company?.industry || "Unknown",
+              companyLocation: opp.company?.location || "Unknown",
+              companyWebsite: opp.company?.website,
+
+              // JOB DETAILS
+              salary: allowanceValue,
+              currency: opp.currency,
+              allowance: opp.allowance,
+
+              jobType:
+                opp.type === "Full-time" ||
+                opp.type === "Part-time" ||
+                opp.type === "Internship"
+                  ? opp.type
+                  : "Full-time",
+
+
+              location: opp.location || "Not specified",
+              
+              jobDescription: opp.details || "",
+
+              // TIME INFO (ENHANCED)
+              timeLength: opp.timeLength,
+              startDate: opp.startDate
+                ? new Date(opp.startDate).toLocaleDateString()
+                : "Not specified",
+
+              endDate: opp.startDate
+                ? new Date(
+                    new Date(opp.startDate).getTime() +
+                      Number(opp.timeLength?.replace(/\D/g, "")) * 30 * 24 * 60 * 60 * 1000
+                  ).toLocaleDateString()
+                : "Not specified",
+
+              deadline: opp.startDate
+                ? new Date(opp.startDate).toLocaleDateString()
+                : "Not specified",
+
+              // STATUS (IMPORTANT UPGRADE)
+              status: applicationStatus,
+              opportunityStatus: applicationStatus,
+              opportunityFrom: "Company",
+
+              // PROGRESS / UI STATE
+              workProgress: Math.floor(Math.random() * 100),
+
+              // ASSESSMENT (FROM HOOK)
+              hasAssessment: Boolean(opp.hasAssessment),
+              assessmentDeadlineHours: opp.assessmentDeadlineHours,
+              questionMode: opp.questionMode,
+              fitProfile: opp.fitProfile,
+
+              // CONTENT
+              skills: opp.skills || [],
+              benefits: opp.benefits || [],
+              keyResponsibilities: opp.keyResponsibilities || [],
+              whyYoullLoveWorkingHere: opp.whyYouWillLoveWorkingHere || [],
+
+              // APPLICATION INFO (NEW IMPORTANT)
+              applicationId: opp.applicationStatus?.applicationId,
+              appliedAt: opp.applicationStatus?.appliedAt,
+
+              // UI DEFAULTS
+              applicantIds: [],
+            };
+          });
+        }, [opportunities]);
 
   const totalOpportunities = stats?.totalOpportunities ?? 0;
   const totalApplied = stats?.totalApplied ?? 0;
@@ -1015,12 +1088,12 @@ const isLoading =
                 </div>
               ) : mappedOpportunities.length > 0 ? (
                 mappedOpportunities.map((opp) => (
-                  <div key={opp.id} className="w-full">
+                  <div key={opp.opportunityId} className="w-full">
                     <OpportunityDashbordCard
-                      contract={opp}
-                      applied={appliedMap[opp.id]}
+                      opportunity={opp}
+                      applied={appliedMap[opp.opportunityId]}
                       onClick={() =>
-                        router.push(`/Student/dashboard/${opp.id}`)
+                        router.push(`/Student/dashboard/${opp.opportunityId}`)
                       }
                     />
                   </div>

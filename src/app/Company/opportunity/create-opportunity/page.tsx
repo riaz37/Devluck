@@ -23,23 +23,8 @@ import { ParallelogramSelect } from "@/components/common/ParallelogramSelect";
 import { MultiInputList } from "@/components/common/MultiInputList";
 import AssessmentModal, { AssessmentData, AssessmentQuestion } from "@/components/Company/Modal/AssessmentModel";
 import { Checkbox } from "@/components/ui/checkbox";
+import { OpportunityData } from "@/types/opportunity";
 
-
-type OpportunityData = {
-  id?: string;
-  title: string;
-  type: string;
-  timeLength: string;
-  currency: string;
-  allowance?: string;
-  location?: string;
-  description: string;
-  startDate?: string;
-  skills: string[];
-  whyYouWillLoveWorkingHere: string[];
-  benefits: string[];
-  keyResponsibilities: string[];
-};
 
 const TIME_LENGTH_UNITS = ["days", "weeks", "months", "years"] as const;
 type TimeLengthUnit = (typeof TIME_LENGTH_UNITS)[number];
@@ -95,11 +80,11 @@ export default function CreateOpportunityPage() {
   const id = searchParams.get("id"); // 👈 EDIT MODE DETECTION
 const [formData, setFormData] = useState<OpportunityData>({
   title: "",
-  type: "",
+  type: "Full-time",
   timeLength: "",
-  currency: "",
+  currency: "USD",
   allowance: "",
-  location: "",
+  location: "Remote",
   description: "",
   startDate: "",
   skills: [],
@@ -425,25 +410,25 @@ const [formData, setFormData] = useState<OpportunityData>({
 
           <MultiInputList
             label="Skills"
-            items={formData.skills}
+            items={formData.skills || []}
             setItems={(v) => handleChange("skills", v)}
           />
 
           <MultiInputList
             label="Benefits"
-            items={formData.benefits}
+            items={formData.benefits || []}
             setItems={(v) => handleChange("benefits", v)}
           />
 
           <MultiInputList
             label="Why You'll Love Working Here"
-            items={formData.whyYouWillLoveWorkingHere}
+            items={formData.whyYouWillLoveWorkingHere || []}
             setItems={(v) => handleChange("whyYouWillLoveWorkingHere", v)}
           />
 
           <MultiInputList
             label="Responsibilities"
-            items={formData.keyResponsibilities}
+            items={formData.keyResponsibilities || []}
             setItems={(v) => handleChange("keyResponsibilities", v)}
           />
 

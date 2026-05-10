@@ -480,11 +480,11 @@ function mapApplicant(app: any, index: number, ranks: Record<string, number>): A
                       cell: (a: any) => a.applicantId,
                     },
                     {
-                      header: "Name",
+                      header: "Applicant Name",
                       cell: (a: any) => a.name ?? "N/A",
                     },
                     {
-                      header: "Email",
+                      header: "Applicant Email",
                       cell: (a: any) => a.email ?? "N/A",
                     },
                     {
@@ -493,7 +493,7 @@ function mapApplicant(app: any, index: number, ranks: Record<string, number>): A
                         new Date(a.appliedAt).toLocaleDateString(),
                     },
                     {
-                      header: "Status",
+                      header: "Applicant Status",
                       cell: (a: any) => {
                         const status = a.status as ApplicantStatus;
 

@@ -143,40 +143,43 @@ const STAGE_CONFIG: Record<
   }
 > = {
   running: {
-    accent: "bg-emerald-100 border-emerald-200 dark:bg-emerald-950",
-    badge:       "bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-    dot:         "bg-emerald-500",
-    label:       "Running",
-    progressBar: "bg-foreground",
-    primaryBtn:  "bg-foreground text-background hover:opacity-85",
-    avatarColor: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-  },
-  evaluation: {
     accent: "bg-blue-100 border-blue-200 dark:bg-blue-950",
-    badge:       "bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
-    dot:         "bg-blue-500",
-    label:       "In Review",
+    badge: "bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
+    dot: "bg-blue-500",
+    label: "Running",
     progressBar: "bg-blue-500",
-    primaryBtn:  "bg-foreground text-background hover:opacity-85",
+    primaryBtn: "bg-blue-500 text-white hover:bg-blue-600",
     avatarColor: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
   },
-  completed: {
-    accent: "bg-zinc-100 border-zinc-200 dark:bg-zinc-900",
-    badge:       "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
-    dot:         "bg-zinc-400",
-    label:       "Completed",
-    progressBar: "bg-zinc-400",
-    primaryBtn:  "bg-foreground text-background hover:opacity-85",
-    avatarColor: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+
+  evaluation: {
+    accent: "bg-amber-100 border-amber-200 dark:bg-amber-950",
+    badge: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+    dot: "bg-amber-500",
+    label: "In Review",
+    progressBar: "bg-amber-500",
+    primaryBtn: "bg-amber-500 text-white hover:bg-amber-600",
+    avatarColor: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
   },
+
+  completed: {
+    accent: "bg-emerald-100 border-emerald-200 dark:bg-emerald-950",
+    badge: "bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
+    dot: "bg-emerald-500",
+    label: "Completed",
+    progressBar: "bg-emerald-500",
+    primaryBtn: "bg-emerald-500 text-white hover:bg-emerald-600",
+    avatarColor: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  },
+
   disputed: {
-    accent: "bg-red-100 border-red-200 dark:bg-red-950",
-    badge:       "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-300",
-    dot:         "bg-red-500",
-    label:       "Disputed",
-    progressBar: "bg-red-500",
-    primaryBtn:  "bg-red-500 text-white hover:bg-red-600",
-    avatarColor: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
+    accent: "bg-rose-100 border-rose-200 dark:bg-rose-950",
+    badge: "bg-rose-50 text-rose-800 dark:bg-rose-950 dark:text-rose-300",
+    dot: "bg-rose-500",
+    label: "Disputed",
+    progressBar: "bg-rose-500",
+    primaryBtn: "bg-rose-500 text-white hover:bg-rose-600",
+    avatarColor: "bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
   },
 };
 
@@ -300,16 +303,16 @@ function StageTracker({
                     "bg-background border-border text-muted-foreground"
                 )}
               >
-               <Icon
+                <Icon
                   className={cn(
                     "w-3.5 h-3.5 transition-colors",
                     isActive
                       ? stage.id === "running"
-                        ? "text-emerald-700 dark:text-emerald-300"
+                        ? "text-blue-700 dark:text-blue-300"
                         : stage.id === "evaluation"
-                        ? "text-sky-700 dark:text-sky-300"
+                        ? "text-amber-700 dark:text-amber-300"
                         : stage.id === "completed"
-                        ? "text-zinc-700 dark:text-zinc-300"
+                        ? "text-emerald-700 dark:text-emerald-300"
                         : "text-rose-700 dark:text-rose-300"
                       : "text-muted-foreground"
                   )}
@@ -877,7 +880,7 @@ export function ContractCard({
           <CardContent className="p-0">
 
             {/* Stats */}
-            <div className=" px-6 py-2 grid grid-cols-4 gap-4">
+            <div className=" px-6 py-2 grid grid-cols-4 gap-2">
 
               <StatItem
                 label="Salary"

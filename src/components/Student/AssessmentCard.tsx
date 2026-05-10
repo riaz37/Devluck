@@ -17,6 +17,7 @@ import {
   RotateCcw,
   Lock,
   Globe,
+  Target,
 } from "lucide-react";
 import { AssessmentItem, AssessmentStatus } from "@/types/assessment";
 
@@ -94,8 +95,9 @@ export function AssessmentCard({
             </CardDescription>
           </div>
           <Badge
-            className={`capitalize ${statusClasses[status as AssessmentStatus]}`}
+            className={`capitalize flex items-center gap-1 ${statusClasses[status as AssessmentStatus]}`}
           >
+            <Target className="h-3 w-3" />
             {status || "not_started"}
           </Badge>
         </div>

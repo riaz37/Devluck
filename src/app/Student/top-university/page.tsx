@@ -203,25 +203,25 @@ export default function TopUniversityPage() {
 
               columns={[
                 {
-                  header: "ID",
+                  header: "UN-ID",
                   cell: (u: University) => `UN-${u.id.slice(-3)}`,
                 },
                 {
-                  header: "Name",
+                  header: "University Name",
                   cell: (u: University) => u.name ?? "N/A",
                 },
                 {
-                  header: "Phone",
+                  header: "Phone Number",
                   cell: (u: University) =>
                     u.phoneNumber?.trim() ? u.phoneNumber : "N/A",
                 },
                 {
-                  header: "Address",
+                  header: "Location",
                   cell: (u: University) =>
                     u.address?.trim() ? u.address : "N/A",
                 },
                 {
-                  header: "Ranking",
+                  header: "University Ranking",
                   cell: (u: University) => u.qsWorldRanking ?? "N/A",
                 },
               ]}
