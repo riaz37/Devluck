@@ -57,7 +57,7 @@ export default function PaymentPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
-    const { contracts, loading, listContracts } = useContractHandler();
+    const { contracts, listLoading, listContracts } = useContractHandler();
     const [totalContracts, setTotalContracts] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
 
@@ -161,7 +161,7 @@ export default function PaymentPage() {
   }, [listPayments]);
 
   const formatValue = (val: number, suffix?: string) =>
-    loading ? (
+    listLoading ? (
       <SyncLoader size={8} color="#D4AF37" />
     ) : (
       <span style={{ color: val === 0 ? "gray" : "inherit" }}>
@@ -189,7 +189,7 @@ export default function PaymentPage() {
       {
         title: "Total Paid",
         value: formatValue(totalPaid, "USD"),
-        subtitle: loading
+        subtitle: listLoading
           ? "Loading..."
           : `${payments.filter(p => p.paymentStatus === "Paid").length}+ this week`,
         icon: <Sparkles className="w-5 h-5" />,
@@ -198,7 +198,7 @@ export default function PaymentPage() {
       {
         title: "Pending Payment",
         value: formatValue(pendingPayment, "USD"),
-        subtitle: loading
+        subtitle: listLoading
           ? "Loading..."
           : `${payments.filter(p => p.paymentStatus === "Pending").length}% growth`,
         icon: <Clock className="w-5 h-5" />,
@@ -207,7 +207,7 @@ export default function PaymentPage() {
       {
         title: "Due",
         value: formatValue(due, "USD"),
-        subtitle: loading
+        subtitle: listLoading
           ? "Loading..."
           : `${payments.filter(p => p.paymentStatus === "Due").length}% growth`,
         icon: <AlertTriangle className="w-5 h-5" />,
@@ -216,14 +216,14 @@ export default function PaymentPage() {
       {
         title: "Hold",
         value: formatValue(hold, "USD"),
-        subtitle: loading
+        subtitle: listLoading
           ? "Loading..."
           : `${hold} this week`,
         icon: <Pause className="w-5 h-5" />,
         iconColor: "#8B5CF6",
       },
     ];
-  }, [payments, loading]);
+  }, [payments, listLoading]);
 
 const contractColumns = [
   {
@@ -313,7 +313,7 @@ return (
       
         {/* STATS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {loading
+            {listLoading
               ? Array.from({ length: 4 }).map((_, i) => (
                 <StatsCardSkeleton key={i} />
                 ))
@@ -363,7 +363,7 @@ return (
         />
 
       {/* Loading State */}
-      {loading && (
+      {listLoading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4  ">
           {Array.from({ length: 8 }).map((_, i) => (
             <PaymentCardSkeleton key={i} />
@@ -372,7 +372,7 @@ return (
       )}
 
       {/* Error State */}
-      {!loading && error && (
+      {!listLoading && error && (
           <ErrorState
             icon={<DollarSign size={40} className="text-red-500" />}
             title="Failed to load paymnets"
@@ -381,7 +381,7 @@ return (
       )}
 
       {/* Empty State */}
-      {!loading && !error && paginatedContracts.length === 0 && (
+      {!listLoading && !error && paginatedContracts.length === 0 && (
           <EmptyState
             icon={<DollarSign size={40} />}
             title="No paymnets found"
@@ -390,7 +390,7 @@ return (
       )}
 
       {/* Contracts Grid */}
-      {!loading &&  !error &&  paginatedContracts.length > 0 && showApplicants && (
+      {!listLoading &&  !error &&  paginatedContracts.length > 0 && showApplicants && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4  ">
           {paginatedContracts.map((contract) => (
             <PaymnetCard
@@ -414,7 +414,7 @@ return (
       )}
 
          {/* Contracts Table */}
-        {!loading && !error && paginatedContracts.length > 0 && !showApplicants && (
+        {!listLoading && !error && paginatedContracts.length > 0 && !showApplicants && (
           <DataTable
             data={paginatedContracts}
             columns={contractColumns}
@@ -437,7 +437,7 @@ return (
       currentPage={currentPage}
       totalPages={totalPages}
       visiblePages={visiblePages}
-      loading={loading}
+      loading={listLoading}
       error={error}
       onPageChange={goToPage}
       onPrevious={goToPrevious}

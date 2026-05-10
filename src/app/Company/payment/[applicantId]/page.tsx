@@ -66,7 +66,7 @@ export default function PaymentPage() {
     const params = useParams<{ applicantId: string }>();
     const contractId = params.applicantId;
 
-    const { getContractById, loading: contractLoading } = useContractHandler();
+    const { getContractById, listLoading: contractLoading } = useContractHandler();
     const { listPayments: fetchPayments, deletePayment: deletePaymentApi, getPaymentStats,error } = usePaymentHandler();
     const [contract, setContract] = useState<any>(null);
     const [payments, setPayments] = useState<any[]>([]);
