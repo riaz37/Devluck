@@ -140,7 +140,7 @@ export default function TopApplicantPage() {
         ======================== */}
             {/* Loading State */}
             {loading && (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 ">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <ApplicantCardSkeleton key={i} />
                 ))}
@@ -165,7 +165,7 @@ export default function TopApplicantPage() {
                
               />
             )}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 ">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
           {!loading && !error && paginatedApplicants.map((applicant) => (
             <TopStudentCard
               key={applicant.applicantId}

@@ -22,6 +22,8 @@ import {
   AlertCircle,
   Link,
   File,
+  DollarSign,
+  Calendar,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -50,6 +52,7 @@ import { LoadingState } from "../common/LoadingState";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { Progress } from "../ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { InfoItem } from "../common/info-item";
 
 /* =========================================================
  * TYPES
@@ -236,18 +239,7 @@ async function downloadReportFile(fileUrl: string, fileName?: string) {
  * SUB-COMPONENTS
  * ======================================================= */
 
-function StatItem({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
-        {label}
-      </span>
-      <span className="text-[13px] font-medium text-foreground leading-tight">
-        {value}
-      </span>
-    </div>
-  );
-}
+
 
 function StageTracker({
   currentStage,
@@ -880,14 +872,15 @@ export function ContractCard({
           <CardContent className="p-0">
 
             {/* Stats */}
-            <div className=" px-6 py-2 grid grid-cols-4 gap-2">
+            <div className=" px-4  grid grid-cols-2 gap-2">
 
-              <StatItem
+              <InfoItem
                 label="Salary"
                 value={contract.salaryDisplay || "N/A"}
+                icon={<DollarSign className="h-4 w-4" />}
               />
 
-              <StatItem
+              <InfoItem
                 label="Duration"
                 value={
                   contract.duration
@@ -896,16 +889,19 @@ export function ContractCard({
                       }`
                     : "—"
                 }
+                icon={<Clock className="h-4 w-4" />}
               />
 
-              <StatItem
-                label="Start"
+              <InfoItem
+                label="Start Date"
                 value={contract.startDate}
+                icon={<Calendar className="h-4 w-4" />}
               />
 
-              <StatItem
-                label="End"
+              <InfoItem
+                label="End Date"
                 value={contract.endDate}
+                icon={<Calendar className="h-4 w-4" />}
               />
             </div>
 

@@ -22,9 +22,13 @@ import {
   Fingerprint,
   StickyNote,
   Target,
+  DollarSign,
+  Calendar,
+  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MappedContract } from "@/types/contract-s";
+import { InfoItem } from "../common/info-item";
 
 interface ContractCardProps {
   contract: MappedContract;
@@ -32,38 +36,16 @@ interface ContractCardProps {
   onDispute?: () => void;
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  Running:   "bg-emerald-50 text-emerald-700 ",
-  Completed: "bg-blue-50   text-blue-700   ",
-  Disputed:  "bg-rose-50  text-rose-700 ",
-};
-
-const PROGRESS_BAR: Record<string, string> = {
-  Running:   "bg-emerald-500",
-  Completed: "bg-blue-500",
-  Disputed:  "bg-rose-500",
-};
 
 export function ContractCard({ contract, onDetails, onDispute }: ContractCardProps) {
   const truncate = (text?: string, max = 36) =>
     text ? (text.length > max ? text.slice(0, max) + "…" : text) : "N/A";
 
-  const initials = contract.company?.name
-    ?.split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase() ?? "C";
-
-  const progress = contract.workProgress ?? 0;
-  const statusStyle = STATUS_STYLES[contract.status] ?? "bg-muted text-muted-foreground";
-  const barColor = PROGRESS_BAR[contract.status] ?? "bg-primary";
-
   return (
-    <Card className="rounded-2xl border shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+    <Card className="rounded-2xl border bg-card shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
 
       {/* ── HEADER ── */}
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-0 pt-4 px-4">
         <div className="flex items-start justify-between gap-3">
 
           {/* Avatar + title */}
@@ -86,38 +68,20 @@ export function ContractCard({ contract, onDetails, onDispute }: ContractCardPro
             </Avatar>
 
             {/* TEXT */}
-            <div className="space-y-1 min-w-0">
+            <div className="min-w-0">
 
-              <CardTitle className="text-base font-semibold break-words line-clamp-1">
-                {truncate(contract.contractTitle, 25)}
+              <CardTitle className="text-[17px] font-medium leading-snug truncate">
+                {truncate(contract.contractTitle, 35)}
               </CardTitle>
               
-              <CardDescription className="truncate flex items-center gap-2">
-
-                <span className="truncate">
-                  {truncate(contract.company?.name ?? "Unknown", 20)}
-                </span>
-
-                <span className="text-muted-foreground">•</span>
-
-                <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                  <Fingerprint className="h-3 w-3" />
-                  {contract.id.slice(0, 8)}
-                </span>
-
+              <CardDescription className="flex items-center gap-1 mt-0.5 text-xs truncate">
+                  <span className="truncate">
+                    {truncate(contract.company?.name ?? "Unknown", 20)}
+                  </span>
               </CardDescription>
 
             </div>
           </div>
-
-          {/* Status + menu */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Badge
-              className={cn("text-[11px] font-medium px-2.5 py-0.5 flex items-center gap-1", statusStyle)}
-            >
-              <Target className="h-3 w-3" />
-              {contract.status}
-            </Badge>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -140,28 +104,58 @@ export function ContractCard({ contract, onDetails, onDispute }: ContractCardPro
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
+
       </CardHeader>
 
-      <CardContent className="pt-4 space-y-4">
+      <CardContent className="px-4 pt-4 pb-0 space-y-3">
+        {/* STATUS + ID - HORIZONTAL LAYOUT */}
+        <div className="flex items-center justify-between">
+          
+          {/* Status badge - LEFT */}
+          <Badge
+            className={cn(
+              "shrink-0 flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 ",
+              contract.status === "Running" && "bg-blue-100 text-blue-700 ",
+              contract.status === "Completed" && "bg-emerald-100 text-emerald-700 ", 
+              contract.status === "Disputed" && "bg-rose-100 text-rose-700 ",
+              "hover:bg-muted/50"
+            )}
+          >
+            <Target className="h-3 w-3" />
+            {contract.status}
+          </Badge>
 
-        {/* ── METRICS ROW ── */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-muted/50 rounded-lg px-3 py-2.5">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Salary</p>
-            <p className="text-sm font-semibold truncate">{contract.salary || "N/A"}</p>
-          </div>
-          <div className="rounded-lg px-3 py-2.5">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Start</p>
-            <p className="text-sm font-medium truncate">{contract.startDate}</p>
-          </div>
-          <div className="rounded-lg px-3 py-2.5">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Duration</p>
-            <p className="text-sm font-medium truncate">
-              {contract.durationMonths} month{contract.durationMonths !== 1 ? "s" : ""}
-            </p>
+          {/* ID chip - RIGHT */}
+          <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-mono bg-muted px-2 py-0.5 rounded-md">
+            <Fingerprint className="h-3 w-3" />
+            {contract.id.slice(0, 8)}
           </div>
         </div>
+
+        <Separator />
+          {/* ── METRICS ROW ── */}
+          <div className="grid grid-cols-3 gap-2">
+            <InfoItem
+              label="Salary"
+              value={contract.salary || "N/A"}
+              icon={<DollarSign className="h-4 w-4" />}
+
+            />
+
+            <InfoItem
+              label="Start"
+              value={contract.startDate || "N/A"}
+              icon={<Calendar className="h-4 w-4" />}
+            />
+
+            <InfoItem
+              label="Duration"
+              value={`${contract.durationMonths ?? 0} month${
+                contract.durationMonths !== 1 ? "s" : ""
+              }`}
+              icon={<Clock className="h-4 w-4" />}
+            />
+          </div>
 
         {/* PROGRESS BAR */}
         <div className="space-y-1.5 pt-1">
@@ -203,7 +197,7 @@ export function ContractCard({ contract, onDetails, onDispute }: ContractCardPro
       </CardContent>
 
       {/* ── FOOTER ── */}
-      <CardFooter className="pt-0">
+      <CardFooter className="px-4 pt-3 pb-4">
         <Button onClick={onDetails} className="w-full justify-between" size="sm">
           View Contract
           <Eye className="h-3.5 w-3.5" />

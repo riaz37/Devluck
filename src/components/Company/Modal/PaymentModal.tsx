@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Loader2, X } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Loader2 } from "lucide-react";
 
 import { usePaymentHandler } from "@/hooks/companyapihandler/usePaymentHandler";
 import { ParallelogramInput } from "@/components/common/ParallelogramInput";
@@ -15,7 +15,19 @@ interface PaymentData {
   applicantName: string;
   contractId: string;
   nextPayment: string;
-  monthlyAllowance: string;
+  amount: number;
+  currency: string;
+  note?: string;
+  paymentStatus: string;
+}
+
+interface PaymentFormData {
+  id?: string;
+  applicantName: string;
+  contractId: string;
+  nextPayment: string;
+  amount: string;
+  currency: string;
   note?: string;
   paymentStatus: string;
 }
@@ -43,11 +55,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const [formData, setFormData] = useState<PaymentData>({
+  const [formData, setFormData] = useState<PaymentFormData>({
     applicantName: "",
     contractId: "",
     nextPayment: "",
-    monthlyAllowance: "",
+    amount: "",
+    currency: "USD",
     note: "",
     paymentStatus: "",
   });
@@ -67,14 +80,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     // Required fields
     if (!formData.applicantName.trim()) newErrors.applicantName = "Applicant name is required";
     if (!formData.contractId.trim()) newErrors.contractId = "Contract ID is required";
-    if (!formData.monthlyAllowance.trim()) newErrors.monthlyAllowance = "Monthly allowance is required";
+    if (!formData.amount.trim()) newErrors.amount = "Amount is required";
+    if (!formData.currency) newErrors.currency = "Currency is required";
     if (!formData.paymentStatus) newErrors.paymentStatus = "Payment status is required";
     if (!formData.nextPayment) newErrors.nextPayment = "Payment date is required";
 
-    // Number validation for allowance
-    const allowanceNum = parseFloat(formData.monthlyAllowance.replace(/[^\d.]/g, ''));
-    if (isNaN(allowanceNum) || allowanceNum <= 0) {
-      newErrors.monthlyAllowance = "Enter valid positive amount";
+    const amountNum = Number(formData.amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      newErrors.amount = "Enter valid positive amount";
     }
 
     setErrors(newErrors);
@@ -89,19 +102,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         applicantName: payment.applicantName || "",
         contractId: payment.contractId || "",
         nextPayment: payment.nextPayment || "",
-        monthlyAllowance: payment.monthlyAllowance || "",
+        amount: String(payment.amount ?? ""),
+        currency: payment.currency || contract?.currency || "USD",
         note: payment.note || "",
         paymentStatus: payment.paymentStatus || "",
       });
     } else if (contract && isOpen) {
-      const allowance = contract.salary !== null && contract.salary !== undefined
-        ? `${contract.salary} ${contract.currency || ""}` 
-        : "";
       setFormData({
         applicantName: contract.name || "",
         contractId: contract.id || "",
         nextPayment: "",
-        monthlyAllowance: allowance,
+        amount: contract.salary !== null && contract.salary !== undefined ? String(contract.salary) : "",
+        currency: contract.currency || "USD",
         note: "",
         paymentStatus: "",
       });
@@ -110,7 +122,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         applicantName: "",
         contractId: "",
         nextPayment: "",
-        monthlyAllowance: "",
+        amount: "",
+        currency: contract?.currency || "USD",
         note: "",
         paymentStatus: "",
       });
@@ -130,7 +143,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     return () => clearTimeout(timeout);
   }, [formData, isOpen, validateForm]);
 
-  const handleInputChange = (field: keyof PaymentData, value: string) => {
+  const handleInputChange = (field: keyof PaymentFormData, value: string) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -144,7 +157,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       applicantName: true,
       contractId: true,
       nextPayment: true,
-      monthlyAllowance: true,
+      amount: true,
+      currency: true,
       paymentStatus: true,
     });
 
@@ -158,7 +172,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         applicantName: formData.applicantName.trim(),
         contractId: formData.contractId.trim(),
         nextPayment: formData.nextPayment,
-        monthlyAllowance: formData.monthlyAllowance.trim(),
+        amount: Number(formData.amount),
+        currency: formData.currency,
         note: formData.note?.trim() || undefined,
         paymentStatus: formData.paymentStatus,
       };
@@ -169,7 +184,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         await createPayment(paymentData);
       }
       
-      onSave(formData);
+      onSave(paymentData);
       onClose();
     } catch (error: any) {
       setSubmitError(error.message || (payment?.id ? "Failed to update payment" : "Failed to create payment"));
@@ -209,11 +224,20 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             />
 
             <ParallelogramInput
-              label="Monthly Allowance *"
-              placeholder="Enter monthly allowance (e.g., 5000 USD)"
-              value={formData.monthlyAllowance ?? ""}
-              error={touched.monthlyAllowance && errors.monthlyAllowance || ""}
-              onChange={(e) => handleInputChange("monthlyAllowance", e.target.value)}
+              label="Amount *"
+              placeholder="Enter amount (e.g., 5000)"
+              value={formData.amount ?? ""}
+              error={touched.amount && errors.amount || ""}
+              onChange={(e) => handleInputChange("amount", e.target.value)}
+            />
+
+            <ParallelogramSelect
+              label="Currency *"
+              placeholder="Select currency"
+              value={formData.currency}
+              error={touched.currency && errors.currency || ""}
+              options={["USD", "EUR", "SAR"]}
+              onChange={(val) => handleInputChange("currency", val)}
             />
 
             <ParallelogramSelect

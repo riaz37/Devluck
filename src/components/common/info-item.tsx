@@ -2,7 +2,6 @@
 
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
 
 type InfoItemProps = {
   label: string;
@@ -17,34 +16,23 @@ export function InfoItem({
   icon,
   highlight = false,
 }: InfoItemProps) {
-  const hasIcon = !!icon;
-
   return (
-    <div className="flex flex-col gap-1.5 min-w-0 w-full">
-
-      {/* LABEL */}
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground leading-none">
-        {label}
-      </p>
-
-      {/* VALUE ROW */}
-      <div
+    <div className="flex flex-col items-center justify-center rounded-lg bg-muted/50 px-3 py-2.5 gap-0.5 min-w-0 w-full">
+      {/* LABEL + ICON */}
+      <div className="flex items-center gap-1 text-muted-foreground text-[11px]">
+        {icon}
+        <span>{label}</span>
+      </div>
+      
+      {/* VALUE */}
+      <p 
         className={cn(
-          "flex gap-1.5",
-          hasIcon ? "items-center justify-start" : "items-center justify-center text-center",
+          "text-sm font-semibold truncate max-w-full text-center",
           highlight ? "text-primary" : "text-foreground"
         )}
       >
-        {hasIcon && (
-          <span className="text-muted-foreground shrink-0 [&>svg]:h-3.5 [&>svg]:w-3.5">
-            {icon}
-          </span>
-        )}
-
-        <span className="text-sm font-semibold truncate leading-tight">
-          {value ?? "N/A"}
-        </span>
-      </div>
+        {value ?? "N/A"}
+      </p>
     </div>
   );
 }

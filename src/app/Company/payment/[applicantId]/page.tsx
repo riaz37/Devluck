@@ -3,8 +3,8 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import DashboardLayout from "@/components/Company/DashboardLayout";
-import { AlertCircle, ArrowUpRight, Clock3, DollarSign, File, FilePlus2, User, Wallet } from 'lucide-react';
-import { useParams } from "next/navigation";
+import { AlertCircle, ArrowLeft, ArrowUpRight, Clock3, DollarSign, File, FilePlus2, User, Wallet } from 'lucide-react';
+import { useParams, useRouter } from "next/navigation";
 import PaymentModal from "@/components/Company/Modal/PaymentModal";
 import { useContractHandler } from "@/hooks/companyapihandler/useContractHandler";
 import { usePaymentHandler } from "@/hooks/companyapihandler/usePaymentHandler";
@@ -31,13 +31,13 @@ interface Payment {
   applicantName: string;
   contractId?: string;
   nextPayment: string;
-  monthlyAllowance?: string;
+  amount?: number;
+  currency?: string;
+  amountUsd?: number;
   note?: string;
   paymentStatus: string;
   applicantId?: string | null;
   transferId?: string | null;
-  workLocation?: string | null;
-  method?: string | null;
   companyId: string;
   createdAt: string;
   updatedAt: string;
@@ -46,6 +46,7 @@ interface Payment {
 
     const ITEMS_PER_PAGE = 6;
 export default function PaymentPage() {
+      const router = useRouter();
     const [bulkDelete, setBulkDelete] = useState(false);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const handleSelect = (id: string, checked: boolean) => {
@@ -135,7 +136,8 @@ export default function PaymentPage() {
             (payment.applicantName && payment.applicantName.toLowerCase().includes(searchQuery.toLowerCase())) ||
             (payment.contractId && payment.contractId.toLowerCase().includes(searchQuery.toLowerCase())) ||
             (payment.transferId && payment.transferId.toLowerCase().includes(searchQuery.toLowerCase())) ||
-            (payment.monthlyAllowance && payment.monthlyAllowance.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (payment.amount !== undefined && String(payment.amount).includes(searchQuery.toLowerCase())) ||
+            (payment.currency && payment.currency.toLowerCase().includes(searchQuery.toLowerCase())) ||
             (payment.note && payment.note.toLowerCase().includes(searchQuery.toLowerCase())) ||
             (payment.paymentStatus && payment.paymentStatus.toLowerCase().includes(searchQuery.toLowerCase())) ||
             (payment.nextPayment && payment.nextPayment.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -188,7 +190,7 @@ const formatCurrency = (amount: number) => {
   const formatted = `${amount.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })} ${contract?.currency || "SAR"}`;
+  })} USD`;
 
   return (
     <span style={{ color: amount === 0 ? "gray" : "inherit" }}>
@@ -200,7 +202,18 @@ const formatCurrency = (amount: number) => {
     
 return (
   <DashboardLayout>
+
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+                      {/* BACK BUTTON */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="mb-2 gap-2"
+        onClick={() => router.back()}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Button>    
       {/* HEADER SECTION */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
         <div>
@@ -302,40 +315,30 @@ return (
       {/* Main Column */}
       <div className="flex flex-col gap-6">
         {/* Search and Filters Row */}
-       <SearchAndFilterBar
-          searchQuery={searchQuery}
-          setSearchQuery={(value) => {
-            setSearchQuery(value);
-            setCurrentPage(1);
-          }}
-          selectedStatuses={selectedPaymentStatus}
-          toggleStatus={(status) => {
-            if (status === ("All" as any)) {
-              setSelectedPaymentStatus([
-                "Pending",
-                "Due",
-                "Paid",
-                "All",
-              ]);
-            } else {
-              setSelectedPaymentStatus((prev) =>
-                prev.includes(status)
-                  ? prev.filter(
-                      (s) => s !== status && s !== "All"
-                    )
-                  : [
-                      ...prev.filter(
-                        (s) => s !== "All"
-                      ),
-                      status,
-                    ]
-              );
-            }
-          }}
-          availableStatuses={PAYMENT_STATUSES}
-          placeholder="Search payments..."
-          filterLabel="Payment Status"
-        />
+          <SearchAndFilterBar
+            searchQuery={searchQuery}
+            setSearchQuery={(value) => {
+              setSearchQuery(value);
+              setCurrentPage(1);
+            }}
+            selectedStatuses={selectedPaymentStatus}
+            toggleStatus={(status) => {
+              if (status === "All") {
+                // ✅ FIXED: Clear all filters when "All" is clicked
+                setSelectedPaymentStatus([]);
+              } else {
+                setSelectedPaymentStatus((prev) =>
+                  prev.includes(status)
+                    ? prev.filter((s) => s !== status)  // Remove status
+                    : [...prev, status]                 // Add status
+                );
+              }
+              setCurrentPage(1); // Reset to first page
+            }}
+            availableStatuses={PAYMENT_STATUSES}
+            placeholder="Search payments..."
+            filterLabel="Payment Status"
+          />
         <SelectionBar
           selectedCount={selectedIds.length}
           isVisible={selectedIds.length > 0}
@@ -403,14 +406,27 @@ return (
                 },
 
                 {
-                  header: "Monthly Allowance",
+                  header: "Amount",
                   cell: (row: Payment) => (
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold">
-                        {row.monthlyAllowance || "N/A"}
+                        {row.amount !== undefined ? `${row.amount} ${row.currency || ""}` : "N/A"}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        Monthly Allowance
+                        Original Amount
+                      </span>
+                    </div>
+                  ),
+                },
+                {
+                  header: "Amount (USD)",
+                  cell: (row: Payment) => (
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">
+                        {row.amountUsd !== undefined ? `${row.amountUsd}` : "N/A"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        Canonical Amount
                       </span>
                     </div>
                   ),

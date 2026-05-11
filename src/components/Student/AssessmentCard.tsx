@@ -69,10 +69,10 @@ export function AssessmentCard({
   };
 
   return (
-    <Card className="rounded-2xl border shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+    <Card className="rounded-2xl border bg-card shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
 
       {/* HEADER */}
-      <CardHeader className="pb-3">
+      <CardHeader className="pt-4 pb-0 px-4">
         <div className="flex items-start justify-between gap-3">
 
           <div className="space-y-1 min-w-0">
@@ -104,18 +104,24 @@ export function AssessmentCard({
       </CardHeader>
 
       {/* CONTENT */}
-      <CardContent className="space-y-4">
+      <CardContent className="px-4 pt-4 pb-0 space-y-3">
         <p className="text-sm text-muted-foreground">
           {isCompleted
             ? "This assessment is completed."
+            : isExpired
+            ? "This assessment has expired."
+            : isInProgress
+            ? "Your assessment is in progress. Continue where you left off."
             : isEvaluating
             ? "Your assessment is being evaluated."
+            : isDisabled
+            ? "This assessment is currently disabled."
             : "Continue your assessment when you're ready."}
         </p>
       </CardContent>
 
       {/* FOOTER */}
-      <CardFooter>
+      <CardFooter className="px-4 pt-3 pb-4">
         <Button
           onClick={isDisabled ? undefined : onStart}
           disabled={isDisabled || isStarting}

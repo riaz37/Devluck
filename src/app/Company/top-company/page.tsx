@@ -64,6 +64,7 @@ export default function TopCompanyPage() {
       name: item.company.name,
       logo: item.company.logo,
       image: item.company.logo,
+      email: item.company.email,
       phoneNumber:
         item.company.phoneNumber ||
         item.company.addresses.find((addr) => addr.phoneNumber)?.phoneNumber ||

@@ -37,6 +37,7 @@ import {
   MapPin,
   Briefcase,
   Activity,
+  Target,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -113,39 +114,32 @@ export const AppliedOpportunityCard = ({
   return (
     <Card className="rounded-2xl shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
       
-      {/* HEADER */}
-      <CardHeader className="flex flex-row items-start justify-between pb-2">
+      {/* ── CARD HEADER ─────────────────────────── */}
+      <CardHeader className="pt-4 pb-0 px-4">
+        <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3">
-          {/* IMAGE */}
-          <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm bg-primary/10 shrink-0">
-            {applicant.companyLogo ? (
+
+          {/* Company logo */}
+          <Avatar className="h-12 w-12 shrink-0 ring-2 ring-muted rounded-full">
+            {applicant.companyLogo && (
               <AvatarImage
                 src={applicant.companyLogo}
                 alt={applicant.company}
                 className="object-cover"
               />
-            ) : null}
-
-            <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
-              {applicant.company?.charAt(0)?.toUpperCase() || "U"}
+            )}
+            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-base rounded-full">
+              {applicant.company?.charAt(0)?.toUpperCase() ?? "C"}
             </AvatarFallback>
           </Avatar>
 
-          {/* TEXT */}
-          <div className="space-y-1 min-w-0">
-            <CardTitle className="text-base font-semibold truncate">
-              {truncate(applicant.opportunityTitle,35)}
+          {/* Title + company */}
+          <div className="min-w-0 flex-1">
+            <CardTitle className="text-base font-semibold leading-tight truncate">
+              {applicant.opportunityTitle}
             </CardTitle>
-
-            <CardDescription className="truncate flex items-center gap-2">
-              <span className="truncate">{truncate(applicant.company, 20)}</span>
-
-              <span className="text-muted-foreground">•</span>
-
-              <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                <Fingerprint className="h-3 w-3" />
-                {applicant.originalId.slice(0, 8)}
-              </span>
+            <CardDescription className="text-xs truncate mt-0.5">
+              {applicant.company}
             </CardDescription>
           </div>
 
@@ -188,12 +182,44 @@ export const AppliedOpportunityCard = ({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </CardHeader>
 
       {/* CONTENT */}
-      <CardContent className="space-y-2 pt-2">
+      <CardContent className="px-4 pt-4 pb-0 space-y-3">
+          {/* TYPE BADGE + ID CHIP */}
+          <div className="flex items-center justify-between mb-4">
+            {/* TYPE BADGE */}
+            <Badge
+              className={cn(
+                "shrink-0 flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 ",
+                
+                // Object conditional - ONLY ONE matches
+                {
+                  "bg-blue-100 text-blue-700  !important": applicant.opportunityStatus === "Applied",
+                  "bg-emerald-100 text-emerald-700  !important": applicant.opportunityStatus === "Upcoming Interview",
+                  "bg-red-100 text-red-700  !important": applicant.opportunityStatus === "Rejected",
+                  "bg-gray-100 text-gray-700 !important": applicant.opportunityStatus === "Withdrawn",
+                },
+                
+                // Fallback - only applies if NO status matches
+                applicant.opportunityStatus ? "" : "bg-muted/50 text-muted-foreground "
+              )}
+            >
+              <Target className="h-3 w-3" />
+              {applicant.opportunityStatus ?? "N/A"}
+            </Badge>
+            
+            {/* ID CHIP - RIGHT */}
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-mono bg-muted px-2.5 py-0.5 rounded-md">
+              <Fingerprint className="h-3 w-3" />
+              {applicant.opportunityId?.slice(0, 8) || "N/A"}
+            </div>
+          </div>
+
+        <Separator />
         {/* INFO GRID - 6 items, 2 rows */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           
           {/* Row 1 */}
           <InfoItem
@@ -201,13 +227,7 @@ export const AppliedOpportunityCard = ({
             value={truncate(applicant.appliedAt || "N/A", 12)}
             icon={<Calendar className="w-4 h-4" />}
           />
-
-          <InfoItem
-            label="Start Date"
-            value={truncate(applicant.startDate || "N/A", 12)}
-            icon={<CalendarCheck className="w-4 h-4" />}
-          />
-          
+         
           <InfoItem
             label="Salary"
             value={truncate(applicant.salary || "N/A", 12)}
@@ -226,13 +246,6 @@ export const AppliedOpportunityCard = ({
             value={applicant.location || "N/A"}
             icon={<MapPin className="w-4 h-4" />}
           />
-
-          <InfoItem
-            label="Status"
-            value={truncate(applicant.opportunityStatus || "N/A", 20)}
-            icon={<Activity className="w-4 h-4" />}
-          />  
-
 
         </div>
 
@@ -262,7 +275,7 @@ export const AppliedOpportunityCard = ({
       </CardContent>
 
       {/* FOOTER */}
-      <CardFooter className="flex gap-2">
+      <CardFooter className="px-4 pt-3 pb-4 flex gap-2">
         {assessmentActionLabel ? (
           <Button
             onClick={onAssessmentAction}

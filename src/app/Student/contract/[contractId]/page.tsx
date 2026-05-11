@@ -91,7 +91,7 @@ export default function contractDetailPage() {
       cell: (row: any) => (
         <div className="flex flex-col">
           <span className="font-semibold text-[var(--color-text-primary)]">
-            {row.monthlyAllowance}
+            {row.amount !== undefined ? `${row.amount} ${row.currency || ""}` : "N/A"}
           </span>
           <span className="text-xs text-muted-foreground">
             Amount

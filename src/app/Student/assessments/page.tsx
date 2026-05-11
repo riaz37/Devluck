@@ -163,6 +163,12 @@ export default function StudentAssessmentsPage() {
     });
   }, []);
 
+  const clearAllFilters = useCallback(() => {
+    setSelectedStatuses([]);
+    setSearchQuery("");
+    setCurrentPage(1);
+  }, []);
+
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
     setCurrentPage(1);
@@ -331,6 +337,7 @@ export default function StudentAssessmentsPage() {
           availableStatuses={FILTER_STATUSES}   // ✅ no "all" chip
           placeholder="Search assessments..."
           filterLabel="Assessment Status"
+          clearAllFilters={clearAllFilters} // ✅ Add this prop
         />
 
         {/* CONTENT */}

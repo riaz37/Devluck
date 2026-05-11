@@ -11,9 +11,9 @@ interface Payment {
   contractId?: string
   transferId?: string
   nextPayment: string
-  monthlyAllowance: string
-  workLocation?: string
-  method?: string
+  amount: number
+  currency: string
+  amountUsd: number
   note?: string
   paymentStatus: string
   companyId: string

@@ -1,61 +1,88 @@
 "use client";
 
-import React from "react";
-import { Card, CardHeader, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { motion } from "framer-motion";
 
 export function ApplicantCardSkeleton() {
   return (
-    <Card className="relative p-2 overflow-hidden rounded-xl border shadow-sm">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2, transition: { duration: 0.15 } }}
+      transition={{ type: "spring", stiffness: 280, damping: 24 }}
+      className="w-full max-w-sm mx-auto"
+    >
+      <Card className="rounded-2xl border bg-card shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
 
-      {/* TOP SECTION */}
-      <div className="relative flex flex-col items-center justify-center">
+        {/* ── CARD HEADER ─────────────────────────────── */}
+        <CardHeader className="pb-0 pt-4 px-4">
+          <div className="flex items-start justify-between gap-2">
+            {/* Avatar + name + email */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-12 w-12 shrink-0 ring-2 ring-muted rounded-full overflow-hidden">
+                <Skeleton className="h-full w-full" />
+              </div>
 
-        {/* LEFT BADGES */}
-        <div className="absolute left-1 top-1 flex flex-col gap-2">
-          <Skeleton className="h-5 w-14 rounded-md" />
-          <Skeleton className="h-5 w-16 rounded-md" />
-        </div>
+              <div className="min-w-0 space-y-1">
+                <Skeleton className="h-5 w-32" />
+                <div className="flex items-center gap-1">
+                  <Skeleton className="h-3 w-3 rounded-full" />
+                  <Skeleton className="h-3.5 w-24" />
+                </div>
+              </div>
+            </div>
 
-        {/* MENU */}
-        <div className="absolute right-1 top-1">
-          <Skeleton className="h-8 w-8 rounded-full" />
-        </div>
+            {/* Kebab menu Skeleton */}
+            <div className="h-8 w-8 shrink-0 rounded-full -mr-1 -mt-1">
+              <Skeleton className="h-full w-full rounded-full" />
+            </div>
+          </div>
+        </CardHeader>
 
-        {/* AVATAR */}
-        <Skeleton className="h-24 w-24 sm:h-28 sm:w-28 mt-6 rounded-full" />
-
-      </div>
-
-      {/* HEADER */}
-      <CardHeader className="space-y-3">
-
-        {/* NAME */}
-        <div className="text-center space-y-2">
-          <Skeleton className="h-5 w-32 mx-auto" />
-          <Skeleton className="h-3 w-40 mx-auto" />
-        </div>
-
-        {/* META ROW */}
-        <div className="flex items-center justify-between pt-2">
-          <div className="space-y-2">
-            <Skeleton className="h-3 w-14" />
-            <Skeleton className="h-4 w-20" />
+        {/* ── CARD CONTENT ────────────────────────────── */}
+        <CardContent className="px-4 pt-4 pb-0 space-y-3">
+          {/* Status + ID row */}
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-6 w-20 rounded-md" />
+            <Skeleton className="h-6 w-24 rounded-md" />
           </div>
 
-          <div className="space-y-2 text-right">
-            <Skeleton className="h-3 w-12 ml-auto" />
-            <Skeleton className="h-4 w-10 ml-auto" />
+          <Separator />
+
+          {/* Meta stats grid */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex flex-col items-center justify-center rounded-lg bg-muted/50 px-3 py-2.5 gap-0.5">
+              <div className="flex items-center gap-1">
+                <Skeleton className="h-3 w-3 rounded-full" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+              <Skeleton className="h-4.5 w-16" />
+            </div>
+
+            <div className="flex flex-col items-center justify-center rounded-lg bg-muted/50 px-3 py-2.5 gap-0.5">
+              <div className="flex items-center gap-1">
+                <Skeleton className="h-3 w-3 rounded-full" />
+                <Skeleton className="h-3 w-12" />
+              </div>
+              <Skeleton className="h-4.5 w-12" />
+            </div>
           </div>
-        </div>
+        </CardContent>
 
-      </CardHeader>
-
-      {/* FOOTER */}
-      <CardFooter className="p-0 pt-0">
-        <Skeleton className="h-10 w-full rounded-lg" />
-      </CardFooter>
-
-    </Card>
+        {/* ── CARD FOOTER ─────────────────────────────── */}
+        <CardFooter className="px-4 pt-3 pb-4">
+          <Skeleton className="h-10 w-full rounded-md" />
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 }

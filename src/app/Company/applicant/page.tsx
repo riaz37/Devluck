@@ -58,6 +58,21 @@ export default function ApplicantPage() {
   };
 
   /* ──────────────────────────────────────────────
+     Data Hooks 
+  ────────────────────────────────────────────── */
+  const {
+    error: applicationError,
+    loading: applicationLoading,
+    getAllApplications,
+    updateApplicationStatus,
+  } = useCompanyApplicationHandler();
+  const { listStudentGlobalRankings,loading: globalRankingLoading  ,error: globalRankingError} = useGlobalRankingHandler();
+
+    // ✅ COMBINED STATES
+  const loading = applicationLoading || globalRankingLoading;
+  const error = applicationError || globalRankingError || null;
+
+  /* ──────────────────────────────────────────────
      Mapping
   ────────────────────────────────────────────── */
 function mapApplicant(app: any, index: number, ranks: Record<string, number>): Applicant {
@@ -115,17 +130,6 @@ function mapApplicant(app: any, index: number, ranks: Record<string, number>): A
     email: student?.email || "—",
   };
 }
-
-/* ──────────────────────────────────────────────
-    Data Hook 
-  ────────────────────────────────────────────── */
-  const {
-    error,
-    loading,
-    getAllApplications,
-    updateApplicationStatus,
-  } = useCompanyApplicationHandler();
-  const { listStudentGlobalRankings } = useGlobalRankingHandler();
 
   /* ──────────────────────────────────────────────
       Effects
@@ -393,7 +397,7 @@ function mapApplicant(app: any, index: number, ranks: Record<string, number>): A
           )}
            {/* Loading State */}
           {loading && !error && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
               {Array.from({ length: 8 }).map((_, i) => (
                 <ApplicantCardSkeleton key={i} />
               ))}
@@ -402,7 +406,7 @@ function mapApplicant(app: any, index: number, ranks: Record<string, number>): A
 
            {/* Applicants Grid */}
             {!loading && !error && showApplicants && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">          
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">         
              {paginatedApplicants.length > 0 ? (
               paginatedApplicants.map((applicant) => (
                 <ApplicantCard

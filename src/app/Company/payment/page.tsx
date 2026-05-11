@@ -1,9 +1,9 @@
 // src/app/Company/payment/page.tsx
 "use client";
-import {useRouter } from "next/navigation";
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/Company/DashboardLayout";
-import { AlertTriangle,Clock, DollarSign, Pause, Sparkles } from 'lucide-react';
+import { AlertTriangle, Briefcase, Clock, DollarSign, File, FileCheckIcon, FileIcon, FileLineChart, Pause, Sparkles } from 'lucide-react';
 import { useContractHandler } from "@/hooks/companyapihandler/useContractHandler";
 import { usePaymentHandler } from "@/hooks/companyapihandler/usePaymentHandler";
 import { motion } from "framer-motion";
@@ -18,150 +18,163 @@ import { Pagination } from "@/components/common/Pagination";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/common/DataTable";
-import { PaymnetCard } from "@/components/Company/PaymnetCard";
+import { PaymentCard } from "@/components/Company/PaymnetCard";
 import { StatsCardSkeleton } from "@/components/common/Skeleton/StatsCardSkeleton";
 import { PaymentCardSkeleton } from "@/components/Company/Skeleton/PaymentCardSkeleton";
-
-
+import { cn } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 8;
+
 export default function PaymentPage() {
-    const menuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const menuRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-          setMenuOpen(false);
-        }
-      };
+  // Action menu state
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
 
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, []);
+  // Filter state
+  type ContractStatus = "Running" | "Completed"| "Disputed" | "All";
+  const CONTRACT_STATUSES: ContractStatus[] = ["Running", "Completed", "Disputed", "All"];
+  const [selectedContractStatus, setSelectedContractStatus] = useState<ContractStatus[]>([]);
+  const [showApplicants, setShowApplicants] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-    //--------------------------------Action menu--------------------------
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
-    // ---------------------------------------------------------------------
+  // Hooks
+  const {
+    contracts,
+    contractStatsData,
+    listLoading,
+    statsLoading: contractsStatsLoading,
+    error: contractError,
+    listContracts,
+    getContractStats
+  } = useContractHandler();
 
-    //---------------------filter----------------------------------
-    type ContractStatus = "Running" | "Completed" | "All";
+  const {
+    error: paymentError,
+    listPayments,
+    getCompanyPaymentStats
+  } = usePaymentHandler();
 
-    const CONTRACT_STATUSES: ContractStatus[] = ["Running", "Completed", "All"];
+  const [companyStats, setCompanyStats] = useState<{
+    totalPaid: { amount: number; count: number };
+    pending: { amount: number; count: number };
+    due: { amount: number; count: number };
+  } | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [totalContracts, setTotalContracts] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-    const [selectedContractStatus, setSelectedContractStatus] = useState<ContractStatus[]>([]);
-    const [showApplicants, setShowApplicants] = useState(true);
-    const router = useRouter();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const { contracts, listLoading, listContracts } = useContractHandler();
-    const [totalContracts, setTotalContracts] = useState(0);
-    const [totalPages, setTotalPages] = useState(1);
-
-    useEffect(() => {
-      const fetchContracts = async () => {
-        try {
-          const statusFilter = selectedContractStatus.length > 0 && !selectedContractStatus.includes("All") 
+  // ✅ SINGLE DATA FETCHING - Fixed double loading
+  const fetchInitialData = useCallback(async () => {
+    setStatsLoading(true);
+    try {
+      await Promise.all([
+        listPayments(1, 1000),
+        getCompanyPaymentStats().then(setCompanyStats),
+        getContractStats(), // This will populate contractStatsData
+        listContracts(currentPage, ITEMS_PER_PAGE, searchQuery || undefined, 
+          selectedContractStatus.length > 0 && !selectedContractStatus.includes("All") 
             ? selectedContractStatus[0] 
-            : undefined;
-          
-          const response = await listContracts(currentPage, ITEMS_PER_PAGE, searchQuery || undefined, statusFilter);
+            : undefined
+        ).then((response) => {
           setTotalContracts(response.total);
           setTotalPages(response.totalPages);
-        } catch (err) {
-          console.error("Failed to fetch contracts:", err);
-          toast.error("Failed to fetch contracts. Please try again.");
-        }
-      };
+        })
+      ]);
+    } catch (err) {
+      console.error("Failed to fetch initial data:", err);
+      toast.error("Failed to load data. Please try again.");
+    } finally {
+      setStatsLoading(false);
+    }
+  }, [listPayments, getCompanyPaymentStats, getContractStats, listContracts, currentPage, searchQuery, selectedContractStatus]);
 
-      fetchContracts();
-    }, [currentPage, searchQuery, selectedContractStatus, listContracts]);
-
-    // 🔍 Filter contracts
-    const filteredContracts = useMemo(() => {
-      return contracts.filter(contract => {
-        // Search filter
-        const searchMatch =
-          !searchQuery.trim() ||
-          contract.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          contract.contractTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          contract.inContractNumber.toLowerCase().includes(searchQuery.toLowerCase());
-
-        // Contract status filter
-        const contractMatch =
-          selectedContractStatus.length === 0 || // empty = no filter
-          selectedContractStatus.includes("All") || // All = include all
-          selectedContractStatus.includes(contract.status as "Running" | "Completed");
-
-        return searchMatch && contractMatch;
-      });
-    }, [contracts, searchQuery, selectedContractStatus]);
-
-
-    
-    // 📄 Pagination
-    const paginatedContracts = filteredContracts;
-    
-    const goToPage = (page: number) => {
-      if (page >= 1 && page <= totalPages) setCurrentPage(page);
-    };
-    
-    const goToPrevious = () => {
-      if (currentPage > 1) setCurrentPage(prev => prev - 1);
-    };
-    
-    const goToNext = () => {
-      if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
-    };
-
-    const VISIBLE_PAGES = 5;
-
-    // Compute start and end of visible page range
-    const startPage = Math.max(1, Math.min(currentPage, totalPages - VISIBLE_PAGES + 1));
-    const endPage = Math.min(totalPages, startPage + VISIBLE_PAGES - 1);
-    const visiblePages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
-    const showPlus = endPage < totalPages; // whether to show "+" button
-
-
-    const { payments,  error, listPayments } = usePaymentHandler();
-
-  // Fetch all payments and contracts on mount
+  // ✅ Initial load - only once
   useEffect(() => {
-    const fetchData = async () => {
-      await listPayments(1, 1000); // get all payments
-      await listContracts(1, 8); // get all contracts
-    };
-    fetchData();
-  }, [listPayments, listContracts]);
+    fetchInitialData();
+  }, []); // Empty dependency array = only on mount
 
-  // Refresh payments when page becomes visible or focused (user navigates back)
+  // ✅ Filter-based refetch - when filters change
+  useEffect(() => {
+    const statusFilter = selectedContractStatus.length > 0 && !selectedContractStatus.includes("All") 
+      ? selectedContractStatus[0] 
+      : undefined;
+    
+    listContracts(currentPage, ITEMS_PER_PAGE, searchQuery || undefined, statusFilter)
+      .then((response) => {
+        setTotalContracts(response.total);
+        setTotalPages(response.totalPages);
+      })
+      .catch(err => {
+        console.error("Failed to fetch filtered contracts:", err);
+        toast.error("Failed to fetch contracts.");
+      });
+  }, [currentPage, searchQuery, selectedContractStatus, listContracts]);
+
+  // ✅ Visibility change - lighter refresh
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        listPayments(1, 1000);
+        // Only refresh stats and payments, not contracts (prevents double loading)
+        Promise.all([
+          listPayments(1, 1000),
+          getCompanyPaymentStats().then(setCompanyStats)
+        ]).catch(console.error);
       }
-    };
-
-    const handleFocus = () => {
-      listPayments(1, 1000);
     };
 
     if (typeof window !== 'undefined') {
       document.addEventListener('visibilitychange', handleVisibilityChange);
-      window.addEventListener('focus', handleFocus);
-
-      return () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        window.removeEventListener('focus', handleFocus);
-      };
+      return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }
-  }, [listPayments]);
+  }, [listPayments, getCompanyPaymentStats]);
 
+  // Filter contracts client-side for display
+  const filteredContracts = useMemo(() => {
+    return contracts.filter(contract => {
+      const searchMatch =
+        !searchQuery.trim() ||
+        contract.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        contract.contractTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        contract.inContractNumber.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const contractMatch =
+        selectedContractStatus.length === 0 ||
+        selectedContractStatus.includes("All") ||
+        selectedContractStatus.includes(contract.status as "Running" | "Completed"| "Disputed");
+
+      return searchMatch && contractMatch;
+    });
+  }, [contracts, searchQuery, selectedContractStatus]);
+
+  const paginatedContracts = filteredContracts;
+
+  // Pagination handlers
+  const goToPage = useCallback((page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  }, [totalPages]);
+
+  const goToPrevious = () => {
+    if (currentPage > 1) setCurrentPage(prev => prev - 1);
+  };
+
+  const goToNext = () => {
+    if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+  };
+
+  const VISIBLE_PAGES = 5;
+  const startPage = Math.max(1, Math.min(currentPage, totalPages - VISIBLE_PAGES + 1));
+  const endPage = Math.min(totalPages, startPage + VISIBLE_PAGES - 1);
+  const visiblePages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+
+  // Format stats values
   const formatValue = (val: number, suffix?: string) =>
-    listLoading ? (
+    statsLoading ? (
       <SyncLoader size={8} color="#D4AF37" />
     ) : (
       <span style={{ color: val === 0 ? "gray" : "inherit" }}>
@@ -169,125 +182,120 @@ export default function PaymentPage() {
       </span>
     );
 
-  // Compute totals dynamically
+  // ✅ Enhanced stats using both payment stats AND contract stats
   const stats = useMemo(() => {
-    const totalPaid = payments
-      .filter(p => p.paymentStatus === "Paid")
-      .reduce((sum, p) => sum + parseFloat(p.monthlyAllowance || "0"), 0);
-
-    const pendingPayment = payments
-      .filter(p => p.paymentStatus === "Pending")
-      .reduce((sum, p) => sum + parseFloat(p.monthlyAllowance || "0"), 0);
-
-    const due = payments
-      .filter(p => p.paymentStatus === "Due")
-      .reduce((sum, p) => sum + parseFloat(p.monthlyAllowance || "0"), 0);
-
-    const hold = payments.filter(p => p.paymentStatus === "Hold").length;
+    const totalPaid = companyStats?.totalPaid.amount || 0;
+    const pendingPayment = companyStats?.pending.amount || 0;
+    const due = companyStats?.due.amount || 0;
+    const totalPaidCount = companyStats?.totalPaid.count || 0;
+    const pendingCount = companyStats?.pending.count || 0;
+    const dueCount = companyStats?.due.count || 0;
+    const totalContractsCount = contractStatsData.total;
 
     return [
       {
         title: "Total Paid",
         value: formatValue(totalPaid, "USD"),
-        subtitle: listLoading
-          ? "Loading..."
-          : `${payments.filter(p => p.paymentStatus === "Paid").length}+ this week`,
-        icon: <Sparkles className="w-5 h-5" />,
-        iconColor: "#F59E0B",
+        subtitle: statsLoading ? "Loading..." : `${totalPaidCount} payments`,
+        icon: <DollarSign className="w-5 h-5 " />,
+        iconColor: "#10B981",
       },
       {
         title: "Pending Payment",
         value: formatValue(pendingPayment, "USD"),
-        subtitle: listLoading
-          ? "Loading..."
-          : `${payments.filter(p => p.paymentStatus === "Pending").length}% growth`,
+        subtitle: statsLoading ? "Loading..." : `${pendingCount} pending`,
         icon: <Clock className="w-5 h-5" />,
         iconColor: "#3B82F6",
       },
       {
         title: "Due",
         value: formatValue(due, "USD"),
-        subtitle: listLoading
-          ? "Loading..."
-          : `${payments.filter(p => p.paymentStatus === "Due").length}% growth`,
+        subtitle: statsLoading ? "Loading..." : `${dueCount} due`,
         icon: <AlertTriangle className="w-5 h-5" />,
         iconColor: "#EF4444",
       },
       {
-        title: "Hold",
-        value: formatValue(hold, "USD"),
-        subtitle: listLoading
-          ? "Loading..."
-          : `${hold} this week`,
-        icon: <Pause className="w-5 h-5" />,
-        iconColor: "#8B5CF6",
+        title: "Total Contracts", // ✅ NEW - using contract stats
+        value: formatValue(totalContractsCount, ""),
+        subtitle: statsLoading ? "Loading..." : `${contractStatsData.running} running, ${contractStatsData.completed} completed`,
+        icon: <FileIcon className="w-5 h-5" />,
+        iconColor: "#F59E0B",
       },
     ];
-  }, [payments, listLoading]);
+  }, [companyStats, contractStatsData, statsLoading]);
 
-const contractColumns = [
-  {
-    header: "Name",
-    cell: (row: any) => (
-      <div className="font-medium">{row.name}</div>
-    ),
-  },
-  {
-    header: "Contract",
-    cell: (row: any) => (
-      <div className="text-sm">{row.contractTitle}</div>
-    ),
-  },
-  {
-    header: "Salary",
-    cell: (row: any) => (
-      <div>
-        {row.salary ? `${row.salary} ${row.currency}` : "N/A"}
-      </div>
-    ),
-  },
-  {
-    header: "Transfer ID",
-    cell: (row: any) => row.inContractNumber,
-  },
-  {
-    header: "Note",
-    cell: (row: any) => (
-      <div className="max-w-[200px] truncate">
-        {row.note || "N/A"}
-      </div>
-    ),
-  },
-  {
-    header: "Status",
-    cell: (row: any) => (
-      <Badge
-        className={`
-          text-[12px]
-          ${
-            row.status === "Running" &&
-            "bg-[#D3FCD2] text-[#22C55E]"
-          }
-          ${
-            row.status === "Completed" &&
-            "bg-[#E0E0E0] text-[#666666]"
-          }
-          ${
-            row.status === "Disputed" &&
-            "bg-[#FFE2E2] text-[#DC2626]"
-          }
-        `}
-      >
-        {row.status}
-      </Badge>
-    ),
-  },
-];
-return (
-  <DashboardLayout>
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-      {/* Page Title */}
-       {/* HEADER SECTION */}
+  const statusConfig: Record<string, string> = {
+    Running:
+      "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200/50",
+    Completed:
+      "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200/50",
+    Disputed:
+      "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200/50",
+  };
+
+  // Contract table columns
+  const contractColumns = [
+    {
+      header: "Applicant Name",
+      cell: (row: any) => <div className="font-medium">{row.name}</div>,
+    },
+    {
+      header: "Contract Title",
+      cell: (row: any) => <div className="text-sm">{row.contractTitle}</div>,
+    },
+    {
+      header: "Salary",
+      cell: (row: any) => (
+        <div>{row.salary ? `${row.salary} ${row.currency}` : "N/A"}</div>
+      ),
+    },
+    {
+      header: "Transfer ID",
+      cell: (row: any) => row.inContractNumber,
+    },
+    {
+      header: "Note",
+      cell: (row: any) => (
+        <div className="max-w-[200px] truncate">{row.note || "N/A"}</div>
+      ),
+    },
+    {
+      header: "Status",
+      cell: (row: any) => (
+        <Badge
+          className={cn(
+            "text-[12px] px-2.5 py-0.5 rounded-full font-medium border",
+            statusConfig[row.status]
+          )}
+        >
+          {row.status}
+        </Badge>
+      ),
+    },
+  ];
+
+  // Click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Combined loading and error states
+  const isLoading = listLoading || statsLoading || contractsStatsLoading;
+  const hasError = contractError || paymentError;
+
+  return (
+    <DashboardLayout>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+        {/* Header */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
           <div>
             <motion.h1
@@ -305,145 +313,153 @@ return (
               />
             </motion.h1>
             <p className="text-muted-foreground mt-1">
-              Manage and track your paymnets.
+              Manage and track your payments.
             </p>
           </div>
-
         </header>
-      
-        {/* STATS */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {listLoading
-              ? Array.from({ length: 4 }).map((_, i) => (
-                <StatsCardSkeleton key={i} />
-                ))
-              : stats.map((stat, i) => (
-                  <motion.div
-                    key={stat.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                  >
-                    <StatsCard
-                      title={stat.title}
-                      value={stat.value}
-                      subtitle={stat.subtitle}
-                      icon={stat.icon}
-                      iconColor={stat.iconColor}
-                    />
-                  </motion.div>
-                ))}
-          </section>
 
-      {/* Main Column */}
-      <div className="flex flex-col gap-6">
-        <SearchAndFilterAndViewBar
-          searchQuery={searchQuery}
-          setSearchQuery={(value) => {
-            setSearchQuery(value);
-            setCurrentPage(1);
-          }}
-          viewMode={showApplicants ? "grid" : "list"}
-          setViewMode={(mode: "grid" | "list") => setShowApplicants(mode === "grid")}
-          selectedStatuses={selectedContractStatus}
-          toggleStatus={(status) => {
-            if (status === "All") {
-              setSelectedContractStatus(["Running", "Completed", "All"]);
-            } else {
-              setSelectedContractStatus((prev) =>
-                prev.includes(status)
-                  ? prev.filter((s) => s !== status && s !== "All")
-                  : [...prev.filter((s) => s !== "All"), status]
-              );
-            }
-          }}
-          availableStatuses={CONTRACT_STATUSES}
-          placeholder="Search payments..."
-          filterLabel="Contract Status"
-        />
+        {/* Stats Cards */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, i) => <StatsCardSkeleton key={i} />)
+            : stats.map((stat, i) => (
+                <motion.div
+                  key={stat.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <StatsCard
+                    title={stat.title}
+                    value={stat.value}
+                    subtitle={stat.subtitle}
+                    icon={stat.icon}
+                    iconColor={stat.iconColor}
+                  />
+                </motion.div>
+              ))}
+        </section>
 
-      {/* Loading State */}
-      {listLoading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4  ">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <PaymentCardSkeleton key={i} />
-          ))}
-        </div>
-      )}
-
-      {/* Error State */}
-      {!listLoading && error && (
-          <ErrorState
-            icon={<DollarSign size={40} className="text-red-500" />}
-            title="Failed to load paymnets"
-            description={error || "Something went wrong. Please try again."}
-          />
-      )}
-
-      {/* Empty State */}
-      {!listLoading && !error && paginatedContracts.length === 0 && (
-          <EmptyState
-            icon={<DollarSign size={40} />}
-            title="No paymnets found"
-            description="Create your first paymnets to get started"
-          />
-      )}
-
-      {/* Contracts Grid */}
-      {!listLoading &&  !error &&  paginatedContracts.length > 0 && showApplicants && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4  ">
-          {paginatedContracts.map((contract) => (
-            <PaymnetCard
-              key={contract.id}
-              contract={{
-                id: contract.id,
-                name: contract.name,
-                contractTitle: contract.contractTitle,
-                salary: contract.salary || null,
-                createdAt: contract.createdAt,
-                currency: contract.currency,
-                status: contract.status,
-                studentImage: (contract as any).student?.image,
-              }}
-              onClick={() =>
-                router.push(`/Company/payment/${contract.id}`)
-              }
-            />
-          ))}
-        </div>
-      )}
-
-         {/* Contracts Table */}
-        {!listLoading && !error && paginatedContracts.length > 0 && !showApplicants && (
-          <DataTable
-            data={paginatedContracts}
-            columns={contractColumns}
-            getId={(row) => row.id}
-            actions={{
-              type: "button",
-              label: "View Payment",
-              onClick: (contract) => {
-                router.push(`/Company/payment/${contract.id}`);
-              },
+        {/* Main Content */}
+        <div className="flex flex-col gap-6">
+          <SearchAndFilterAndViewBar
+            searchQuery={searchQuery}
+            setSearchQuery={(value) => {
+              setSearchQuery(value);
+              setCurrentPage(1);
             }}
+            viewMode={showApplicants ? "grid" : "list"}
+            setViewMode={(mode: "grid" | "list") => setShowApplicants(mode === "grid")}
+            selectedStatuses={selectedContractStatus}
+            toggleStatus={(status) => {
+              if (status === "All") {
+                setSelectedContractStatus(["All"]); // ✅ FIXED: Just "All"
+              } else {
+                setSelectedContractStatus((prev) => {
+                  // Remove "All" first
+                  const filtered = prev.filter((s) => s !== "All");
+                  
+                  if (filtered.includes(status)) {
+                    // Remove status
+                    const next = filtered.filter((s) => s !== status);
+                    return next.length === 0 ? ["All"] : next;
+                  } else {
+                    // Add status
+                    return [...filtered, status];
+                  }
+                });
+              }
+              setCurrentPage(1); // ✅ Reset page
+            }}
+            availableStatuses={CONTRACT_STATUSES}
+            placeholder="Search payments..."
+            filterLabel="Contract Status"
           />
-        )}
 
+          {/* Loading State */}
+          {isLoading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <PaymentCardSkeleton key={i} />
+              ))}
+            </div>
+          )}
+
+          {/* Error State */}
+          {!isLoading && hasError && (
+            <ErrorState
+              icon={<DollarSign size={40} className="text-red-500" />}
+              title="Failed to load payments"
+              description={hasError || "Something went wrong. Please try again."}
+            />
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !hasError && paginatedContracts.length === 0 && (
+            <EmptyState
+              icon={<DollarSign size={40} />}
+              title="No payments found"
+              description="Create your first payments to get started"
+            />
+          )}
+
+          {/* Grid View */}
+          {!isLoading && !hasError && paginatedContracts.length > 0 && showApplicants && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {paginatedContracts.map((contract) => (
+              <PaymentCard
+                key={contract.id}
+                contract={{
+                  id: contract.id,
+                  name: contract.name,
+                  contractTitle: contract.contractTitle,
+                  salary: contract.salary || null,
+                  createdAt: contract.createdAt,
+                  currency: contract.currency,
+                  status: contract.status,
+                  duration: contract.duration,             // ✅ NEW
+                  note: contract.note,                     // ✅ NEW
+                  workProgress: contract.workProgress,     // ✅ NEW
+                  companyId: contract.companyId, 
+                  createdDate: contract.createdDate,       // ✅ NEW
+                  studentImage: contract.student?.image,   // ✅ CLEANED UP
+                  student: contract.student,               // ✅ FULL STUDENT OBJECT
+                }}
+                onClick={() => router.push(`/Company/payment/${contract.id}`)}
+              />
+              ))}
+            </div>
+          )}
+
+          {/* Table View */}
+          {!isLoading && !hasError && paginatedContracts.length > 0 && !showApplicants && (
+            <DataTable
+              data={paginatedContracts}
+              columns={contractColumns}
+              getId={(row) => row.id}
+              actions={{
+                type: "button",
+                label: "View Payment",
+                onClick: (contract: any) => router.push(`/Company/payment/${contract.id}`),
+              }}
+            />
+          )}
+        </div>
       </div>
-    </div>
 
-    {/* Pagination */}
-    <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      visiblePages={visiblePages}
-      loading={listLoading}
-      error={error}
-      onPageChange={goToPage}
-      onPrevious={goToPrevious}
-      onNext={goToNext}
-    />
-   
-  </DashboardLayout>
-);
+      {/* Pagination */}
+      {!isLoading && totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          visiblePages={visiblePages}
+          loading={false}
+          error={null}
+          onPageChange={goToPage}
+          onPrevious={goToPrevious}
+          onNext={goToNext}
+        />
+      )}
+    </DashboardLayout>
+  );
 }

@@ -289,15 +289,22 @@ return (
           viewMode={showApplicants ? "list" : "grid"}
           setViewMode={(mode) => setShowApplicants(mode === "grid")}
           selectedStatuses={selectedContractStatus}
-          toggleStatus={(status) => {
-            setSelectedContractStatus((prev) =>
-              prev.includes(status)
-                ? prev.filter((s) => s !== status)
-                : [...prev, status]
-            );
+          toggleStatus={(status: string) => { // ✅ Use string instead
+            if (status === "All") {
+              setSelectedContractStatus(["All"] as any); // ✅ Type assertion
+            } else {
+              setSelectedContractStatus((prev: any[]) => {
+                const filtered = prev.filter((s) => s !== "All");
+                if (filtered.includes(status)) {
+                  const next = filtered.filter((s) => s !== status);
+                  return next.length === 0 ? ["All"] : next;
+                }
+                return [...filtered, status];
+              });
+            }
             setCurrentPage(1);
           }}
-          availableStatuses={CONTRACT_STATUSES}
+          availableStatuses={CONTRACT_STATUSES} // ✅ Cast array
           placeholder="Search contracts..."
           filterLabel="Contract Status"
         />

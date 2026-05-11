@@ -27,13 +27,13 @@ interface Payment {
   applicantName: string;
   contractId?: string;
   nextPayment: string;
-  monthlyAllowance?: string;
+  amount?: number;
+  currency?: string;
+  amountUsd?: number;
   note?: string;
   paymentStatus: string;
   applicantId?: string | null;
   transferId?: string | null;
-  workLocation?: string | null;
-  method?: string | null;
   companyId: string;
   createdAt: string;
   updatedAt: string;
@@ -199,10 +199,10 @@ export default function ApplicantPage() {
       contractId: payment.contractId || "",
       transferId: payment.transferId || "",
       nextPayment: payment.nextPayment || "",
-      monthlyAllowance: payment.monthlyAllowance || "",
-      method: payment.method || "",
+      amount: payment.amount ?? null,
+      currency: payment.currency || "USD",
+      amountUsd: payment.amountUsd ?? null,
       note: payment.note || "",
-      workLocation: payment.workLocation || "",
       paymentStatus: payment.paymentStatus || "Pending"
     }));
   }, [payments]);
@@ -216,9 +216,9 @@ export default function ApplicantPage() {
         (payment.applicantName && payment.applicantName.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (payment.contractId && payment.contractId.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (payment.transferId && payment.transferId.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (payment.method && payment.method.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (payment.workLocation && payment.workLocation.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (payment.monthlyAllowance && payment.monthlyAllowance.toString().toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (payment.amount !== null && payment.amount !== undefined && String(payment.amount).includes(searchQuery.toLowerCase())) ||
+        (payment.currency && payment.currency.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (payment.amountUsd !== null && payment.amountUsd !== undefined && String(payment.amountUsd).includes(searchQuery.toLowerCase())) ||
         (payment.note && payment.note.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (payment.paymentStatus && payment.paymentStatus.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (payment.nextPayment && payment.nextPayment.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -272,7 +272,7 @@ export default function ApplicantPage() {
       const formatted = `${amount.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      })} ${contract?.currency || "SAR"}`;
+      })} USD`;
 
       return (
         <span style={{ color: amount === 0 ? "gray" : "inherit" }}>

@@ -233,37 +233,32 @@ export default function ContractListPage() {
 
             const [selectedStatuses, setSelectedStatuses] = useState<StatusFilter[]>(["All"]);
 
-      const toggleStatus = (status: StatusFilter) => {
-        // ✅ CLICK "ALL" → select everything
-        if (status === "All") {
-          setSelectedStatuses((prev) =>
-            prev.length === OPPORTUNITY_STATUSES.length
-              ? ["All"] // already full → keep All
-              : OPPORTUNITY_STATUSES // select everything
-          );
-          setCurrentPage(1);
-          return;
-        }
+            const toggleStatus = (status: StatusFilter) => {
+              if (status === "All") {
+                setSelectedStatuses(["All"]); // ✅ FIXED: Always set to ["All"] only
+                setCurrentPage(1);
+                return;
+              }
 
-        setSelectedStatuses((prev) => {
-          const withoutAll = prev.filter((s) => s !== "All");
+              setSelectedStatuses((prev) => {
+                const withoutAll = prev.filter((s) => s !== "All");
 
-          let updated: StatusFilter[];
+                let updated: StatusFilter[];
 
-          if (withoutAll.includes(status)) {
-            updated = withoutAll.filter((s) => s !== status);
-          } else {
-            updated = [...withoutAll, status];
-          }
+                if (withoutAll.includes(status)) {
+                  updated = withoutAll.filter((s) => s !== status);
+                } else {
+                  updated = [...withoutAll, status];
+                }
 
-          // ✅ if nothing selected → fallback to ALL
-          if (updated.length === 0) return ["All"];
+                // ✅ If nothing selected → fallback to "All"
+                if (updated.length === 0) return ["All"];
 
-          return updated;
-        });
+                return updated;
+              });
 
-        setCurrentPage(1);
-      };
+              setCurrentPage(1);
+            };
 
             const [showApplicants, setShowApplicants] = useState(true);
             const router = useRouter();

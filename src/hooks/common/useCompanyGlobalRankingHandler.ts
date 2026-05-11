@@ -6,6 +6,7 @@ export interface RankingCompanySummary {
   name: string
   industry: string | null
   website: string | null
+  email: string | null
   logo: string | null
   status: string | null
   progress: number
