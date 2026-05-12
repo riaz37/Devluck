@@ -9,6 +9,8 @@ interface User {
   id: string
   email: string
   role: "STUDENT" | "COMPANY"
+  name: string | null
+  image: string | null
 }
 
 interface AuthResponse {

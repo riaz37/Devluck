@@ -24,6 +24,18 @@ export interface RankingCompanySummary {
   }>
 }
 
+type RankingCompanyApi = RankingCompanySummary & {
+  user?: { email?: string | null } | null
+}
+
+const mapRankingCompany = (company: RankingCompanyApi): RankingCompanySummary => {
+  const { user, ...rest } = company
+  return {
+    ...rest,
+    email: rest.email ?? user?.email ?? null
+  }
+}
+
 export interface CompanyGlobalRanking {
   companyId: string
   finalScore: number
@@ -100,12 +112,16 @@ export const useCompanyGlobalRankingHandler = (): UseCompanyGlobalRankingHandler
         })
 
         const data = response.data.data
-        setRankings(data.items)
+        const items = data.items.map((item) => ({
+          ...item,
+          company: mapRankingCompany(item.company as RankingCompanyApi)
+        }))
+        setRankings(items)
         setTotal(data.total)
         setPage(data.page)
         setPageSize(data.pageSize)
         setTotalPages(data.totalPages)
-        return data
+        return { ...data, items }
       } catch (err: any) {
         const message = err.response?.data?.message || err.message || "Failed to fetch company rankings"
         setError(message)
@@ -124,7 +140,11 @@ export const useCompanyGlobalRankingHandler = (): UseCompanyGlobalRankingHandler
 
     try {
       const response = await api.get<ApiEnvelope<CompanyGlobalRanking>>(`/api/rankings/companies/${companyId}`)
-      const data = response.data.data
+      const raw = response.data.data
+      const data: CompanyGlobalRanking = {
+        ...raw,
+        company: mapRankingCompany(raw.company as RankingCompanyApi)
+      }
       setRanking(data)
       return data
     } catch (err: any) {

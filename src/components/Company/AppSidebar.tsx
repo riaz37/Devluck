@@ -151,7 +151,10 @@ function UserFooter() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8">
-                <AvatarImage src="" alt={name} />
+                <AvatarImage 
+                  src={user.image || undefined} 
+                  alt={name} 
+                />
                 <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground">
                   {initials}
                 </AvatarFallback>

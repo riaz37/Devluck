@@ -23,6 +23,8 @@ export interface DecodedUser {
   id: string
   email: string
   role: "STUDENT" | "COMPANY"
+  name: string | null
+  image: string | null
 }
 
 export const decodeToken = (token: string): DecodedUser | null => {
@@ -33,6 +35,8 @@ export const decodeToken = (token: string): DecodedUser | null => {
       id: payload.id,
       email: payload.email,
       role: payload.role,
+      name: payload.name ?? null,
+      image: payload.image ?? null
     }
   } catch (err) {
     console.error("Invalid token:", err)
